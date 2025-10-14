@@ -7,7 +7,7 @@ import com.vaadin.flow.data.provider.DataProvider;
 import ru.keich.mon.automation.schedule.Schedule;
 import ru.keich.mon.automation.schedule.ScheduleService;
 import ru.keich.mon.automation.script.ScriptService;
-import ru.keich.mon.automation.ui.ScriptsUI.ScriptDataProvider;
+import ru.keich.mon.automation.script.ui.ScriptDataProvider;
 
 public class ScheduleEdit extends Div {
 

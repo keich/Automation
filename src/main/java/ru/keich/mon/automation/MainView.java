@@ -13,14 +13,13 @@ import com.vaadin.flow.router.RouteAlias;
 
 import jakarta.annotation.security.PermitAll;
 import lombok.extern.java.Log;
-import ru.keich.mon.automation.actor.Actor;
 import ru.keich.mon.automation.actor.ActorService;
 import ru.keich.mon.automation.datasource.DataSource;
 import ru.keich.mon.automation.datasource.DataSourceService;
 import ru.keich.mon.automation.schedule.ScheduleService;
 import ru.keich.mon.automation.schedule.ui.ScheduleEdit;
 import ru.keich.mon.automation.script.ScriptService;
-import ru.keich.mon.automation.ui.ScriptsUI.ScriptsEdit;
+import ru.keich.mon.automation.script.ui.ScriptsEdit;
 import ru.keich.mon.automation.ui.simpleEdit.SimpleEdit;
 
 @PermitAll

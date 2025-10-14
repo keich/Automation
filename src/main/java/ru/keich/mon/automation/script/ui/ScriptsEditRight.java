@@ -1,4 +1,4 @@
-package ru.keich.mon.automation.ui.ScriptsUI;
+package ru.keich.mon.automation.script.ui;
 
 import java.util.LinkedList;
 import java.util.function.BiConsumer;

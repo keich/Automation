@@ -93,7 +93,14 @@ public class ScriptService {
 		return context;
 	}
 
-	public Value run(Script script, Consumer<Line> callBack) {
+	public void run(String name) {
+		scriptRepository.findById(name)
+				.ifPresent(script -> {
+					run(script, l -> {});
+				});
+	}
+	
+	public void run(Script script, Consumer<Line> callBack) {
 		var logm = new LogManager(callBack);
 		try {
 			var context = cretaeContext(logm);
@@ -108,7 +115,6 @@ public class ScriptService {
 			logm.severe(e.getMessage());
 			// e.printStackTrace();
 		}
-		return null;
 	}
 
 	private Map<String, Object> runHierarchical(LogManager logm, Script script, Context context, Set<String> history) {

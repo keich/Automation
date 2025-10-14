@@ -17,6 +17,8 @@ import ru.keich.mon.automation.actor.Actor;
 import ru.keich.mon.automation.actor.ActorService;
 import ru.keich.mon.automation.datasource.DataSource;
 import ru.keich.mon.automation.datasource.DataSourceService;
+import ru.keich.mon.automation.schedule.ScheduleService;
+import ru.keich.mon.automation.schedule.ui.ScheduleEdit;
 import ru.keich.mon.automation.script.ScriptService;
 import ru.keich.mon.automation.ui.ScriptsUI.ScriptsEdit;
 import ru.keich.mon.automation.ui.simpleEdit.SimpleEdit;
@@ -24,7 +26,7 @@ import ru.keich.mon.automation.ui.simpleEdit.SimpleEdit;
 @PermitAll
 @Route
 @RouteAlias("/datasource")
-@RouteAlias("/services")
+@RouteAlias("/schedule")
 @RouteAlias("/scripts")
 @Log
 public class MainView extends AppLayout implements BeforeEnterObserver {
@@ -32,26 +34,25 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 	private static final long serialVersionUID = 1237287395694809506L;
 
 	public static final String TAB_DATASOURCE_NAME = "DataSources";
-	public static final String TAB_SERVICES_NAME = "Services";
+	public static final String TAB_SCHEDULE_NAME = "Schedule";
 	public static final String TAB_SCRIPTS_NAME = "Scripts";
 
 	public static final String TAB_DATASOURCE_PATH = "datasource";
-	public static final String TAB_SERVICES_PATH = "services";
+	public static final String TAB_SCHEDULE_PATH = "schedule";
 	public static final String TAB_SCRIPTS_PATH = "scripts";
 
 	private SimpleEdit<DataSource> dataSourceView;
-	private SimpleEdit<Actor> servicesView;
+	//private SimpleEdit<Actor> servicesView;
+	private ScheduleEdit scheduleEdit;
 	private ScriptsEdit scriptsView;
 
-	public MainView(DataSourceService dataSourceService, ActorService actorService, ScriptService scriptService) {
+	public MainView(DataSourceService dataSourceService, ActorService actorService, ScriptService scriptService, ScheduleService scheduleService) {
 		super();
 		dataSourceView = new SimpleEdit<DataSource>(dataSourceService, DataSource.class);
 
 		dataSourceView.addColumn(DataSource::getName);
-
-		servicesView = new SimpleEdit<Actor>(actorService, Actor.class);
-
-		servicesView.addColumn(Actor::getName);
+		
+		scheduleEdit = new ScheduleEdit(scheduleService, scriptService);
 
 		scriptsView = new ScriptsEdit(scriptService);
 
@@ -66,7 +67,7 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 	private SideNav getSideNav() {
 		SideNav sideNav = new SideNav();
 		sideNav.addItem(new SideNavItem(TAB_DATASOURCE_NAME, TAB_DATASOURCE_PATH, VaadinIcon.DATABASE.create()),
-				new SideNavItem(TAB_SERVICES_NAME, TAB_SERVICES_PATH, VaadinIcon.FILE_PROCESS.create()),
+				new SideNavItem(TAB_SCHEDULE_NAME, TAB_SCHEDULE_PATH, VaadinIcon.TIMER.create()),
 				new SideNavItem(TAB_SCRIPTS_NAME, TAB_SCRIPTS_PATH, VaadinIcon.FILE_CODE.create()));
 		return sideNav;
 	}
@@ -77,8 +78,8 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 		case TAB_DATASOURCE_PATH:
 			this.setContent(dataSourceView);
 			break;
-		case TAB_SERVICES_PATH:
-			this.setContent(servicesView);
+		case TAB_SCHEDULE_PATH:
+			this.setContent(scheduleEdit);
 			break;
 		case TAB_SCRIPTS_PATH:
 			this.setContent(scriptsView);

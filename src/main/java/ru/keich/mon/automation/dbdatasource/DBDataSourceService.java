@@ -13,11 +13,10 @@ import com.vaadin.flow.data.provider.Query;
 import com.zaxxer.hikari.HikariDataSource;
 
 import lombok.extern.java.Log;
-import ru.keich.mon.automation.ui.simpleEdit.SimpleEditService;
 
 @Service
 @Log
-public class DBDataSourceService implements SimpleEditService<DBDataSource> {
+public class DBDataSourceService {
 
 	private final DBDataSourceRepository dataSourceRepository;
 
@@ -27,23 +26,19 @@ public class DBDataSourceService implements SimpleEditService<DBDataSource> {
 		super();
 		this.dataSourceRepository = dataSourceRepository;
 	}
-
-	@Override
+	
 	public Stream<DBDataSource> getAll(Query<DBDataSource, Void> q) {
 		return dataSourceRepository.findAll().stream().skip(q.getOffset()).limit(q.getLimit());
 	}
-
-	@Override
+	
 	public int getCount(Query<DBDataSource, Void> q) {
 		return Math.toIntExact(dataSourceRepository.findAll().stream().skip(q.getOffset()).limit(q.getLimit()).count());
 	}
-
-	@Override
+	
 	public void save(DBDataSource dataSource) {
 		dataSourceRepository.save(dataSource);
 	}
-
-	@Override
+	
 	public void delete(DBDataSource dataSource) {
 		dataSourceRepository.delete(dataSource);
 	}

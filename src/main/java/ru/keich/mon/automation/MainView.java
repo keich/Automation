@@ -14,17 +14,16 @@ import com.vaadin.flow.router.RouteAlias;
 import jakarta.annotation.security.PermitAll;
 import lombok.extern.java.Log;
 import ru.keich.mon.automation.actor.ActorService;
-import ru.keich.mon.automation.dbdatasource.DBDataSource;
 import ru.keich.mon.automation.dbdatasource.DBDataSourceService;
+import ru.keich.mon.automation.dbdatasource.ui.DBDataSourceEdit;
 import ru.keich.mon.automation.schedule.ScheduleService;
 import ru.keich.mon.automation.schedule.ui.ScheduleEdit;
 import ru.keich.mon.automation.script.ScriptService;
 import ru.keich.mon.automation.script.ui.ScriptsEdit;
-import ru.keich.mon.automation.ui.simpleEdit.SimpleEdit;
 
 @PermitAll
 @Route
-@RouteAlias("/datasource")
+@RouteAlias("/dbdatasource")
 @RouteAlias("/schedule")
 @RouteAlias("/scripts")
 @Log
@@ -32,24 +31,21 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 
 	private static final long serialVersionUID = 1237287395694809506L;
 
-	public static final String TAB_DATASOURCE_NAME = "DataSources";
+	public static final String TAB_DATASOURCE_NAME = "DB DataSource";
 	public static final String TAB_SCHEDULE_NAME = "Schedule";
 	public static final String TAB_SCRIPTS_NAME = "Scripts";
 
-	public static final String TAB_DATASOURCE_PATH = "datasource";
+	public static final String TAB_DATASOURCE_PATH = "dbdatasource";
 	public static final String TAB_SCHEDULE_PATH = "schedule";
 	public static final String TAB_SCRIPTS_PATH = "scripts";
 
-	private SimpleEdit<DBDataSource> dataSourceView;
-	//private SimpleEdit<Actor> servicesView;
+	private DBDataSourceEdit dataSourceView;
 	private ScheduleEdit scheduleEdit;
 	private ScriptsEdit scriptsView;
 
 	public MainView(DBDataSourceService dataSourceService, ActorService actorService, ScriptService scriptService, ScheduleService scheduleService) {
 		super();
-		dataSourceView = new SimpleEdit<DBDataSource>(dataSourceService, DBDataSource.class);
-
-		dataSourceView.addColumn(DBDataSource::getName);
+		dataSourceView = new DBDataSourceEdit(dataSourceService);;
 		
 		scheduleEdit = new ScheduleEdit(scheduleService, scriptService);
 

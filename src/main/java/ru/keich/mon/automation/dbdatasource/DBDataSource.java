@@ -1,4 +1,4 @@
-package ru.keich.mon.automation.datasource;
+package ru.keich.mon.automation.dbdatasource;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -16,7 +16,7 @@ import ru.keich.mon.automation.ui.simpleEdit.SimpleEditRight.FormFieldBuiler;
 @Getter
 @Setter
 @NoArgsConstructor
-public class DataSource implements SimpleEditItem, Serializable {
+public class DBDataSource implements SimpleEditItem, Serializable {
 
 	private static final long serialVersionUID = 1403705980553230016L;
 
@@ -44,7 +44,7 @@ public class DataSource implements SimpleEditItem, Serializable {
 	@Id
 	private String name = "";
 
-	private DataSourceType type = DataSourceType.DB;
+	private DBDataSourceType type = DBDataSourceType.DB;
 
 	private String dbClass = "";
 
@@ -68,14 +68,14 @@ public class DataSource implements SimpleEditItem, Serializable {
 
 	@Override
 	public FormFieldBuiler getFormFields() {
-		return new FormFieldBuiler().addText(DB_NAME_ID, DataSourceType.DB.name(), NAME_FORM_NAME)
-				.addText(DB_CLASS_ID, DataSourceType.DB.name(), DB_CLASS_FORM_NAME)
-				.addText(DB_URL_ID, DataSourceType.DB.name(), DB_URL_FORM_NAME)
-				.addText(DB_LOGIN_ID, DataSourceType.DB.name(), DB_LOGIN_FORM_NAME)
-				.addPass(DB_PASS_ID, DataSourceType.DB.name(), DB_PASS_FORM_NAME)
-				.addText(REST_NAME_ID, DataSourceType.REST.name(), NAME_FORM_NAME)
-				.addText(REST_URLID, DataSourceType.REST.name(), REST_URL_FORM_NAME)
-				.addText(REST_AUTH_ID, DataSourceType.REST.name(), REST_AUTH_HEADER_FORM_NAME);
+		return new FormFieldBuiler().addText(DB_NAME_ID, DBDataSourceType.DB.name(), NAME_FORM_NAME)
+				.addText(DB_CLASS_ID, DBDataSourceType.DB.name(), DB_CLASS_FORM_NAME)
+				.addText(DB_URL_ID, DBDataSourceType.DB.name(), DB_URL_FORM_NAME)
+				.addText(DB_LOGIN_ID, DBDataSourceType.DB.name(), DB_LOGIN_FORM_NAME)
+				.addPass(DB_PASS_ID, DBDataSourceType.DB.name(), DB_PASS_FORM_NAME)
+				.addText(REST_NAME_ID, DBDataSourceType.REST.name(), NAME_FORM_NAME)
+				.addText(REST_URLID, DBDataSourceType.REST.name(), REST_URL_FORM_NAME)
+				.addText(REST_AUTH_ID, DBDataSourceType.REST.name(), REST_AUTH_HEADER_FORM_NAME);
 	}
 
 	@Override
@@ -96,7 +96,7 @@ public class DataSource implements SimpleEditItem, Serializable {
 	@Override
 	public void fromMap(String type, Map<String, String> data) {
 		if (type != null && !"".equals(type)) {
-			this.setType(DataSourceType.valueOf(type));
+			this.setType(DBDataSourceType.valueOf(type));
 		}
 		if (this.getType() != null) {
 			switch (this.getType()) {

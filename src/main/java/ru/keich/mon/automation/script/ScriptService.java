@@ -11,14 +11,13 @@ import java.util.stream.Stream;
 
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.HostAccess;
-import org.graalvm.polyglot.Value;
 import org.springframework.stereotype.Service;
 
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalQuery;
 
 import lombok.extern.java.Log;
-import ru.keich.mon.automation.datasource.DataSourceService;
+import ru.keich.mon.automation.dbdatasource.DBDataSourceService;
 import ru.keich.mon.automation.scripting.LogManager;
 import ru.keich.mon.automation.scripting.LogManager.Line;
 import ru.keich.mon.automation.scripting.Root;
@@ -34,9 +33,9 @@ public class ScriptService {
 	public static final String LOG_MSG_RUN_ERR = "Running with error: ";
 
 	private final ScriptRepository scriptRepository;
-	private final DataSourceService dataSourceService;
+	private final DBDataSourceService dataSourceService;
 
-	public ScriptService(ScriptRepository scriptRepository, DataSourceService dataSourceService) {
+	public ScriptService(ScriptRepository scriptRepository, DBDataSourceService dataSourceService) {
 		this.scriptRepository = scriptRepository;
 		this.dataSourceService = dataSourceService;
 	}

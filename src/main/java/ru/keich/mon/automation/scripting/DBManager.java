@@ -3,13 +3,14 @@ package ru.keich.mon.automation.scripting;
 import java.util.List;
 import java.util.Map;
 
-import ru.keich.mon.automation.datasource.DataSourceService;
+import ru.keich.mon.automation.dbdatasource.DBDataSourceService;
+
 
 public class DBManager {
 
-	private final DataSourceService dataSourceService;
+	private final DBDataSourceService dataSourceService;
 
-	public DBManager(DataSourceService dataSourceService) {
+	public DBManager(DBDataSourceService dataSourceService) {
 		this.dataSourceService = dataSourceService;
 	}
 

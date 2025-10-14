@@ -14,8 +14,8 @@ import com.vaadin.flow.router.RouteAlias;
 import jakarta.annotation.security.PermitAll;
 import lombok.extern.java.Log;
 import ru.keich.mon.automation.actor.ActorService;
-import ru.keich.mon.automation.datasource.DataSource;
-import ru.keich.mon.automation.datasource.DataSourceService;
+import ru.keich.mon.automation.dbdatasource.DBDataSource;
+import ru.keich.mon.automation.dbdatasource.DBDataSourceService;
 import ru.keich.mon.automation.schedule.ScheduleService;
 import ru.keich.mon.automation.schedule.ui.ScheduleEdit;
 import ru.keich.mon.automation.script.ScriptService;
@@ -40,16 +40,16 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 	public static final String TAB_SCHEDULE_PATH = "schedule";
 	public static final String TAB_SCRIPTS_PATH = "scripts";
 
-	private SimpleEdit<DataSource> dataSourceView;
+	private SimpleEdit<DBDataSource> dataSourceView;
 	//private SimpleEdit<Actor> servicesView;
 	private ScheduleEdit scheduleEdit;
 	private ScriptsEdit scriptsView;
 
-	public MainView(DataSourceService dataSourceService, ActorService actorService, ScriptService scriptService, ScheduleService scheduleService) {
+	public MainView(DBDataSourceService dataSourceService, ActorService actorService, ScriptService scriptService, ScheduleService scheduleService) {
 		super();
-		dataSourceView = new SimpleEdit<DataSource>(dataSourceService, DataSource.class);
+		dataSourceView = new SimpleEdit<DBDataSource>(dataSourceService, DBDataSource.class);
 
-		dataSourceView.addColumn(DataSource::getName);
+		dataSourceView.addColumn(DBDataSource::getName);
 		
 		scheduleEdit = new ScheduleEdit(scheduleService, scriptService);
 

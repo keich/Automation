@@ -1,4 +1,4 @@
-package ru.keich.mon.automation.datasource;
+package ru.keich.mon.automation.dbdatasource;
 
 import java.util.List;
 import java.util.Map;
@@ -17,42 +17,42 @@ import ru.keich.mon.automation.ui.simpleEdit.SimpleEditService;
 
 @Service
 @Log
-public class DataSourceService implements SimpleEditService<DataSource> {
+public class DBDataSourceService implements SimpleEditService<DBDataSource> {
 
-	private final DataSourceRepository dataSourceRepository;
+	private final DBDataSourceRepository dataSourceRepository;
 
 	private final Map<String, JdbcTemplate> jdbc = new ConcurrentHashMap<>();
 
-	public DataSourceService(DataSourceRepository dataSourceRepository) {
+	public DBDataSourceService(DBDataSourceRepository dataSourceRepository) {
 		super();
 		this.dataSourceRepository = dataSourceRepository;
 	}
 
 	@Override
-	public Stream<DataSource> getAll(Query<DataSource, Void> q) {
+	public Stream<DBDataSource> getAll(Query<DBDataSource, Void> q) {
 		return dataSourceRepository.findAll().stream().skip(q.getOffset()).limit(q.getLimit());
 	}
 
 	@Override
-	public int getCount(Query<DataSource, Void> q) {
+	public int getCount(Query<DBDataSource, Void> q) {
 		return Math.toIntExact(dataSourceRepository.findAll().stream().skip(q.getOffset()).limit(q.getLimit()).count());
 	}
 
 	@Override
-	public void save(DataSource dataSource) {
+	public void save(DBDataSource dataSource) {
 		dataSourceRepository.save(dataSource);
 	}
 
 	@Override
-	public void delete(DataSource dataSource) {
+	public void delete(DBDataSource dataSource) {
 		dataSourceRepository.delete(dataSource);
 	}
 
-	public Optional<DataSource> get(String id) {
+	public Optional<DBDataSource> get(String id) {
 		return dataSourceRepository.findById(id);
 	}
 
-	private JdbcTemplate getJdbcTemplate(DataSource conf) {
+	private JdbcTemplate getJdbcTemplate(DBDataSource conf) {
 		final HikariDataSource ds = new HikariDataSource();
 		ds.setMaximumPoolSize(100);
 		ds.setDriverClassName(conf.getDbClass());
@@ -80,7 +80,7 @@ public class DataSourceService implements SimpleEditService<DataSource> {
 	public List<Map<String, Object>> queryForList(String dataSourceName, String sql) {
 		var dataSource = getJdbcTemplate(dataSourceName);
 		if (dataSource == null) {
-			throw new DataSourceMissing();
+			throw new DBDataSourceMissing();
 		}
 		return dataSource.queryForList(sql);
 	}

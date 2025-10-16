@@ -1,16 +1,11 @@
 package ru.keich.mon.automation.script;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import org.graalvm.polyglot.Context;
-import org.graalvm.polyglot.HostAccess;
 import org.springframework.stereotype.Service;
 
 import com.vaadin.flow.data.provider.Query;
@@ -20,17 +15,10 @@ import lombok.extern.java.Log;
 import ru.keich.mon.automation.dbdatasource.DBDataSourceService;
 import ru.keich.mon.automation.scripting.LogManager;
 import ru.keich.mon.automation.scripting.LogManager.Line;
-import ru.keich.mon.automation.scripting.Root;
 
 @Service
 @Log
 public class ScriptService {
-
-	public static final String LANG_JS = "js";
-
-	public static final String LOG_MSG_HIERAR_CIRCLE = "Circle found";
-	public static final String LOG_MSG_RUN_OK = "Running with result: ";
-	public static final String LOG_MSG_RUN_ERR = "Running with error: ";
 
 	private final ScriptRepository scriptRepository;
 	private final DBDataSourceService dataSourceService;
@@ -82,16 +70,6 @@ public class ScriptService {
 		scriptRepository.delete(script);
 	}
 
-	private Context cretaeContext(LogManager logm) {
-		var context = Context.newBuilder(LANG_JS).allowHostAccess(HostAccess.ALL)
-				.allowHostClassLookup(className -> true).build();
-		var bindings = context.getBindings(LANG_JS);
-		Root.getMembers(logm, dataSourceService).entrySet().forEach(e -> {
-			bindings.putMember(e.getKey(), e.getValue());
-		});
-		return context;
-	}
-
 	public void run(String name) {
 		scriptRepository.findById(name)
 				.ifPresent(script -> {
@@ -101,47 +79,9 @@ public class ScriptService {
 	
 	public void run(Script script, Consumer<Line> callBack) {
 		var logm = new LogManager(callBack);
-		try {
-			var context = cretaeContext(logm);
-			var history = new HashSet<String>();
-			var result = runHierarchical(logm, script, context, history);
-			if (result.get(ScriptResult.KEY_RESULT) != null) {
-				logm.info(LOG_MSG_RUN_OK + result.get(ScriptResult.KEY_RESULT));
-			} else {
-				logm.severe(LOG_MSG_RUN_ERR + result.get(ScriptResult.KEY_ERR));
-			}
-		} catch (Exception e) {
-			logm.severe(e.getMessage());
-			// e.printStackTrace();
-		}
-	}
-
-	private Map<String, Object> runHierarchical(LogManager logm, Script script, Context context, Set<String> history) {
-		var scriptName = script.getName();
-		if (history.contains(scriptName)) {
-			throw new ScriptCycleException(LOG_MSG_HIERAR_CIRCLE);
-		}
-		var result = new HashMap<String, Map<String, Object>>();
-		history.add(scriptName);
-		var children = getChild(scriptName);
-		children.stream().forEach(child -> {
-			try {
-				result.put(child.getName(), runHierarchical(logm, child, context, history));
-			} catch (Exception e) {
-				result.put(child.getName(), ScriptResult.err(e.getMessage()));
-				logm.severe(e.getMessage());
-				// e.printStackTrace();
-			}
-		});
-		history.remove(scriptName);
-		try {
-			var func = context.eval(LANG_JS, script.getCode());
-			return ScriptResult.ok(func.execute(result));
-		} catch (Exception e) {
-			logm.severe(e.getMessage());
-			// e.printStackTrace();
-			return ScriptResult.err(e.getMessage());
-		}
+		var scriptContext = new ScriptContext(logm, dataSourceService, this);
+		var param = new HashMap<String, Object>();
+		scriptContext.run(script, param);
 	}
 
 }

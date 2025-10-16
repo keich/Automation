@@ -12,7 +12,11 @@ public interface ScriptRepository extends JpaRepository<Script, String> {
 	@Query("select s from Script s WHERE s.name <> s.parent AND s.parent = ?1")
 	public List<Script> findByParent(String parent);
 
-	@Query("select s from Script s WHERE s.name = s.parent OR s.parent is null")
+	@Query("""		
+			select s from Script s 
+			LEFT JOIN Script p ON p.name = s.parent
+			WHERE s.name = s.parent OR p.name is null
+			""")
 	public List<Script> findRoot();
 
 }

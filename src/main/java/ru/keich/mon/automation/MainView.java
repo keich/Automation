@@ -13,7 +13,6 @@ import com.vaadin.flow.router.RouteAlias;
 
 import jakarta.annotation.security.PermitAll;
 import lombok.extern.java.Log;
-import ru.keich.mon.automation.actor.ActorService;
 import ru.keich.mon.automation.dbdatasource.DBDataSourceService;
 import ru.keich.mon.automation.dbdatasource.ui.DBDataSourceEdit;
 import ru.keich.mon.automation.schedule.ScheduleService;
@@ -43,7 +42,7 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 	private ScheduleEdit scheduleEdit;
 	private ScriptsEdit scriptsView;
 
-	public MainView(DBDataSourceService dataSourceService, ActorService actorService, ScriptService scriptService, ScheduleService scheduleService) {
+	public MainView(DBDataSourceService dataSourceService, ScriptService scriptService, ScheduleService scheduleService) {
 		super();
 		dataSourceView = new DBDataSourceEdit(dataSourceService);;
 		

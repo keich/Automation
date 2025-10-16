@@ -1,8 +1,9 @@
 package ru.keich.mon.automation.script;
 
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Stack;
 
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.HostAccess;
@@ -30,7 +31,9 @@ public class ScriptContext {
 	private final LogManager logm;
 	private final String languare = LANG_JS;
 	private final Context context;
-	private final LinkedHashSet<String> stack = new LinkedHashSet<>();
+	
+	// TODO Use LinkedHashSet if java 21
+	private final Stack<String> stack = new Stack<>();
 
 	public ScriptContext(LogManager logm, DBDataSourceService dataSourceService, ScriptService scriptService) {
 		super();
@@ -64,14 +67,14 @@ public class ScriptContext {
 			return ScriptResult.err(LOG_MSG_HIERAR_CIRCLE);
 		}
 		Map<String, Object>  result;
-		stack.addLast(script.getName());
+		stack.add(script.getName());
 		try {
 			var func = context.eval(LANG_JS, script.getCode());
 			result = ScriptResult.ok(func.execute(param));
 		} catch (Exception e) {
 			result = ScriptResult.err(e.getMessage());
 		}
-		stack.removeLast();
+		stack.pop();
 		if (result.get(ScriptResult.KEY_RESULT) != null) {
 			logm.info(script.getName() + LOG_MSG_RUN_OK + result.get(ScriptResult.KEY_RESULT));
 		} else {
@@ -81,7 +84,7 @@ public class ScriptContext {
 	}
 	
 	public String getScriptName() {
-		return stack.getLast();
+		return stack.peek();
 	}
 	
 	public Map<String, Map<String, Object>> runChild(Object param) {

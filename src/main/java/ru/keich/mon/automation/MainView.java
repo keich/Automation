@@ -2,7 +2,9 @@ package ru.keich.mon.automation;
 
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
@@ -19,6 +21,7 @@ import ru.keich.mon.automation.schedule.ScheduleService;
 import ru.keich.mon.automation.schedule.ui.ScheduleEdit;
 import ru.keich.mon.automation.script.ScriptService;
 import ru.keich.mon.automation.script.ui.ScriptsEdit;
+import ru.keich.mon.automation.security.SecurityService;
 
 @PermitAll
 @Route
@@ -42,7 +45,8 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 	private ScheduleEdit scheduleEdit;
 	private ScriptsEdit scriptsView;
 
-	public MainView(DBDataSourceService dataSourceService, ScriptService scriptService, ScheduleService scheduleService) {
+	public MainView(SecurityService securityService, DBDataSourceService dataSourceService, ScriptService scriptService,
+			ScheduleService scheduleService) {
 		super();
 		dataSourceView = new DBDataSourceEdit(dataSourceService);;
 		
@@ -54,7 +58,16 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 		var scroller = new Scroller(getSideNav());
 
 		addToDrawer(scroller);
-		addToNavbar(toggle);
+
+		var header = new HorizontalLayout();
+		header.setWidthFull();
+
+		if (securityService.getAuthenticatedUser() != null) {
+			var logout = new Button("Logout", click -> securityService.logout());
+			header.addToEnd(logout);
+		}
+
+		addToNavbar(toggle, header);
 
 	}
 

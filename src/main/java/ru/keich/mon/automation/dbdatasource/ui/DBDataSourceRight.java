@@ -65,6 +65,7 @@ public class DBDataSourceRight extends VerticalLayout {
 		password = new PasswordField(FORM_PASS_TEXT, e -> {
 			validate();
 		});
+		password.setRevealButtonVisible(false);
 		
 		formLayout.add(name, dricerClass, jdbcURL, login, password);
 

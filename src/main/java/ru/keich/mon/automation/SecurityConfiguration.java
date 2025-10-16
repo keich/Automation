@@ -19,7 +19,10 @@ public class SecurityConfiguration {
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		// Configure your static resources with public access
 		http.authorizeHttpRequests(auth -> auth.requestMatchers("/public/**").permitAll());
-
+        http.csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"));
+        //this will allow frames with same origin which is much more safe
+        http.headers(headers -> headers.frameOptions( frame -> frame.sameOrigin()));
+		
 		// Configure Vaadin's security using VaadinSecurityConfigurer
 		http.with(VaadinSecurityConfigurer.vaadin(), configurer -> {
 			// This is important to register your login view to the

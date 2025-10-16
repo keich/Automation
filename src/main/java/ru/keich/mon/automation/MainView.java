@@ -41,14 +41,14 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 	public static final String TAB_SCHEDULE_PATH = "schedule";
 	public static final String TAB_SCRIPTS_PATH = "scripts";
 
-	private DBDataSourceEdit dataSourceView;
-	private ScheduleEdit scheduleEdit;
-	private ScriptsEdit scriptsView;
+	private final DBDataSourceEdit dataSourceView;
+	private final ScheduleEdit scheduleEdit;
+	private final ScriptsEdit scriptsView;
 
 	public MainView(SecurityService securityService, DBDataSourceService dataSourceService, ScriptService scriptService,
 			ScheduleService scheduleService) {
 		super();
-		dataSourceView = new DBDataSourceEdit(dataSourceService);;
+		dataSourceView = new DBDataSourceEdit(dataSourceService);
 		
 		scheduleEdit = new ScheduleEdit(scheduleService, scriptService);
 

@@ -14,7 +14,7 @@
 	<name>Automation </name>
 	<properties>
 		<java.version>17</java.version>
-		<vaadin.version>24.9.0</vaadin.version>
+		<vaadin.version>24.9.3</vaadin.version>
 		<graaljs.version>24.2.2</graaljs.version>
 	</properties>
 	<dependencies>

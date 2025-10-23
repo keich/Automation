@@ -52,7 +52,6 @@ public class DBDataSourceService {
 		ds.setMaximumPoolSize(100);
 		ds.setDriverClassName(conf.getDbClass());
 		ds.setJdbcUrl(conf.getURL());
-		;
 		ds.setUsername(conf.getLogin());
 		ds.setPassword(conf.getPassword());
 		return new JdbcTemplate(ds);

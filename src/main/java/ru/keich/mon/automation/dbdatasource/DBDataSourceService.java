@@ -37,10 +37,12 @@ public class DBDataSourceService {
 	
 	public void save(DBDataSource dataSource) {
 		dataSourceRepository.save(dataSource);
+		jdbc.remove(dataSource.getName());
 	}
 	
 	public void delete(DBDataSource dataSource) {
 		dataSourceRepository.delete(dataSource);
+		jdbc.remove(dataSource.getName());
 	}
 
 	public Optional<DBDataSource> get(String id) {

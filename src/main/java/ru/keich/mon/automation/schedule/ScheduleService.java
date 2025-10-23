@@ -44,12 +44,10 @@ public class ScheduleService {
 
 	public void save(Schedule schedule) {
 		scheduleRepository.save(schedule);
+		cancelSchedule(schedule);
 		if(schedule.isEnable()) {
 			schedule(schedule);
-		} else {
-			cancelSchedule(schedule);
 		}
-		
 	}
 
 	public void delete(Schedule schedule) {

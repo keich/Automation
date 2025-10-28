@@ -15,6 +15,7 @@ import lombok.extern.java.Log;
 import ru.keich.mon.automation.dbdatasource.DBDataSourceService;
 import ru.keich.mon.automation.scripting.LogManager;
 import ru.keich.mon.automation.scripting.LogManager.Line;
+import ru.keich.mon.automation.snmp.SnmpService;
 
 @Service
 @Log
@@ -22,10 +23,12 @@ public class ScriptService {
 
 	private final ScriptRepository scriptRepository;
 	private final DBDataSourceService dataSourceService;
+	private final SnmpService snmpService;
 
-	public ScriptService(ScriptRepository scriptRepository, DBDataSourceService dataSourceService) {
+	public ScriptService(ScriptRepository scriptRepository, DBDataSourceService dataSourceService, SnmpService snmpService) {
 		this.scriptRepository = scriptRepository;
 		this.dataSourceService = dataSourceService;
+		this.snmpService = snmpService;
 	}
 
 	public Stream<Script> getAllOrRoot(HierarchicalQuery<Script, Void> q) {
@@ -79,7 +82,7 @@ public class ScriptService {
 	
 	public void run(Script script, Consumer<Line> callBack) {
 		var logm = new LogManager(callBack);
-		var scriptContext = new ScriptContext(logm, dataSourceService, this);
+		var scriptContext = new ScriptContext(logm, dataSourceService, this, snmpService);
 		var param = new HashMap<String, Object>();
 		scriptContext.run(script, param);
 	}

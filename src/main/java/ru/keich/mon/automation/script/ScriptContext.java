@@ -11,6 +11,8 @@ import ru.keich.mon.automation.dbdatasource.DBDataSourceService;
 import ru.keich.mon.automation.scripting.DBManager;
 import ru.keich.mon.automation.scripting.LogManager;
 import ru.keich.mon.automation.scripting.ScriptManager;
+import ru.keich.mon.automation.scripting.SnmpManager;
+import ru.keich.mon.automation.snmp.SnmpService;
 
 public class ScriptContext {
 
@@ -21,12 +23,14 @@ public class ScriptContext {
 	public static final String MEMBER_LOG_NAME = "log";
 	public static final String MEMBER_DB_NAME = "db";
 	public static final String MEMBER_SCRIPT_NAME = "script";
+	public static final String MEMBER_SNMP_NAME = "snmp";
 	
 	public static final String LOG_MSG_RUN_OK = ": running with result: ";
 	public static final String LOG_MSG_RUN_ERR = ": running with error: ";
 
 	private final DBDataSourceService dataSourceService;
 	private final ScriptService scriptService;
+	private final SnmpService snmpService;
 	private final LogManager logm;
 	private final String languare = LANG_JS;
 	private final Context context;
@@ -34,10 +38,11 @@ public class ScriptContext {
 	// TODO Use LinkedHashSet if java 21
 	private final Stack<String> stack = new Stack<>();
 
-	public ScriptContext(LogManager logm, DBDataSourceService dataSourceService, ScriptService scriptService) {
+	public ScriptContext(LogManager logm, DBDataSourceService dataSourceService, ScriptService scriptService, SnmpService snmpService) {
 		super();
 		this.dataSourceService = dataSourceService;
 		this.scriptService = scriptService;
+		this.snmpService = snmpService;
 		this.logm = logm;
 		context = cretaeContext();
 	}
@@ -57,6 +62,7 @@ public class ScriptContext {
 		ret.put(MEMBER_LOG_NAME, logm);
 		ret.put(MEMBER_DB_NAME, new DBManager(dataSourceService));
 		ret.put(MEMBER_SCRIPT_NAME, new ScriptManager(this));
+		ret.put(MEMBER_SNMP_NAME, new SnmpManager(snmpService));
 		return ret;
 	}
 	

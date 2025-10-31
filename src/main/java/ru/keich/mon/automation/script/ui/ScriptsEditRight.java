@@ -57,6 +57,7 @@ public class ScriptsEditRight extends VerticalLayout {
 		logsConsole.addColumn(LogManager.Line::getTimeFormatter).setFlexGrow(2);// .getStyle().setMaxWidth("8em");
 		logsConsole.addColumn(LogManager.Line::getLevel).setFlexGrow(1);
 		logsConsole.addColumn(LogManager.Line::getMsg).setFlexGrow(20).setTooltipGenerator(l -> l.getMsg());
+		logsConsole.setItems(logs);
 		logsConsole.setSizeFull();
 
 		var saveButton = new Button(new Icon(VaadinIcon.DOWNLOAD));
@@ -100,7 +101,11 @@ public class ScriptsEditRight extends VerticalLayout {
 
 	public void addLogLine(LogManager.Line line) {
 		logs.addFirst(line);
-		logsConsole.setItems(logs);
+		logsConsole.getUI().ifPresent(ui -> {
+			ui.access(() ->{
+				logsConsole.getDataProvider().refreshAll();
+			});
+		});
 	}
 
 	public boolean addNew() {

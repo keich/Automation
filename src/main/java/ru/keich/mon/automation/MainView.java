@@ -22,12 +22,15 @@ import ru.keich.mon.automation.schedule.ui.ScheduleEdit;
 import ru.keich.mon.automation.script.ScriptService;
 import ru.keich.mon.automation.script.ui.ScriptsEdit;
 import ru.keich.mon.automation.security.SecurityService;
+import ru.keich.mon.automation.snmp.SnmpService;
+import ru.keich.mon.automation.snmp.ui.SnmpEdit;
 
 @PermitAll
 @Route
 @RouteAlias("/dbdatasource")
 @RouteAlias("/schedule")
 @RouteAlias("/scripts")
+@RouteAlias("/snmp")
 @Log
 public class MainView extends AppLayout implements BeforeEnterObserver {
 
@@ -36,23 +39,28 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 	public static final String TAB_DATASOURCE_NAME = "DB DataSource";
 	public static final String TAB_SCHEDULE_NAME = "Schedule";
 	public static final String TAB_SCRIPTS_NAME = "Scripts";
+	public static final String TAB_SNMP_NAME = "Snmp";
 
 	public static final String TAB_DATASOURCE_PATH = "dbdatasource";
 	public static final String TAB_SCHEDULE_PATH = "schedule";
 	public static final String TAB_SCRIPTS_PATH = "scripts";
+	public static final String TAB_SNMP_PATH = "snmp";
 
 	private final DBDataSourceEdit dataSourceView;
 	private final ScheduleEdit scheduleEdit;
 	private final ScriptsEdit scriptsView;
+	private final SnmpEdit snmpEdit;
 
 	public MainView(SecurityService securityService, DBDataSourceService dataSourceService, ScriptService scriptService,
-			ScheduleService scheduleService) {
+			ScheduleService scheduleService, SnmpService snmpService) {
 		super();
 		dataSourceView = new DBDataSourceEdit(dataSourceService);
 		
 		scheduleEdit = new ScheduleEdit(scheduleService, scriptService);
 
 		scriptsView = new ScriptsEdit(scriptService, scheduleService);
+		
+		snmpEdit = new SnmpEdit(snmpService, scriptService);
 
 		var toggle = new DrawerToggle();
 		var scroller = new Scroller(getSideNav());
@@ -75,6 +83,7 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 		SideNav sideNav = new SideNav();
 		sideNav.addItem(new SideNavItem(TAB_DATASOURCE_NAME, TAB_DATASOURCE_PATH, VaadinIcon.DATABASE.create()),
 				new SideNavItem(TAB_SCHEDULE_NAME, TAB_SCHEDULE_PATH, VaadinIcon.TIMER.create()),
+				new SideNavItem(TAB_SNMP_NAME, TAB_SNMP_PATH, VaadinIcon.PAPERPLANE.create()),
 				new SideNavItem(TAB_SCRIPTS_NAME, TAB_SCRIPTS_PATH, VaadinIcon.FILE_CODE.create()));
 		return sideNav;
 	}
@@ -90,6 +99,9 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 			break;
 		case TAB_SCRIPTS_PATH:
 			this.setContent(scriptsView);
+			break;
+		case TAB_SNMP_PATH:
+			this.setContent(snmpEdit);
 			break;
 		}
 	}

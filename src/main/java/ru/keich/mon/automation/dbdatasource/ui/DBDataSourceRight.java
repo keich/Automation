@@ -46,25 +46,15 @@ public class DBDataSourceRight extends VerticalLayout {
 		formLayout.setAutoResponsive(true);
 		formLayout.setWidthFull();
 
-		name = new TextField(FORM_NAME_TEXT, e -> {
-			validate();
-		});
+		name = new TextField(FORM_NAME_TEXT, this::validate);
 
-		dricerClass = new TextField(FORM_CLASS_TEXT, e -> {
-			validate();
-		});
+		dricerClass = new TextField(FORM_CLASS_TEXT, this::validate);
 
-		jdbcURL = new TextField(FORM_URL_TEXT, e -> {
-			validate();
-		});
+		jdbcURL = new TextField(FORM_URL_TEXT, this::validate);
 
-		login = new TextField(FORM_LOGIN_TEXT, e -> {
-			validate();
-		});
+		login = new TextField(FORM_LOGIN_TEXT, this::validate);
 
-		password = new PasswordField(FORM_PASS_TEXT, e -> {
-			validate();
-		});
+		password = new PasswordField(FORM_PASS_TEXT, this::validate);
 		password.setRevealButtonVisible(false);
 		
 		formLayout.add(name, dricerClass, jdbcURL, login, password);
@@ -96,7 +86,7 @@ public class DBDataSourceRight extends VerticalLayout {
 
 	}
 
-	private void validate() {
+	private void validate(Object event) {
 		saveButton.setEnabled(getDBDataSource().isValid());
 	}
 

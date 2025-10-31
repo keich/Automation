@@ -46,13 +46,9 @@ public class ScheduleRight extends VerticalLayout {
 		formLayout.setAutoResponsive(true);
 		formLayout.setWidthFull();
 
-		name = new TextField(FORM_NAME_TEXT, e -> {
-			validate();
-		});
+		name = new TextField(FORM_NAME_TEXT, this::validate);
 
-		expression = new TextField(FORM_EXPRESSION_TEXT, e -> {
-			validate();
-		});
+		expression = new TextField(FORM_EXPRESSION_TEXT, this::validate);
 
 		formLayout.add(name, expression);
 
@@ -76,9 +72,7 @@ public class ScheduleRight extends VerticalLayout {
 
 		deleteButton.setEnabled(false);
 
-		scriptName = new ComboBox<String>(COMBOBOX_TEXT, e -> {
-			validate();
-		});
+		scriptName = new ComboBox<String>(COMBOBOX_TEXT, this::validate);
 		scriptName.setItems(scriptNameDataProvider);
 		
 		add(scriptName);
@@ -96,7 +90,7 @@ public class ScheduleRight extends VerticalLayout {
 
 	}
 
-	private void validate() {
+	private void validate(Object event) {
 		saveButton.setEnabled(getSchedule().isValid());
 	}
 

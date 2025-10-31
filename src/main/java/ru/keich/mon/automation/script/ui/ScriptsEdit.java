@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 
+import ru.keich.mon.automation.schedule.ScheduleService;
 import ru.keich.mon.automation.script.Script;
 import ru.keich.mon.automation.script.ScriptService;
 import ru.keich.mon.automation.scripting.LogManager;
@@ -19,10 +20,12 @@ public class ScriptsEdit extends Div {
 	private final ScriptsEditRight right;
 
 	private final ScriptService scriptService;
+	private final ScheduleService scheduleService;
 
-	public ScriptsEdit(ScriptService scriptService) {
+	public ScriptsEdit(ScriptService scriptService, ScheduleService scheduleService) {
 		super();
 
+		this.scheduleService = scheduleService;
 		this.scriptService = scriptService;
 
 		this.setSizeFull();
@@ -47,7 +50,7 @@ public class ScriptsEdit extends Div {
 	}
 
 	private void run(Script script, Consumer<LogManager.Line> clackBack) {
-		scriptService.run(script, clackBack);
+		scheduleService.execute(script, clackBack);
 	}
 
 	private Boolean delete(Script script) {

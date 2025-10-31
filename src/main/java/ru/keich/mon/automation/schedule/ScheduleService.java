@@ -2,6 +2,7 @@ package ru.keich.mon.automation.schedule;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -10,7 +11,9 @@ import org.springframework.stereotype.Service;
 
 import com.vaadin.flow.data.provider.Query;
 
+import ru.keich.mon.automation.script.Script;
 import ru.keich.mon.automation.script.ScriptService;
+import ru.keich.mon.automation.scripting.LogManager;
 
 @Service
 public class ScheduleService {
@@ -67,6 +70,12 @@ public class ScheduleService {
 		tasks.computeIfPresent(schedule, (s, future) -> {
 			future.cancel(false);
 			return null;
+		});
+	}
+	
+	public void execute(Script script, Consumer<LogManager.Line> clackBack) {
+		threadPoolTaskScheduler.execute(() -> {
+			scriptService.run(script, clackBack);
 		});
 	}
 

@@ -52,7 +52,7 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 		
 		scheduleEdit = new ScheduleEdit(scheduleService, scriptService);
 
-		scriptsView = new ScriptsEdit(scriptService);
+		scriptsView = new ScriptsEdit(scriptService, scheduleService);
 
 		var toggle = new DrawerToggle();
 		var scroller = new Scroller(getSideNav());

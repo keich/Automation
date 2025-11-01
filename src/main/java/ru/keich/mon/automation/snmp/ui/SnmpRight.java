@@ -28,8 +28,8 @@ public class SnmpRight extends VerticalLayout {
 	public static final String DELETE_DIALOG_NO = "Cancel";
 	
 	public static final String FORM_NAME_TEXT = "Name";
-	public static final String FORM_ENTERPRISE_TEXT = "Enterprise";
-	public static final String FORM_SPECIFICTRAP_TEXT = "Specific Trap";
+	public static final String FORM_MATCHOID_TEXT = "Match OID";
+	public static final String FORM_COMPARE_TEXT = "Compare OID";
 	public static final String FORM_GENERICTRAP_TEXT = "Generic Trap";
 	public static final String FORM_SCRIPTNAME_TEXT = "Script Name";
 	
@@ -39,9 +39,8 @@ public class SnmpRight extends VerticalLayout {
 	private final Button deleteButton;
 	
 	private final TextField name;
-	private final TextField enterprise;
-	private final TextField specificTrap;
-	private final TextField genericTrap;
+	private final TextField matchOid;
+	private final TextField compareOid;
 	private final ComboBox<String> scriptName;
 	private final Checkbox enable;
 
@@ -52,16 +51,15 @@ public class SnmpRight extends VerticalLayout {
 		
 		name = new TextField(FORM_NAME_TEXT, this::validate);
 		
-		enterprise = new TextField(FORM_ENTERPRISE_TEXT, this::validate);
+		matchOid = new TextField(FORM_MATCHOID_TEXT, this::validate);
 		
-		specificTrap = new TextField(FORM_SPECIFICTRAP_TEXT,this::validate);
-		
-		genericTrap = new TextField(FORM_GENERICTRAP_TEXT, this::validate);
+		compareOid = new TextField(FORM_COMPARE_TEXT,this::validate);
+
 		
 		scriptName = new ComboBox<String>(FORM_SCRIPTNAME_TEXT, this::validate);
 		scriptName.setItems(dataProvider);
 		
-		formLayout.add(name, enterprise, genericTrap, specificTrap, scriptName);
+		formLayout.add(name, matchOid, compareOid, scriptName);
 
 		add(formLayout);
 		
@@ -96,9 +94,8 @@ public class SnmpRight extends VerticalLayout {
 	
 	public boolean open(SnmpScriptMapping sm) {
 		name.setValue(sm.getName());
-		enterprise.setValue(sm.getEnterprise());
-		specificTrap.setValue(sm.getSpecificTrap());
-		genericTrap.setValue(sm.getGenericTrap());
+		matchOid.setValue(sm.getMatchOid().toString());
+		compareOid.setValue(sm.getCompareOid().toString());
 		scriptName.setValue(sm.getScriptName());
 		enable.setValue(sm.isEnable());
 		return false;
@@ -112,18 +109,16 @@ public class SnmpRight extends VerticalLayout {
 	
 	private void clear() {
 		name.clear();
-		enterprise.clear();
-		specificTrap.clear();
-		genericTrap.clear();
+		matchOid.clear();
+		compareOid.clear();
 		scriptName.clear();
 		enable.setValue(false);
 	}
 
 	public SnmpScriptMapping getData() {
 		return new SnmpScriptMapping().setName(name.getValue())
-				.setEnterprise(enterprise.getValue())
-				.setGenericTrap(genericTrap.getValue())
-				.setSpecificTrap(specificTrap.getValue())
+				.setMatchOid(matchOid.getValue())
+				.setCompareOid(compareOid.getValue())
 				.setScriptName(scriptName.getValue())
 				.setEnable(enable.getValue());
 	}

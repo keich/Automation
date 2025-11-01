@@ -35,6 +35,8 @@ public class ScheduleService {
 				.filter(Schedule::isValid)
 				.filter(Schedule::isEnable)
 				.forEach(this::schedule);
+		
+		scriptService.setScheduleService(this);
 	}
 
 	public Stream<Schedule> getAll(Query<Schedule, Void> q) {
@@ -61,7 +63,7 @@ public class ScheduleService {
 	private void schedule(Schedule schedule) {
 		var trigger = new CronTrigger(schedule.getExpression());
 		var future = threadPoolTaskScheduler.schedule(() -> {
-			scriptService.run(schedule.getScriptName());
+			execute(schedule.getScriptName(), null, l -> {});
 		}, trigger);
 		tasks.put(schedule, future);
 	}
@@ -73,9 +75,15 @@ public class ScheduleService {
 		});
 	}
 	
-	public void execute(Script script, Consumer<LogManager.Line> clackBack) {
+	public void execute(Script script, Object param, Consumer<LogManager.Line> clackBack) {
 		threadPoolTaskScheduler.execute(() -> {
-			scriptService.run(script, clackBack);
+			scriptService.run(script, param, clackBack);
+		});
+	}
+	
+	public void execute(String scriptName, Object param, Consumer<LogManager.Line> clackBack) {
+		threadPoolTaskScheduler.execute(() -> {
+			scriptService.run(scriptName, param, clackBack);
 		});
 	}
 

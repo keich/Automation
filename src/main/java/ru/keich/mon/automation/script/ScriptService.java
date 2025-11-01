@@ -1,6 +1,5 @@
 package ru.keich.mon.automation.script;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -13,6 +12,7 @@ import com.vaadin.flow.data.provider.hierarchy.HierarchicalQuery;
 
 import lombok.extern.java.Log;
 import ru.keich.mon.automation.dbdatasource.DBDataSourceService;
+import ru.keich.mon.automation.schedule.ScheduleService;
 import ru.keich.mon.automation.scripting.LogManager;
 import ru.keich.mon.automation.scripting.LogManager.Line;
 import ru.keich.mon.automation.snmp.SnmpService;
@@ -29,6 +29,10 @@ public class ScriptService {
 		this.scriptRepository = scriptRepository;
 		this.dataSourceService = dataSourceService;
 		this.snmpService = snmpService;
+	}
+	
+	public void setScheduleService(ScheduleService scheduleService) {
+		snmpService.setScheduleService(scheduleService);
 	}
 
 	public Stream<Script> getAllOrRoot(HierarchicalQuery<Script, Void> q) {
@@ -52,6 +56,10 @@ public class ScriptService {
 	public List<Script> getByNameContaing(Optional<String> filter) {
 		return filter.map(scriptRepository::findByNameContainingIgnoreCase).orElse(scriptRepository.findAll());
 	}
+	
+	public Optional<Script> getByName(String name) {
+		return scriptRepository.findById(name);
+	}
 
 	public List<Script> getByParent(Optional<String> opt) {
 		return opt.map(scriptRepository::findByParent).orElse(scriptRepository.findRoot());
@@ -73,17 +81,16 @@ public class ScriptService {
 		scriptRepository.delete(script);
 	}
 
-	public void run(String name) {
+	public void run(String name, Object param, Consumer<Line> callBack) {
 		scriptRepository.findById(name)
 				.ifPresent(script -> {
-					run(script, l -> {});
+					run(script, param, callBack);
 				});
 	}
 	
-	public void run(Script script, Consumer<Line> callBack) {
+	public void run(Script script, Object param, Consumer<Line> callBack) {
 		var logm = new LogManager(callBack);
 		var scriptContext = new ScriptContext(logm, dataSourceService, this, snmpService);
-		var param = new HashMap<String, Object>();
 		scriptContext.run(script, param);
 	}
 

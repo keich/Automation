@@ -50,7 +50,7 @@ public class ScriptsEdit extends Div {
 	}
 
 	private void run(Script script, Consumer<LogManager.Line> clackBack) {
-		scheduleService.execute(script, clackBack);
+		scheduleService.execute(script, null, clackBack);
 	}
 
 	private Boolean delete(Script script) {

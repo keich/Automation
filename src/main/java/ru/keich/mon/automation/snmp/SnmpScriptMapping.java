@@ -2,6 +2,7 @@ package ru.keich.mon.automation.snmp;
 
 import org.snmp4j.smi.OID;
 
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Getter;
@@ -14,9 +15,13 @@ public class SnmpScriptMapping {
 
 	@Id
 	private String name;
-	private String enterprise;
-	private String specificTrap;
-	private String genericTrap;
+	
+	@Convert(converter = SnmpOIDConverter.class)
+	private OID matchOid;
+	
+	@Convert(converter = SnmpOIDConverter.class)
+	private OID compareOid;
+	
 	private String scriptName;
 	private boolean enable;
 
@@ -25,37 +30,17 @@ public class SnmpScriptMapping {
 			if(name == null || "".equals(name)) {
 				return false;
 			}
-			if(enterprise == null || "".equals(enterprise)) {
+			
+			if(matchOid == null) {
 				return false;
 			}
-			if(!"*".equals(enterprise)) {
-				try {
-					new OID(enterprise);
-				} catch (RuntimeException e) {
-					return false;
-				}
-			}
-			if(specificTrap == null) {
+			if(compareOid == null) {
 				return false;
-			}
-			if(!"*".equals(specificTrap)) {
-				var num = Integer.valueOf(specificTrap);
-				if(num < 0) {
-					return false;
-				}
-			}
-			if(genericTrap == null) {
-				return false;
-			}
-			if(!"*".equals(genericTrap)) {
-				var num = Integer.valueOf(genericTrap);
-				if(num < 0 || num > 6) {
-					return false;
-				}
-			}
+			}			
 			if(scriptName == null || "".equals(scriptName)) {
 				return false;
 			}
+			
 		} catch (Exception e) {
 			return false;
 		}
@@ -67,18 +52,21 @@ public class SnmpScriptMapping {
 		return this;
 	}
 
-	public SnmpScriptMapping setEnterprise(String enterprise) {
-		this.enterprise = enterprise;
+	public SnmpScriptMapping setCompareOid(String str) {
+		try {
+			this.compareOid = new OID(str);
+		} catch (RuntimeException e) {
+			this.compareOid = null;
+		}
 		return this;
 	}
 
-	public SnmpScriptMapping setSpecificTrap(String specificTrap) {
-		this.specificTrap = specificTrap;
-		return this;
-	}
-
-	public SnmpScriptMapping setGenericTrap(String genericTrap) {
-		this.genericTrap = genericTrap;
+	public SnmpScriptMapping setMatchOid(String str) {
+		try {
+			this.matchOid = new OID(str);
+		} catch (RuntimeException e) {
+			this.matchOid = null;
+		}
 		return this;
 	}
 
@@ -91,5 +79,5 @@ public class SnmpScriptMapping {
 		this.enable = enable;
 		return this;
 	}
-
+	
 }

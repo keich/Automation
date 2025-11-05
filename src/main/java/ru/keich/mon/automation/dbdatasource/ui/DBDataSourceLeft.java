@@ -38,7 +38,11 @@ public class DBDataSourceLeft extends VerticalLayout {
 	}
 	
 	public void refresh() {
-		grid.getDataProvider().refreshAll();
+		grid.getUI().ifPresent(ui -> {
+			ui.access(() -> {
+				grid.getDataProvider().refreshAll();
+			});
+		});
 	}
 
 }

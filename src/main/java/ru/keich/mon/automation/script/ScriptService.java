@@ -12,6 +12,7 @@ import com.vaadin.flow.data.provider.hierarchy.HierarchicalQuery;
 
 import lombok.extern.java.Log;
 import ru.keich.mon.automation.dbdatasource.DBDataSourceService;
+import ru.keich.mon.automation.httpdatasource.HttpDataSourceService;
 import ru.keich.mon.automation.schedule.ScheduleService;
 import ru.keich.mon.automation.scripting.LogManager;
 import ru.keich.mon.automation.scripting.LogManager.Line;
@@ -24,11 +25,13 @@ public class ScriptService {
 	private final ScriptRepository scriptRepository;
 	private final DBDataSourceService dataSourceService;
 	private final SnmpService snmpService;
+	private final HttpDataSourceService httpDataSourceService;
 
-	public ScriptService(ScriptRepository scriptRepository, DBDataSourceService dataSourceService, SnmpService snmpService) {
+	public ScriptService(ScriptRepository scriptRepository, DBDataSourceService dataSourceService, SnmpService snmpService, HttpDataSourceService httpDataSourceService) {
 		this.scriptRepository = scriptRepository;
 		this.dataSourceService = dataSourceService;
 		this.snmpService = snmpService;
+		this.httpDataSourceService = httpDataSourceService;
 	}
 	
 	public void setScheduleService(ScheduleService scheduleService) {
@@ -90,7 +93,7 @@ public class ScriptService {
 	
 	public void run(Script script, Object param, Consumer<Line> callBack) {
 		var logm = new LogManager(callBack);
-		var scriptContext = new ScriptContext(logm, dataSourceService, this, snmpService);
+		var scriptContext = new ScriptContext(logm, dataSourceService, this, snmpService, httpDataSourceService);
 		scriptContext.run(script, param);
 	}
 

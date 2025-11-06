@@ -17,6 +17,8 @@ import jakarta.annotation.security.PermitAll;
 import lombok.extern.java.Log;
 import ru.keich.mon.automation.dbdatasource.DBDataSourceService;
 import ru.keich.mon.automation.dbdatasource.ui.DBDataSourceEdit;
+import ru.keich.mon.automation.httpdatasource.HttpDataSourceService;
+import ru.keich.mon.automation.httpdatasource.ui.HttpDataSourceEdit;
 import ru.keich.mon.automation.schedule.ScheduleService;
 import ru.keich.mon.automation.schedule.ui.ScheduleEdit;
 import ru.keich.mon.automation.script.ScriptService;
@@ -31,17 +33,20 @@ import ru.keich.mon.automation.snmp.ui.SnmpEdit;
 @RouteAlias("/schedule")
 @RouteAlias("/scripts")
 @RouteAlias("/snmp")
+@RouteAlias("/httpdatasource")
 @Log
 public class MainView extends AppLayout implements BeforeEnterObserver {
 
 	private static final long serialVersionUID = 1237287395694809506L;
 
 	public static final String TAB_DATASOURCE_NAME = "DB DataSource";
+	public static final String TAB_HTTPDATASOURCE_NAME = "Http DataSource";
 	public static final String TAB_SCHEDULE_NAME = "Schedule";
 	public static final String TAB_SCRIPTS_NAME = "Scripts";
 	public static final String TAB_SNMP_NAME = "Snmp";
 
 	public static final String TAB_DATASOURCE_PATH = "dbdatasource";
+	public static final String TAB_HTTPDATASOURCE_PATH = "httpdatasource";
 	public static final String TAB_SCHEDULE_PATH = "schedule";
 	public static final String TAB_SCRIPTS_PATH = "scripts";
 	public static final String TAB_SNMP_PATH = "snmp";
@@ -50,9 +55,10 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 	private final ScheduleEdit scheduleEdit;
 	private final ScriptsEdit scriptsView;
 	private final SnmpEdit snmpEdit;
+	private final HttpDataSourceEdit httpDataSourceEdit;
 
 	public MainView(SecurityService securityService, DBDataSourceService dataSourceService, ScriptService scriptService,
-			ScheduleService scheduleService, SnmpService snmpService) {
+			ScheduleService scheduleService, SnmpService snmpService, HttpDataSourceService httpDataSourceService) {
 		super();
 		dataSourceView = new DBDataSourceEdit(dataSourceService);
 		
@@ -61,6 +67,8 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 		scriptsView = new ScriptsEdit(scriptService, scheduleService);
 		
 		snmpEdit = new SnmpEdit(snmpService, scriptService);
+		
+		httpDataSourceEdit = new HttpDataSourceEdit(httpDataSourceService);
 
 		var toggle = new DrawerToggle();
 		var scroller = new Scroller(getSideNav());
@@ -82,6 +90,7 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 	private SideNav getSideNav() {
 		SideNav sideNav = new SideNav();
 		sideNav.addItem(new SideNavItem(TAB_DATASOURCE_NAME, TAB_DATASOURCE_PATH, VaadinIcon.DATABASE.create()),
+				new SideNavItem(TAB_HTTPDATASOURCE_NAME, TAB_HTTPDATASOURCE_PATH, VaadinIcon.FILE_CODE.create()),
 				new SideNavItem(TAB_SCHEDULE_NAME, TAB_SCHEDULE_PATH, VaadinIcon.TIMER.create()),
 				new SideNavItem(TAB_SNMP_NAME, TAB_SNMP_PATH, VaadinIcon.PAPERPLANE.create()),
 				new SideNavItem(TAB_SCRIPTS_NAME, TAB_SCRIPTS_PATH, VaadinIcon.FILE_CODE.create()));
@@ -102,6 +111,9 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 			break;
 		case TAB_SNMP_PATH:
 			this.setContent(snmpEdit);
+			break;
+		case TAB_HTTPDATASOURCE_PATH:
+			this.setContent(httpDataSourceEdit);
 			break;
 		}
 	}

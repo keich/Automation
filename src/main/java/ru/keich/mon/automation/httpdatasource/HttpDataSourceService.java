@@ -117,5 +117,45 @@ public class HttpDataSourceService {
 				})
 				.subscribe();
 	}
+
+	public void postRequest(String name, String path, Map<String, List<String>> params, Map<String, String> headers,
+			String data, Consumer<HttpResult> consumer) {
+		getWebClient(name)
+				.post()
+				.uri(uriBuilder -> {
+					var uri = uriBuilder.path(path);
+					params.entrySet().forEach(e -> {
+						uri.queryParam(e.getKey(), e.getValue());
+					});
+					return uri.build();
+				})
+				.headers(ch -> {
+					headers.entrySet().forEach(e -> {
+						ch.add(e.getKey(), e.getValue());
+					});
+				})
+				.bodyValue(data)
+				.exchangeToMono(response -> {
+					var result = new HttpResult();
+					result.setStatus(response.statusCode().value());
+					if (response.statusCode().is2xxSuccessful()) {
+						return response.bodyToMono(String.class).map(body -> {
+							result.setData(body);
+							return result;
+						});		
+					}
+					return Mono.just(result);
+				})
+				.onErrorResume(e -> {
+					var result = new HttpResult();
+					result.setStatus(0);
+					result.setErrMessage(e.getMessage());
+					return Mono.just(result);
+				})
+				.doOnNext(result -> {
+					consumer.accept(result);
+				})
+				.subscribe();
+	}
 	
 }

@@ -32,5 +32,9 @@ public class HttpManager {
 	public void get(String name, String path, Map<String, List<String>> params, Map<String, String> headers, Value callback) {
 		httpDataSourceService.getRequest(name, path, params, headers, result -> callback.execute(resultToMap(result)));
 	}
+	
+	public void post(String name, String path, Map<String, List<String>> params, Map<String, String> headers, String data, Value callback) {
+		httpDataSourceService.postRequest(name, path, params, headers, data, result -> callback.execute(resultToMap(result)));
+	}
 
 }

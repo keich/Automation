@@ -158,4 +158,42 @@ public class HttpDataSourceService {
 				.subscribe();
 	}
 	
+	public void delRequest(String name, String path, Map<String, List<String>> params, Map<String, String> headers, Consumer<HttpResult> consumer) {
+		getWebClient(name)
+				.delete()
+				.uri(uriBuilder -> {
+					var uri = uriBuilder.path(path);
+					params.entrySet().forEach(e -> {
+						uri.queryParam(e.getKey(), e.getValue());
+					});
+					return uri.build();
+				})
+				.headers(ch -> {
+					headers.entrySet().forEach(e -> {
+						ch.add(e.getKey(), e.getValue());
+					});
+				})
+				.exchangeToMono(response -> {
+					var result = new HttpResult();
+					result.setStatus(response.statusCode().value());
+					if (response.statusCode().is2xxSuccessful()) {
+						return response.bodyToMono(String.class).map(data -> {
+							result.setData(data);
+							return result;
+						});		
+					}
+					return Mono.just(result);
+				})
+				.onErrorResume(e -> {
+					var result = new HttpResult();
+					result.setStatus(0);
+					result.setErrMessage(e.getMessage());
+					return Mono.just(result);
+				})
+				.doOnNext(result -> {
+					consumer.accept(result);
+				})
+				.subscribe();
+	}
+	
 }

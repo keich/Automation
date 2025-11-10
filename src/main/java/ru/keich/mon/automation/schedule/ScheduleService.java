@@ -63,7 +63,7 @@ public class ScheduleService {
 	private void schedule(Schedule schedule) {
 		var trigger = new CronTrigger(schedule.getExpression());
 		var future = threadPoolTaskScheduler.schedule(() -> {
-			execute(schedule.getScriptName(), null, l -> {});
+			scriptService.run(schedule.getScriptName(), null, l -> {});
 		}, trigger);
 		tasks.put(schedule, future);
 	}

@@ -24,9 +24,12 @@ public class SnmpManager {
 
 
 	private final SnmpService snmpService;
+	
+	private final Object lock;
 
-	public SnmpManager(SnmpService snmpService) {
+	public SnmpManager(SnmpService snmpService, Object lock) {
 		this.snmpService = snmpService;
+		this.lock = lock;
 	}
 
 	public class SnmpParamException extends RuntimeException {
@@ -85,7 +88,11 @@ public class SnmpManager {
 			throw new SnmpParamException("Cannot execute callback function");
 		}
 		var targets = params.entrySet().stream().map(this::mapToParams).toList();
-		snmpService.walk(targets, r -> callback.execute(resultToMap(r)));
+		snmpService.walk(targets, r -> {
+			synchronized(lock) {
+				callback.execute(resultToMap(r));
+			}
+		});
 	}
 
 }

@@ -67,7 +67,7 @@ public class ScriptContext {
 		ret.put(MEMBER_LOG_NAME, logm);
 		ret.put(MEMBER_DB_NAME, new DBManager(dataSourceService));
 		ret.put(MEMBER_SCRIPT_NAME, new ScriptManager(this));
-		ret.put(MEMBER_SNMP_NAME, new SnmpManager(snmpService));
+		ret.put(MEMBER_SNMP_NAME, new SnmpManager(snmpService, this));
 		ret.put(MEMBER_HTTPREQUEST_NAME, new HttpManager(httpDataSourceService, this));
 		return ret;
 	}

@@ -68,11 +68,11 @@ public class ScriptContext {
 		ret.put(MEMBER_DB_NAME, new DBManager(dataSourceService));
 		ret.put(MEMBER_SCRIPT_NAME, new ScriptManager(this));
 		ret.put(MEMBER_SNMP_NAME, new SnmpManager(snmpService));
-		ret.put(MEMBER_HTTPREQUEST_NAME, new HttpManager(httpDataSourceService));
+		ret.put(MEMBER_HTTPREQUEST_NAME, new HttpManager(httpDataSourceService, this));
 		return ret;
 	}
 	
-	public Map<String, Object> run(Script script, Object param) {
+	public synchronized Map<String, Object> run(Script script, Object param) {
 		if(stack.contains(script.getName())) {
 			logm.severe(script.getName() + LOG_MSG_HIERAR_CIRCLE);
 			return ScriptResult.err(LOG_MSG_HIERAR_CIRCLE);

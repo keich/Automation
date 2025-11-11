@@ -72,7 +72,7 @@ public class ScriptContext {
 		return ret;
 	}
 	
-	public synchronized Map<String, Object> run(Script script, Object param) {
+	public Map<String, Object> run(Script script, Object param) {
 		if(stack.contains(script.getName())) {
 			logm.severe(script.getName() + LOG_MSG_HIERAR_CIRCLE);
 			return ScriptResult.err(LOG_MSG_HIERAR_CIRCLE);
@@ -105,6 +105,10 @@ public class ScriptContext {
 			result.put(script.getName(), run(script, param));
 		});
 		return result;
+	}
+	
+	public void close() {
+		context.close();
 	}
 
 }

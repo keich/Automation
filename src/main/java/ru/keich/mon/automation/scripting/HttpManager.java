@@ -16,12 +16,9 @@ public class HttpManager {
 	public final String RESULT_PARAM_DATA = "data";
 	
 	private final HttpDataSourceService httpDataSourceService;
-	
-	private final Object lock;
 
 	public HttpManager(HttpDataSourceService httpDataSourceService, Object lock) {
 		this.httpDataSourceService = httpDataSourceService;
-		this.lock = lock;
 	}
 
 	private Map<String, Object> resultToMap(HttpResult result) {
@@ -32,28 +29,16 @@ public class HttpManager {
 		return ret;
 	}
 	
-	public void get(String name, String path, Map<String, List<String>> params, Map<String, String> headers, Value callback) {
-		httpDataSourceService.getRequest(name, path, params, headers, result -> {
-			synchronized(lock) {
-				callback.execute(resultToMap(result));
-			}
-		});
+	public Map<String, Object> get(String name, String path, Map<String, List<String>> params, Map<String, String> headers) {
+		return resultToMap(httpDataSourceService.getRequest(name, path, params, headers));
 	}
 	
-	public void delete(String name, String path, Map<String, List<String>> params, Map<String, String> headers, Value callback) {
-		httpDataSourceService.delRequest(name, path, params, headers, result -> {
-			synchronized(lock) {
-				callback.execute(resultToMap(result));
-			}
-		});
+	public Map<String, Object> delete(String name, String path, Map<String, List<String>> params, Map<String, String> headers) {
+		return resultToMap(httpDataSourceService.delRequest(name, path, params, headers));
 	}
 	
-	public void post(String name, String path, Map<String, List<String>> params, Map<String, String> headers, String data, Value callback) {
-		httpDataSourceService.postRequest(name, path, params, headers, data, result -> {
-			synchronized(lock) {
-				callback.execute(resultToMap(result));
-			}
-		});
+	public Map<String, Object> post(String name, String path, Map<String, List<String>> params, Map<String, String> headers, String data) {
+		return resultToMap(httpDataSourceService.postRequest(name, path, params, headers, data));
 	}
 
 }

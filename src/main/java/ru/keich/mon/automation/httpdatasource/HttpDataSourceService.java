@@ -80,8 +80,8 @@ public class HttpDataSourceService {
 		});
 	}
 
-	public void getRequest(String name, String path, Map<String, List<String>> params, Map<String, String> headers, Consumer<HttpResult> consumer) {
-		getWebClient(name)
+	public HttpResult getRequest(String name, String path, Map<String, List<String>> params, Map<String, String> headers) {
+		return getWebClient(name)
 				.get()
 				.uri(uriBuilder -> {
 					var uri = uriBuilder.path(path);
@@ -112,15 +112,12 @@ public class HttpDataSourceService {
 					result.setErrMessage(e.getMessage());
 					return Mono.just(result);
 				})
-				.doOnNext(result -> {
-					consumer.accept(result);
-				})
-				.subscribe();
+				.block();
 	}
 
-	public void postRequest(String name, String path, Map<String, List<String>> params, Map<String, String> headers,
-			String data, Consumer<HttpResult> consumer) {
-		getWebClient(name)
+	public HttpResult postRequest(String name, String path, Map<String, List<String>> params, Map<String, String> headers,
+			String data) {
+		return getWebClient(name)
 				.post()
 				.uri(uriBuilder -> {
 					var uri = uriBuilder.path(path);
@@ -152,14 +149,11 @@ public class HttpDataSourceService {
 					result.setErrMessage(e.getMessage());
 					return Mono.just(result);
 				})
-				.doOnNext(result -> {
-					consumer.accept(result);
-				})
-				.subscribe();
+				.block();
 	}
 	
-	public void delRequest(String name, String path, Map<String, List<String>> params, Map<String, String> headers, Consumer<HttpResult> consumer) {
-		getWebClient(name)
+	public HttpResult delRequest(String name, String path, Map<String, List<String>> params, Map<String, String> headers) {
+		return getWebClient(name)
 				.delete()
 				.uri(uriBuilder -> {
 					var uri = uriBuilder.path(path);
@@ -190,10 +184,7 @@ public class HttpDataSourceService {
 					result.setErrMessage(e.getMessage());
 					return Mono.just(result);
 				})
-				.doOnNext(result -> {
-					consumer.accept(result);
-				})
-				.subscribe();
+				.block();
 	}
 	
 }

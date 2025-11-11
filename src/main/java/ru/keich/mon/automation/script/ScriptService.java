@@ -94,7 +94,11 @@ public class ScriptService {
 	public void run(Script script, Object param, Consumer<Line> callBack) {
 		var logm = new LogManager(callBack);
 		var scriptContext = new ScriptContext(logm, dataSourceService, this, snmpService, httpDataSourceService);
-		scriptContext.run(script, param);
+		try {
+			scriptContext.run(script, param);
+		} finally {
+			scriptContext.close();
+		}
 	}
 
 }

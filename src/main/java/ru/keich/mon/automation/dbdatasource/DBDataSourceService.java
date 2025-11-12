@@ -20,7 +20,7 @@ public class DBDataSourceService {
 
 	private final DBDataSourceRepository dataSourceRepository;
 
-	private final Map<String, JdbcTemplate> jdbc = new ConcurrentHashMap<>();
+	private final Map<String, JdbcTemplate> cache = new ConcurrentHashMap<>();
 
 	public DBDataSourceService(DBDataSourceRepository dataSourceRepository) {
 		super();
@@ -37,12 +37,12 @@ public class DBDataSourceService {
 	
 	public void save(DBDataSource dataSource) {
 		dataSourceRepository.save(dataSource);
-		jdbc.remove(dataSource.getName());
+		closeDataSource(dataSource.getName());
 	}
 	
 	public void delete(DBDataSource dataSource) {
 		dataSourceRepository.delete(dataSource);
-		jdbc.remove(dataSource.getName());
+		closeDataSource(dataSource.getName());
 	}
 
 	public Optional<DBDataSource> get(String id) {
@@ -60,10 +60,32 @@ public class DBDataSourceService {
 	}
 
 	private JdbcTemplate getJdbcTemplate(String name) {
-		return jdbc.compute(name, (key, ds) -> {
+		return dataSourceRepository
+				.findById(name)
+				.map(this::getJdbcTemplate)
+				.orElse(null);
+	}
+	
+	private void closeDataSource(String dataSourceName) {
+		cache.compute(dataSourceName, (key, ds) -> {
+			if (ds != null) {
+				try {
+					var dataSource = (HikariDataSource)ds.getDataSource();
+					dataSource.close();
+				} catch (RuntimeException e) {
+					log.severe(e.getMessage());
+					e.printStackTrace();
+				}
+			}
+			return null;
+		});
+	}
+
+	public List<Map<String, Object>> queryForList(String dataSourceName, String sql) {
+		var dataSource = cache.compute(dataSourceName, (key, ds) -> {
 			if (ds == null) {
 				try {
-					ds = dataSourceRepository.findById(name).map(this::getJdbcTemplate).orElse(null);
+					ds = getJdbcTemplate(dataSourceName);
 				} catch (RuntimeException e) {
 					log.severe(e.getMessage());
 					e.printStackTrace();
@@ -71,10 +93,6 @@ public class DBDataSourceService {
 			}
 			return ds;
 		});
-	}
-
-	public List<Map<String, Object>> queryForList(String dataSourceName, String sql) {
-		var dataSource = getJdbcTemplate(dataSourceName);
 		if (dataSource == null) {
 			throw new DBDataSourceMissing();
 		}

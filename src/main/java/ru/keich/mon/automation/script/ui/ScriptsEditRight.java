@@ -32,6 +32,8 @@ public class ScriptsEditRight extends VerticalLayout {
 
 	public static final String NAME = "Name";
 	public static final String PARENT = "Parent";
+	
+	public static final String LOG_DIALOG_CLOSE_BUTTON_TEXT = "Close";
 
 	public static final String DELETE_DIALOG_TEXT = "Want to delete ";
 	public static final String DELETE_DIALOG_YES = "Delete";
@@ -56,7 +58,28 @@ public class ScriptsEditRight extends VerticalLayout {
 		logsConsole = new Grid<>(LogManager.Line.class, false);
 		logsConsole.addColumn(LogManager.Line::getTimeFormatter).setFlexGrow(2);// .getStyle().setMaxWidth("8em");
 		logsConsole.addColumn(LogManager.Line::getLevel).setFlexGrow(1);
-		logsConsole.addColumn(LogManager.Line::getMsg).setFlexGrow(20).setTooltipGenerator(l -> l.getMsg());
+		logsConsole.addColumn(LogManager.Line::getMsg).setFlexGrow(20);
+		
+		var logDialogDetails = new Dialog();
+		logDialogDetails.setDraggable(true);
+		logDialogDetails.setResizable(true);
+		logDialogDetails.setWidth("50%");
+		logDialogDetails.setHeight("50%");
+		var logDetails = new TextArea();
+		logDetails.setSizeFull();
+		logDetails.setReadOnly(true);
+		var logDialogDetailsLayout = new VerticalLayout(logDetails);
+		logDialogDetailsLayout.setSizeFull();
+		
+		logDialogDetails.add(logDialogDetailsLayout);
+		
+		
+		logsConsole.addItemDoubleClickListener(event -> {
+			logDialogDetails.setHeaderTitle(event.getItem().getLevel().toString());
+			logDetails.setValue(event.getItem().getMsg());
+			logDialogDetails.open();
+		});
+		
 		logsConsole.setItems(logs);
 		logsConsole.setSizeFull();
 

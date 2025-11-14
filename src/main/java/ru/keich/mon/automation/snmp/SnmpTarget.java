@@ -9,10 +9,10 @@ import org.snmp4j.smi.UdpAddress;
 public class SnmpTarget {
 	 
 	private final String key;
-	private final OID oid;
+	private final OID[] oids;
 	private final CommunityTarget<UdpAddress> communityTarget;
 	
-	public SnmpTarget(String key, String addtargetr, String community, int version, long timeout, String oid) {
+	public SnmpTarget(String key, String addtargetr, String community, int version, long timeout, OID[] oids) {
 		this.key = key;
 		int snmpVersion = SnmpConstants.version2c;
 		if(version == 1) {
@@ -22,15 +22,15 @@ public class SnmpTarget {
 		communityTarget.setVersion(snmpVersion);
 		communityTarget.setTimeout(timeout);
 		
-		this.oid = new OID(oid);
+		this.oids = oids;
 	}
 
 	public String getKey() {
 		return key;
 	}
 	
-	public OID getOid() {
-		return oid;
+	public OID[] getOids() {
+		return oids;
 	}
 
 	public CommunityTarget<UdpAddress> getCommunityTarget() {

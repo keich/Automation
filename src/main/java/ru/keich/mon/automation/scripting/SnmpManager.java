@@ -1,9 +1,11 @@
 package ru.keich.mon.automation.scripting;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.graalvm.polyglot.Value;
+import org.snmp4j.smi.OID;
 
 import ru.keich.mon.automation.snmp.SnmpResult;
 import ru.keich.mon.automation.snmp.SnmpService;
@@ -15,7 +17,7 @@ public class SnmpManager {
 	public final String PARAM_COMMUNITY = "community";
 	public final String PARAM_VERSION = "version";
 	public final String PARAM_TIMEOUT = "timeout";
-	public final String PARAM_OID = "oid";
+	public final String PARAM_OID = "oids";
 	public final String PARAM_CALLBACK = "callback";
 	
 	public final String RESULT_PARAM_KEY = "key";
@@ -52,27 +54,38 @@ public class SnmpManager {
 
 	}
 
-	private <T> T castParam(String name, Map<String, Object> obj, Class<T> classz) {
-		var param = obj.get(name);
-		if (param == null) {
-			throw new SnmpParamException("Parameter " + name + " not found");
-		}
-
+	private <T> T castParam(String name, Object param, Class<? extends T> classz) {
 		if (classz.isInstance(param)) {
 			return classz.cast(param);
 		}
 		throw new SnmpParamClassException(name + " cannot be cast into " + classz.getName());
 	}
+
+	private <T> T getParam(String name, Map<String, T> obj) {
+		var param = obj.get(name);
+		if (param == null) {
+			throw new SnmpParamException("Parameter " + name + " not found");
+		}
+		return param;
+	}
 	
 	private SnmpTarget mapToParams(Map.Entry<String, Map<String, Object>> e) {
 		var key = e.getKey();
 		var params = e.getValue();
-		String address = castParam(PARAM_ADDRESS, params, String.class);
-		String community = castParam(PARAM_COMMUNITY, params, String.class);
-		int version = castParam(PARAM_VERSION, params, Integer.class);
-		long timeout = castParam(PARAM_TIMEOUT, params, Integer.class);
-		String oid = castParam(PARAM_OID, params, String.class);
-		return new SnmpTarget(key, address, community, version, timeout, oid);
+
+		String address = castParam(PARAM_ADDRESS, getParam(PARAM_ADDRESS, params), String.class);
+		String community = castParam(PARAM_COMMUNITY, getParam(PARAM_COMMUNITY, params), String.class);
+		int version = castParam(PARAM_VERSION, getParam(PARAM_VERSION, params), Integer.class);
+		long timeout = castParam(PARAM_TIMEOUT, getParam(PARAM_TIMEOUT, params), Integer.class);
+
+		Collection<?> coll = castParam(PARAM_OID, getParam(PARAM_OID, params), Collection.class);
+
+		var oids = coll.stream()
+				.map(oid -> castParam(PARAM_OID, oid, String.class))
+				.map(OID::new)
+				.toArray(OID[]::new);
+
+		return new SnmpTarget(key, address, community, version, timeout, oids);
 	}
 	
 	private Map<String, Object> resultToMap(SnmpResult snmpResult) {

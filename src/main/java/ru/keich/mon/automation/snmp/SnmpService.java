@@ -149,7 +149,7 @@ public class SnmpService {
 		targets.forEach(target -> {
 			var key = target.getKey();
 			listner.addForWaiting(key);
-			treeUtils.walk(target.getCommunityTarget(), new OID[] { target.getOid() }, key, listner);
+			treeUtils.walk(target.getCommunityTarget(), target.getOids(), key, listner);
 		});
 		synchronized (listner) {
 			while (!listner.isFinished()) {

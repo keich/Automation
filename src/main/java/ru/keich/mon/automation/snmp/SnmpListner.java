@@ -20,7 +20,7 @@ public class SnmpListner implements TreeListener {
 			var key = event.getUserObject().toString();
 			results.get(key).setErrMessage(event.getErrorMessage());
 		}
-		return false;
+		return true;
 	}
 
 	@Override

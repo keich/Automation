@@ -100,9 +100,9 @@ public class ScriptsEditRight extends VerticalLayout {
 	}
 
 	public void addLogLine(LogManager.Line line) {
-		logs.addFirst(line);
 		logsConsole.getUI().ifPresent(ui -> {
 			ui.access(() ->{
+				logs.addFirst(line);
 				logsConsole.getDataProvider().refreshAll();
 			});
 		});

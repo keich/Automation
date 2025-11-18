@@ -5,7 +5,6 @@ import java.util.Map;
 
 import ru.keich.mon.automation.dbdatasource.DBDataSourceService;
 
-
 public class DBManager {
 
 	private final DBDataSourceService dataSourceService;
@@ -14,8 +13,12 @@ public class DBManager {
 		this.dataSourceService = dataSourceService;
 	}
 
-	public List<Map<String, Object>> queryForList(String name, String sql) {
-		return dataSourceService.queryForList(name, sql);
+	public List<Map<String, Object>> queryForList(String dataSourceName, String sql) {
+		return dataSourceService.queryForList(dataSourceName, sql);
 	}
-
+	
+	public int update(String dataSourceName, String sql, Object[] args) {
+		return dataSourceService.update(dataSourceName, sql, args);
+	}
+	
 }

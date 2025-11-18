@@ -56,6 +56,7 @@ public class DBDataSourceService {
 		ds.setJdbcUrl(conf.getURL());
 		ds.setUsername(conf.getLogin());
 		ds.setPassword(conf.getPassword());
+		ds.setAutoCommit(true);
 		return new JdbcTemplate(ds);
 	}
 
@@ -80,8 +81,8 @@ public class DBDataSourceService {
 			return null;
 		});
 	}
-
-	public List<Map<String, Object>> queryForList(String dataSourceName, String sql) {
+	
+	private JdbcTemplate getDataSource(String dataSourceName) {
 		var dataSource = cache.compute(dataSourceName, (key, ds) -> {
 			if (ds == null) {
 				try {
@@ -96,6 +97,15 @@ public class DBDataSourceService {
 		if (dataSource == null) {
 			throw new DBDataSourceMissing();
 		}
-		return dataSource.queryForList(sql);
+		return dataSource;
 	}
+
+	public List<Map<String, Object>> queryForList(String dataSourceName, String sql) {
+		return getDataSource(dataSourceName).queryForList(sql);
+	}
+	
+	public int update(String dataSourceName, String sql, Object[] args) {
+		return getDataSource(dataSourceName).update(sql, args);
+	}
+	
 }

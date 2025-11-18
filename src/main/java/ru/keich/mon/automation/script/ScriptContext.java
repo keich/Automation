@@ -11,6 +11,7 @@ import ru.keich.mon.automation.dbdatasource.DBDataSourceService;
 import ru.keich.mon.automation.httpdatasource.HttpDataSourceService;
 import ru.keich.mon.automation.scripting.DBManager;
 import ru.keich.mon.automation.scripting.HttpManager;
+import ru.keich.mon.automation.scripting.InetAddressManager;
 import ru.keich.mon.automation.scripting.LogManager;
 import ru.keich.mon.automation.scripting.ScriptManager;
 import ru.keich.mon.automation.scripting.SnmpManager;
@@ -27,6 +28,7 @@ public class ScriptContext {
 	public static final String MEMBER_SCRIPT_NAME = "script";
 	public static final String MEMBER_SNMP_NAME = "snmp";
 	public static final String MEMBER_HTTPREQUEST_NAME = "httpRequest";
+	public static final String MEMBER_DNS_NAME = "dns";
 	
 	public static final String LOG_MSG_RUN_OK = ": running with result: ";
 	public static final String LOG_MSG_RUN_ERR = ": running with error: ";
@@ -69,6 +71,7 @@ public class ScriptContext {
 		ret.put(MEMBER_SCRIPT_NAME, new ScriptManager(this));
 		ret.put(MEMBER_SNMP_NAME, new SnmpManager(snmpService, this));
 		ret.put(MEMBER_HTTPREQUEST_NAME, new HttpManager(httpDataSourceService, this));
+		ret.put(MEMBER_DNS_NAME, new InetAddressManager());
 		return ret;
 	}
 	
@@ -83,6 +86,7 @@ public class ScriptContext {
 			var func = context.eval(LANG_JS, script.getCode());
 			result = ScriptResult.ok(func.execute(param));
 		} catch (Exception e) {
+			e.printStackTrace();
 			result = ScriptResult.err(e.getMessage());
 		}
 		stack.pop();

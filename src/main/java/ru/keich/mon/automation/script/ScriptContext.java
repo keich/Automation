@@ -6,6 +6,8 @@ import java.util.Stack;
 
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.HostAccess;
+import org.graalvm.polyglot.PolyglotException;
+import org.graalvm.polyglot.Source;
 
 import ru.keich.mon.automation.dbdatasource.DBDataSourceService;
 import ru.keich.mon.automation.httpdatasource.HttpDataSourceService;
@@ -80,11 +82,28 @@ public class ScriptContext {
 			logm.severe(script.getName() + LOG_MSG_HIERAR_CIRCLE);
 			return ScriptResult.err(LOG_MSG_HIERAR_CIRCLE);
 		}
-		Map<String, Object>  result;
+		Map<String, Object> result;
 		stack.add(script.getName());
 		try {
-			var func = context.eval(LANG_JS, script.getCode());
+			var source = Source.newBuilder(LANG_JS, script.getCode(), script.getName()).build();
+			var func = context.eval(source);
 			result = ScriptResult.ok(func.execute(param));
+		} catch (PolyglotException e) {
+			var str = new StringBuffer(e.getMessage());
+			var first = true;
+			for (var tr : e.getPolyglotStackTrace()) {
+				if (!tr.isGuestFrame()) {
+					break;
+				}
+				if(first) {
+					str.append("\nStackTrace: \n");
+					first = false;
+				} else {
+					str.append('\n');
+				}
+				str.append(tr);
+			}
+			result = ScriptResult.err(str.toString());
 		} catch (Exception e) {
 			e.printStackTrace();
 			result = ScriptResult.err(e.getMessage());

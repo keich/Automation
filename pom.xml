@@ -81,6 +81,11 @@
 			<artifactId>snmp4j</artifactId>
 			<version>3.9.6</version>
 		</dependency>
+		<dependency>
+			<groupId>de.f0rce</groupId>
+			<artifactId>ace</artifactId>
+			<version>4.0.0</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

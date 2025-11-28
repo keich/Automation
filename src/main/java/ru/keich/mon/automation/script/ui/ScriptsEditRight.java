@@ -21,6 +21,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.BackEndDataProvider;
 
+import de.f0rce.ace.AceEditor;
 import lombok.extern.java.Log;
 import ru.keich.mon.automation.script.Script;
 import ru.keich.mon.automation.scripting.LogManager;
@@ -41,7 +42,7 @@ public class ScriptsEditRight extends VerticalLayout {
 	
 	private static final double SPLIT_POS = 80;
 
-	private final TextArea textArea;
+	private final AceEditor textArea;
 	private final Grid<LogManager.Line> logsConsole;
 	private final TextField nameField;
 	private final ComboBox<String> parentField;
@@ -109,8 +110,7 @@ public class ScriptsEditRight extends VerticalLayout {
 
 		header.add(formLayout);
 
-		textArea = new TextArea();
-		textArea.setWidthFull();
+		textArea = new AceEditor();
 
 		add(header);
 

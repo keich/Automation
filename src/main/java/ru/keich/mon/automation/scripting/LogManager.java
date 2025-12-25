@@ -12,7 +12,7 @@ import lombok.extern.java.Log;
 @Log
 public class LogManager {
 
-	private final Consumer<Line> callBack;
+	private Consumer<Line> callBack;
 
 	@Getter
 	public static class Line {
@@ -34,10 +34,6 @@ public class LogManager {
 
 	}
 
-	public LogManager(Consumer<Line> callBack) {
-		this.callBack = callBack;
-	}
-
 	public void info(String msg) {
 		log.log(Level.INFO, msg);
 		callBack.accept(new Line(Level.INFO, msg));
@@ -51,6 +47,10 @@ public class LogManager {
 	public void severe(String msg) {
 		log.log(Level.SEVERE, msg);
 		callBack.accept(new Line(Level.SEVERE, msg));
+	}
+
+	public void setCallBack(Consumer<Line> callBack) {
+		this.callBack = callBack;
 	}
 
 }

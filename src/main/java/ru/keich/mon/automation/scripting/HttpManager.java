@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.graalvm.polyglot.Value;
-
 import ru.keich.mon.automation.httpdatasource.HttpDataSourceService;
 import ru.keich.mon.automation.httpdatasource.HttpResult;
 

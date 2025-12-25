@@ -1,8 +1,9 @@
 package ru.keich.mon.automation.script;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
@@ -10,16 +11,13 @@ import org.springframework.stereotype.Service;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalQuery;
 
-import lombok.extern.java.Log;
 import ru.keich.mon.automation.dbdatasource.DBDataSourceService;
 import ru.keich.mon.automation.httpdatasource.HttpDataSourceService;
 import ru.keich.mon.automation.schedule.ScheduleService;
-import ru.keich.mon.automation.scripting.LogManager;
-import ru.keich.mon.automation.scripting.LogManager.Line;
+import ru.keich.mon.automation.scripting.ScriptCallBack;
 import ru.keich.mon.automation.snmp.SnmpService;
 
 @Service
-@Log
 public class ScriptService {
 
 	private final ScriptRepository scriptRepository;
@@ -84,18 +82,27 @@ public class ScriptService {
 		scriptRepository.delete(script);
 	}
 
-	public void run(String name, Object param, Consumer<Line> callBack) {
-		scriptRepository.findById(name)
-				.ifPresent(script -> {
-					run(script, param, callBack);
-				});
+	public void run(String name, Object param, ScriptCallBack callBack) {
+		scriptRepository.findById(name).ifPresentOrElse(script -> {
+			run(script, param, callBack);
+		}, () -> { 
+			callBack.onError(new RuntimeException("Script not found"));
+		});
 	}
 	
-	public void run(Script script, Object param, Consumer<Line> callBack) {
-		var logm = new LogManager(callBack);
-		var scriptContext = new ScriptContext(logm, dataSourceService, this, snmpService, httpDataSourceService);
+	public void run(Script script, Object param, ScriptCallBack callBack)  {
+		var scriptContext = new ScriptContext(dataSourceService, this, snmpService, httpDataSourceService);
+		scriptContext.setLogCallBack(callBack::onLog);
+		Map<String, Object> result = Collections.emptyMap();
 		try {
-			scriptContext.run(script, param);
+			result = scriptContext.run(script, param);
+			if(result.containsKey(ScriptResult.KEY_RESULT)) {
+				callBack.onResult(result.get(ScriptResult.KEY_RESULT).toString());
+			} else {
+				callBack.onError(new RuntimeException(result.get(ScriptResult.KEY_ERR).toString()));
+			}
+		} catch (Exception e){
+			callBack.onError(e);
 		} finally {
 			scriptContext.close();
 		}

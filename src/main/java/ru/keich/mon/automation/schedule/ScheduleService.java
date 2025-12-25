@@ -2,7 +2,6 @@ package ru.keich.mon.automation.schedule;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -13,7 +12,7 @@ import com.vaadin.flow.data.provider.Query;
 
 import ru.keich.mon.automation.script.Script;
 import ru.keich.mon.automation.script.ScriptService;
-import ru.keich.mon.automation.scripting.LogManager;
+import ru.keich.mon.automation.scripting.ScriptCallBack;
 
 @Service
 public class ScheduleService {
@@ -63,7 +62,7 @@ public class ScheduleService {
 	private void schedule(Schedule schedule) {
 		var trigger = new CronTrigger(schedule.getExpression());
 		var future = threadPoolTaskScheduler.schedule(() -> {
-			scriptService.run(schedule.getScriptName(), null, l -> {});
+			scriptService.run(schedule.getScriptName(), null, ScriptCallBack.EMPTY_CALLBACK);
 		}, trigger);
 		tasks.put(schedule, future);
 	}
@@ -75,15 +74,15 @@ public class ScheduleService {
 		});
 	}
 	
-	public void execute(Script script, Object param, Consumer<LogManager.Line> clackBack) {
+	public void execute(Script script, Object param, ScriptCallBack callBack) {
 		threadPoolTaskScheduler.execute(() -> {
-			scriptService.run(script, param, clackBack);
+			scriptService.run(script, param, callBack);
 		});
 	}
 	
-	public void execute(String scriptName, Object param, Consumer<LogManager.Line> clackBack) {
+	public void execute(String scriptName, Object param, ScriptCallBack callBack) {
 		threadPoolTaskScheduler.execute(() -> {
-			scriptService.run(scriptName, param, clackBack);
+			scriptService.run(scriptName, param, callBack);
 		});
 	}
 

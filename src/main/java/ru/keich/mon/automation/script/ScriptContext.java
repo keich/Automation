@@ -3,22 +3,26 @@ package ru.keich.mon.automation.script;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
+import java.util.function.Consumer;
 
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
 
+import lombok.extern.java.Log;
 import ru.keich.mon.automation.dbdatasource.DBDataSourceService;
 import ru.keich.mon.automation.httpdatasource.HttpDataSourceService;
 import ru.keich.mon.automation.scripting.DBManager;
 import ru.keich.mon.automation.scripting.HttpManager;
 import ru.keich.mon.automation.scripting.InetAddressManager;
 import ru.keich.mon.automation.scripting.LogManager;
+import ru.keich.mon.automation.scripting.LogManager.Line;
 import ru.keich.mon.automation.scripting.ScriptManager;
 import ru.keich.mon.automation.scripting.SnmpManager;
 import ru.keich.mon.automation.snmp.SnmpService;
 
+@Log
 public class ScriptContext {
 
 	public static final String LANG_JS = "js";
@@ -31,14 +35,11 @@ public class ScriptContext {
 	public static final String MEMBER_SNMP_NAME = "snmp";
 	public static final String MEMBER_HTTPREQUEST_NAME = "httpRequest";
 	public static final String MEMBER_DNS_NAME = "dns";
-	
-	public static final String LOG_MSG_RUN_OK = ": running with result: ";
-	public static final String LOG_MSG_RUN_ERR = ": running with error: ";
 
 	private final DBDataSourceService dataSourceService;
 	private final ScriptService scriptService;
 	private final SnmpService snmpService;
-	private final LogManager logm;
+	private final LogManager logm = new LogManager();
 	private final HttpDataSourceService httpDataSourceService;
 	private final String languare = LANG_JS;
 	private final Context context;
@@ -46,14 +47,16 @@ public class ScriptContext {
 	// TODO Use LinkedHashSet if java 21
 	private final Stack<String> stack = new Stack<>();
 
-	public ScriptContext(LogManager logm, DBDataSourceService dataSourceService, ScriptService scriptService, SnmpService snmpService, HttpDataSourceService httpDataSourceService) {
-		super();
+	public ScriptContext(DBDataSourceService dataSourceService, ScriptService scriptService, SnmpService snmpService, HttpDataSourceService httpDataSourceService) {
 		this.dataSourceService = dataSourceService;
 		this.scriptService = scriptService;
 		this.snmpService = snmpService;
-		this.logm = logm;
 		this.httpDataSourceService = httpDataSourceService;
 		context = cretaeContext();
+	}
+	
+	public void setLogCallBack(Consumer<Line> callBack) {
+		logm.setCallBack(callBack);
 	}
 
 	private Context cretaeContext() {
@@ -109,11 +112,6 @@ public class ScriptContext {
 			result = ScriptResult.err(e.getMessage());
 		}
 		stack.pop();
-		if (result.get(ScriptResult.KEY_RESULT) != null) {
-			logm.info(script.getName() + LOG_MSG_RUN_OK + result.get(ScriptResult.KEY_RESULT));
-		} else {
-			logm.severe(script.getName() + LOG_MSG_RUN_ERR + result.get(ScriptResult.KEY_ERR));
-		}
 		return result;
 	}
 	

@@ -77,9 +77,7 @@ public class ScheduleRight extends VerticalLayout {
 		
 		add(scriptName);
 		
-		enable = new Checkbox(CHECKBOX_ENABLE_TEXT, e -> {
-			e.getValue();
-		});
+		enable = new Checkbox(CHECKBOX_ENABLE_TEXT, this::validate);
 		add(enable);
 
 		var buttons = new HorizontalLayout();

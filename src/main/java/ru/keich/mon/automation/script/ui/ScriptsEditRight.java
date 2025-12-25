@@ -5,6 +5,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -25,6 +26,8 @@ import de.f0rce.ace.AceEditor;
 import lombok.extern.java.Log;
 import ru.keich.mon.automation.script.Script;
 import ru.keich.mon.automation.scripting.LogManager;
+import ru.keich.mon.automation.scripting.LogManager.Line;
+import ru.keich.mon.automation.scripting.ScriptCallBack;
 
 @Log
 public class ScriptsEditRight extends VerticalLayout {
@@ -40,6 +43,9 @@ public class ScriptsEditRight extends VerticalLayout {
 	public static final String DELETE_DIALOG_YES = "Delete";
 	public static final String DELETE_DIALOG_NO = "Cancel";
 	
+	public static final String LOG_MSG_RUN_OK = "Result: ";
+	public static final String LOG_MSG_RUN_ERR = "Error: ";
+	
 	private static final double SPLIT_POS = 80;
 
 	private final AceEditor textArea;
@@ -52,7 +58,7 @@ public class ScriptsEditRight extends VerticalLayout {
 	private final LinkedList<LogManager.Line> logs = new LinkedList<>();
 
 	public ScriptsEditRight(BackEndDataProvider<String, String> dataProvider, Consumer<Script> save,
-			Function<Script, Boolean> delete, BiConsumer<Script, Consumer<LogManager.Line>> run) {
+			Function<Script, Boolean> delete, BiConsumer<Script, ScriptCallBack> run) {
 		var header = new Header();
 		header.setWidthFull();
 
@@ -95,7 +101,24 @@ public class ScriptsEditRight extends VerticalLayout {
 		header.add(deleteButton);
 
 		var playButton = new Button(new Icon(VaadinIcon.PLAY));
-		playButton.addClickListener(e -> run.accept(getScript(), this::addLogLine));
+		var callBack = new ScriptCallBack() {
+			@Override
+			public void onLog(Line line) {
+				addLogLine(line);
+			}
+
+			@Override
+			public void onResult(String data) {
+				addLogLine(new Line(Level.INFO, LOG_MSG_RUN_OK + data));
+			}
+
+			@Override
+			public void onError(Exception e) {
+				addLogLine(new Line(Level.SEVERE, LOG_MSG_RUN_ERR + e.getMessage()));
+			}
+		};
+
+		playButton.addClickListener(e -> run.accept(getScript(), callBack));
 		header.add(playButton);
 
 		var formLayout = new FormLayout();

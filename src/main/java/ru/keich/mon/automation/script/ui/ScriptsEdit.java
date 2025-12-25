@@ -1,14 +1,12 @@
 package ru.keich.mon.automation.script.ui;
 
-import java.util.function.Consumer;
-
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 
 import ru.keich.mon.automation.schedule.ScheduleService;
 import ru.keich.mon.automation.script.Script;
 import ru.keich.mon.automation.script.ScriptService;
-import ru.keich.mon.automation.scripting.LogManager;
+import ru.keich.mon.automation.scripting.ScriptCallBack;
 
 public class ScriptsEdit extends Div {
 
@@ -49,7 +47,7 @@ public class ScriptsEdit extends Div {
 		left.refresh();
 	}
 
-	private void run(Script script, Consumer<LogManager.Line> clackBack) {
+	private void run(Script script, ScriptCallBack clackBack) {
 		scheduleService.execute(script, null, clackBack);
 	}
 

@@ -19,6 +19,8 @@ import ru.keich.mon.automation.dbdatasource.DBDataSourceService;
 import ru.keich.mon.automation.dbdatasource.ui.DBDataSourceEdit;
 import ru.keich.mon.automation.httpdatasource.HttpDataSourceService;
 import ru.keich.mon.automation.httpdatasource.ui.HttpDataSourceEdit;
+import ru.keich.mon.automation.httplistner.HttpListnerService;
+import ru.keich.mon.automation.httplistner.ui.HttpListnerEdit;
 import ru.keich.mon.automation.schedule.ScheduleService;
 import ru.keich.mon.automation.schedule.ui.ScheduleEdit;
 import ru.keich.mon.automation.script.ScriptService;
@@ -33,6 +35,7 @@ import ru.keich.mon.automation.snmp.ui.SnmpEdit;
 @RouteAlias("/schedule")
 @RouteAlias("/scripts")
 @RouteAlias("/snmp")
+@RouteAlias("/http")
 @RouteAlias("/httpdatasource")
 @Log
 public class MainView extends AppLayout implements BeforeEnterObserver {
@@ -44,21 +47,24 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 	public static final String TAB_SCHEDULE_NAME = "Schedule";
 	public static final String TAB_SCRIPTS_NAME = "Scripts";
 	public static final String TAB_SNMP_NAME = "Snmp";
+	public static final String TAB_HTTP_NAME = "Http input";
 
 	public static final String TAB_DATASOURCE_PATH = "dbdatasource";
 	public static final String TAB_HTTPDATASOURCE_PATH = "httpdatasource";
 	public static final String TAB_SCHEDULE_PATH = "schedule";
 	public static final String TAB_SCRIPTS_PATH = "scripts";
 	public static final String TAB_SNMP_PATH = "snmp";
+	public static final String TAB_HTTP_PATH = "http";
 
 	private final DBDataSourceEdit dataSourceView;
 	private final ScheduleEdit scheduleEdit;
 	private final ScriptsEdit scriptsView;
 	private final SnmpEdit snmpEdit;
 	private final HttpDataSourceEdit httpDataSourceEdit;
+	private final HttpListnerEdit httpEdit;
 
 	public MainView(SecurityService securityService, DBDataSourceService dataSourceService, ScriptService scriptService,
-			ScheduleService scheduleService, SnmpService snmpService, HttpDataSourceService httpDataSourceService) {
+			ScheduleService scheduleService, SnmpService snmpService, HttpDataSourceService httpDataSourceService, HttpListnerService httpListnerService) {
 		super();
 		dataSourceView = new DBDataSourceEdit(dataSourceService);
 		
@@ -69,6 +75,8 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 		snmpEdit = new SnmpEdit(snmpService, scriptService);
 		
 		httpDataSourceEdit = new HttpDataSourceEdit(httpDataSourceService);
+		
+		httpEdit = new HttpListnerEdit(httpListnerService, scriptService);
 
 		var toggle = new DrawerToggle();
 		var scroller = new Scroller(getSideNav());
@@ -90,9 +98,10 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 	private SideNav getSideNav() {
 		SideNav sideNav = new SideNav();
 		sideNav.addItem(new SideNavItem(TAB_DATASOURCE_NAME, TAB_DATASOURCE_PATH, VaadinIcon.DATABASE.create()),
-				new SideNavItem(TAB_HTTPDATASOURCE_NAME, TAB_HTTPDATASOURCE_PATH, VaadinIcon.FILE_CODE.create()),
+				new SideNavItem(TAB_HTTPDATASOURCE_NAME, TAB_HTTPDATASOURCE_PATH, VaadinIcon.OUTBOX.create()),
 				new SideNavItem(TAB_SCHEDULE_NAME, TAB_SCHEDULE_PATH, VaadinIcon.TIMER.create()),
 				new SideNavItem(TAB_SNMP_NAME, TAB_SNMP_PATH, VaadinIcon.PAPERPLANE.create()),
+				new SideNavItem(TAB_HTTP_NAME, TAB_HTTP_PATH, VaadinIcon.INBOX.create()),
 				new SideNavItem(TAB_SCRIPTS_NAME, TAB_SCRIPTS_PATH, VaadinIcon.FILE_CODE.create()));
 		return sideNav;
 	}
@@ -114,6 +123,9 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 			break;
 		case TAB_HTTPDATASOURCE_PATH:
 			this.setContent(httpDataSourceEdit);
+			break;
+		case TAB_HTTP_PATH:
+			this.setContent(httpEdit);
 			break;
 		}
 	}

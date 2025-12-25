@@ -31,6 +31,7 @@ import com.vaadin.flow.data.provider.Query;
 
 import lombok.extern.java.Log;
 import ru.keich.mon.automation.schedule.ScheduleService;
+import ru.keich.mon.automation.scripting.ScriptCallBack;
 
 @Service
 @Log
@@ -77,7 +78,7 @@ public class SnmpService {
 				getScriptName(event)
 						.map(SnmpScriptMapping::getScriptName)
 						.ifPresent(scriptName -> {
-							scheduleService.execute(scriptName, snmpTrapToMap(event), l -> {});
+							scheduleService.execute(scriptName, snmpTrapToMap(event), ScriptCallBack.EMPTY_CALLBACK);
 						});
 			}
 		};

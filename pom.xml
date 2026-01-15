@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>ru.keich.mon</groupId>
 	<artifactId>automation</artifactId>
-	<version>0.0.1</version>
+	<version>0.1.0</version>
 	<name>Automation </name>
 	<properties>
 		<java.version>17</java.version>

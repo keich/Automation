@@ -9,6 +9,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 
@@ -42,6 +43,7 @@ public class DBDataSourceRight extends VerticalLayout {
 	public static final String FORM_URL_TEXT = "JDBC URL";
 	public static final String FORM_LOGIN_TEXT = "User Name";
 	public static final String FORM_PASS_TEXT = "Password";
+	public static final String FORM_POOLSIZE_TEXT = "Maximum Pool Size";
 	
 
 	public static final String DELETE_DIALOG_TEXT = "Want to delete ";
@@ -56,6 +58,7 @@ public class DBDataSourceRight extends VerticalLayout {
 	private final TextField jdbcURL;
 	private final TextField login;
 	private final PasswordField password;
+	private final NumberField maximumPoolSize;
 
 	public DBDataSourceRight(Consumer<DBDataSource> save, Consumer<DBDataSource> delete) {
 		var formLayout = new FormLayout();
@@ -73,7 +76,9 @@ public class DBDataSourceRight extends VerticalLayout {
 		password = new PasswordField(FORM_PASS_TEXT, this::validate);
 		password.setRevealButtonVisible(false);
 		
-		formLayout.add(name, dricerClass, jdbcURL, login, password);
+		maximumPoolSize = new NumberField(FORM_POOLSIZE_TEXT);
+		
+		formLayout.add(name, dricerClass, jdbcURL, login, password, maximumPoolSize);
 
 		add(formLayout);
 
@@ -112,7 +117,8 @@ public class DBDataSourceRight extends VerticalLayout {
 				.setDbClass(dricerClass.getValue())
 				.setURL(jdbcURL.getValue())
 				.setLogin(login.getValue())
-				.setPassword(password.getValue());
+				.setPassword(password.getValue())
+				.setMaximumPoolSize(maximumPoolSize.getValue() != null ? maximumPoolSize.getValue().intValue() : null);
 	}
 
 	public boolean open(DBDataSource dbDataSource) {
@@ -122,6 +128,7 @@ public class DBDataSourceRight extends VerticalLayout {
 		login.setValue(dbDataSource.getLogin());
 		password.setValue(dbDataSource.getPassword());
 		deleteButton.setEnabled(true);
+		maximumPoolSize.setValue(Double.valueOf(dbDataSource.getMaximumPoolSize()));
 		return false;
 	}
 
@@ -131,6 +138,7 @@ public class DBDataSourceRight extends VerticalLayout {
 		jdbcURL.clear();
 		login.clear();
 		password.clear();
+		maximumPoolSize.clear();
 	}
 
 	public boolean add() {

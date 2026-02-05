@@ -67,7 +67,7 @@ public class DBDataSourceService {
 
 	private JdbcTemplate getJdbcTemplate(DBDataSource conf) {
 		final HikariDataSource ds = new HikariDataSource();
-		ds.setMaximumPoolSize(100);
+		ds.setMaximumPoolSize(conf.getMaximumPoolSize());
 		ds.setDriverClassName(conf.getDbClass());
 		ds.setJdbcUrl(conf.getURL());
 		ds.setUsername(conf.getLogin());

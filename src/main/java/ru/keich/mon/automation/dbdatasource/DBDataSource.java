@@ -1,5 +1,6 @@
 package ru.keich.mon.automation.dbdatasource;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Getter;
@@ -37,9 +38,11 @@ public class DBDataSource {
 
 	private String password = "";
 
+	private Integer maximumPoolSize = 10;
+
 	public boolean isValid() {
 		return name != null && dbClass != null && URL != null && login != null && !"".equals(name)
-				&& !"".equals(dbClass) && !"".equals(URL) && !"".equals(login);
+				&& !"".equals(dbClass) && !"".equals(URL) && !"".equals(login) &&  maximumPoolSize != null && maximumPoolSize > 0;
 	}
 	
 	public DBDataSource setName(String name) {
@@ -64,6 +67,11 @@ public class DBDataSource {
 
 	public DBDataSource setPassword(String password) {
 		this.password = password;
+		return this;
+	}
+	
+	public DBDataSource setMaximumPoolSize(Integer maximumPoolSize) {
+		this.maximumPoolSize = maximumPoolSize;
 		return this;
 	}
 	

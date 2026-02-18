@@ -76,7 +76,7 @@ public class DBDataSourceRight extends VerticalLayout {
 		password = new PasswordField(FORM_PASS_TEXT, this::validate);
 		password.setRevealButtonVisible(false);
 		
-		maximumPoolSize = new NumberField(FORM_POOLSIZE_TEXT);
+		maximumPoolSize = new NumberField(FORM_POOLSIZE_TEXT, this::validate);
 		
 		formLayout.add(name, dricerClass, jdbcURL, login, password, maximumPoolSize);
 

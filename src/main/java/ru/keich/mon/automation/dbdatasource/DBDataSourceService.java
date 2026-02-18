@@ -111,7 +111,7 @@ public class DBDataSourceService {
 			return ds;
 		});
 		if (dataSource == null) {
-			throw new DBDataSourceMissing();
+			throw new DBDataSourceMissing("Data source name not found: " + dataSourceName);
 		}
 		return dataSource;
 	}

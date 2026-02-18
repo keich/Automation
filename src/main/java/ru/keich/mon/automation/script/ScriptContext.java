@@ -111,16 +111,15 @@ public class ScriptContext {
 			var str = new StringBuffer(e.getMessage());
 			var first = true;
 			for (var tr : e.getPolyglotStackTrace()) {
-				if (!tr.isGuestFrame()) {
-					break;
+				if (tr.isGuestFrame()) {
+					if(first) {
+						str.append("\nStackTrace: \n");
+						first = false;
+					} else {
+						str.append('\n');
+					}
+					str.append(tr);
 				}
-				if(first) {
-					str.append("\nStackTrace: \n");
-					first = false;
-				} else {
-					str.append('\n');
-				}
-				str.append(tr);
 			}
 			result = ScriptResult.err(str.toString());
 		} catch (Exception e) {

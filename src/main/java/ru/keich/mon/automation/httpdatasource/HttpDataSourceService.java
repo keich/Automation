@@ -148,13 +148,10 @@ public class HttpDataSourceService {
 				.exchangeToMono(response -> {
 					var result = new HttpResult();
 					result.setStatus(response.statusCode().value());
-					if (response.statusCode().is2xxSuccessful()) {
-						return response.bodyToMono(String.class).map(body -> {
-							result.setData(body);
-							return result;
-						});		
-					}
-					return Mono.just(result);
+					return response.bodyToMono(String.class).map(body -> {
+						result.setData(body);
+						return result;
+					});
 				})
 				.onErrorResume(e -> {
 					var result = new HttpResult();
@@ -183,13 +180,10 @@ public class HttpDataSourceService {
 				.exchangeToMono(response -> {
 					var result = new HttpResult();
 					result.setStatus(response.statusCode().value());
-					if (response.statusCode().is2xxSuccessful()) {
-						return response.bodyToMono(String.class).map(data -> {
-							result.setData(data);
-							return result;
-						});		
-					}
-					return Mono.just(result);
+					return response.bodyToMono(String.class).map(data -> {
+						result.setData(data);
+						return result;
+					});	
 				})
 				.onErrorResume(e -> {
 					var result = new HttpResult();

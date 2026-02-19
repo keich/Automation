@@ -1,5 +1,7 @@
 package ru.keich.mon.automation.httpdatasource;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -10,8 +12,11 @@ import javax.net.ssl.SSLException;
 
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import com.vaadin.flow.data.provider.Query;
 
@@ -79,7 +84,9 @@ public class HttpDataSourceService {
 	}
 	
 	private WebClient getWebClient(HttpDataSource dataSource) {
-		return baseClient.mutate().baseUrl(dataSource.getBaseUrl()).build();
+		var factory = new DefaultUriBuilderFactory(dataSource.getBaseUrl());
+		factory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.NONE);
+		return baseClient.mutate().uriBuilderFactory(factory).build();
 	}
 	
 	private WebClient getWebClient(String name) {
@@ -96,16 +103,18 @@ public class HttpDataSourceService {
 		});
 	}
 
+	private MultiValueMap<String, String> prepareUriParams(Map<String, List<String>> params) {	
+		var out = new LinkedMultiValueMap<String, String>();
+		params.forEach((k, v) -> {
+			out.addAll(k, v.stream().map(s -> URLEncoder.encode(s, StandardCharsets.UTF_8)).toList());
+		});
+		return out;
+	}
+
 	public HttpResult getRequest(String name, String path, Map<String, List<String>> params, Map<String, String> headers) {
 		return getWebClient(name)
 				.get()
-				.uri(uriBuilder -> {
-					var uri = uriBuilder.path(path);
-					params.entrySet().forEach(e -> {
-						uri.queryParam(e.getKey(), e.getValue());
-					});
-					return uri.build();
-				})
+				.uri(uriBuilder -> uriBuilder.path(path).queryParams(prepareUriParams(params)).build())
 				.headers(ch -> {
 					headers.entrySet().forEach(e -> {
 						ch.add(e.getKey(), e.getValue());
@@ -132,13 +141,7 @@ public class HttpDataSourceService {
 			String data) {
 		return getWebClient(name)
 				.post()
-				.uri(uriBuilder -> {
-					var uri = uriBuilder.path(path);
-					params.entrySet().forEach(e -> {
-						uri.queryParam(e.getKey(), e.getValue());
-					});
-					return uri.build();
-				})
+				.uri(uriBuilder -> uriBuilder.path(path).queryParams(prepareUriParams(params)).build())
 				.headers(ch -> {
 					headers.entrySet().forEach(e -> {
 						ch.add(e.getKey(), e.getValue());
@@ -165,13 +168,7 @@ public class HttpDataSourceService {
 	public HttpResult delRequest(String name, String path, Map<String, List<String>> params, Map<String, String> headers) {
 		return getWebClient(name)
 				.delete()
-				.uri(uriBuilder -> {
-					var uri = uriBuilder.path(path);
-					params.entrySet().forEach(e -> {
-						uri.queryParam(e.getKey(), e.getValue());
-					});
-					return uri.build();
-				})
+				.uri(uriBuilder -> uriBuilder.path(path).queryParams(prepareUriParams(params)).build())
 				.headers(ch -> {
 					headers.entrySet().forEach(e -> {
 						ch.add(e.getKey(), e.getValue());

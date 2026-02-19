@@ -5,7 +5,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import javax.net.ssl.SSLException;
@@ -16,6 +15,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import com.vaadin.flow.data.provider.Query;
@@ -111,72 +111,48 @@ public class HttpDataSourceService {
 		return out;
 	}
 
+	private HttpResult toResult(RequestHeadersSpec<?> req) {
+		return req.exchangeToMono(response -> {
+			var result = new HttpResult();
+			result.setStatus(response.statusCode().value());
+			return response.bodyToMono(String.class).map(data -> {
+				result.setData(data);
+				return result;
+			});		
+		})
+		.onErrorResume(e -> {
+			var result = new HttpResult();
+			result.setStatus(0);
+			result.setErrMessage(e.getMessage());
+			return Mono.just(result);
+		})
+		.block();
+	}
+
 	public HttpResult getRequest(String name, String path, Map<String, List<String>> params, Map<String, List<String>> headers) {
-		return getWebClient(name)
+		var req = getWebClient(name)
 				.get()
 				.uri(uriBuilder -> uriBuilder.path(path).queryParams(prepareUriParams(params)).build())
-				.headers(httpHeaders -> httpHeaders.addAll(new LinkedMultiValueMap<String, String>(headers)))
-				.exchangeToMono(response -> {
-					var result = new HttpResult();
-					result.setStatus(response.statusCode().value());
-					return response.bodyToMono(String.class).map(data -> {
-						result.setData(data);
-						return result;
-					});		
-				})
-				.onErrorResume(e -> {
-					var result = new HttpResult();
-					result.setStatus(0);
-					result.setErrMessage(e.getMessage());
-					return Mono.just(result);
-				})
-				.block();
+				.headers(httpHeaders -> httpHeaders.addAll(new LinkedMultiValueMap<String, String>(headers)));
+		return toResult(req);
 	}
 
 	public HttpResult postRequest(String name, String path, Map<String, List<String>> params, Map<String, List<String>> headers,
 			String data) {
-		return getWebClient(name)
+		var req =  getWebClient(name)
 				.post()
 				.uri(uriBuilder -> uriBuilder.path(path).queryParams(prepareUriParams(params)).build())
 				.headers(httpHeaders -> httpHeaders.addAll(new LinkedMultiValueMap<String, String>(headers)))
-				.bodyValue(data)
-				.exchangeToMono(response -> {
-					var result = new HttpResult();
-					result.setStatus(response.statusCode().value());
-					return response.bodyToMono(String.class).map(body -> {
-						result.setData(body);
-						return result;
-					});
-				})
-				.onErrorResume(e -> {
-					var result = new HttpResult();
-					result.setStatus(0);
-					result.setErrMessage(e.getMessage());
-					return Mono.just(result);
-				})
-				.block();
+				.bodyValue(data);
+		return toResult(req);
 	}
 	
 	public HttpResult delRequest(String name, String path, Map<String, List<String>> params, Map<String, List<String>> headers) {
-		return getWebClient(name)
+		var req =  getWebClient(name)
 				.delete()
 				.uri(uriBuilder -> uriBuilder.path(path).queryParams(prepareUriParams(params)).build())
-				.headers(httpHeaders -> httpHeaders.addAll(new LinkedMultiValueMap<String, String>(headers)))
-				.exchangeToMono(response -> {
-					var result = new HttpResult();
-					result.setStatus(response.statusCode().value());
-					return response.bodyToMono(String.class).map(data -> {
-						result.setData(data);
-						return result;
-					});	
-				})
-				.onErrorResume(e -> {
-					var result = new HttpResult();
-					result.setStatus(0);
-					result.setErrMessage(e.getMessage());
-					return Mono.just(result);
-				})
-				.block();
+				.headers(httpHeaders -> httpHeaders.addAll(new LinkedMultiValueMap<String, String>(headers)));
+		return toResult(req);
 	}
 	
 }

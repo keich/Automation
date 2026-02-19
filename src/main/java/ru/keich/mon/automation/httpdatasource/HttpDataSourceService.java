@@ -111,15 +111,11 @@ public class HttpDataSourceService {
 		return out;
 	}
 
-	public HttpResult getRequest(String name, String path, Map<String, List<String>> params, Map<String, String> headers) {
+	public HttpResult getRequest(String name, String path, Map<String, List<String>> params, Map<String, List<String>> headers) {
 		return getWebClient(name)
 				.get()
 				.uri(uriBuilder -> uriBuilder.path(path).queryParams(prepareUriParams(params)).build())
-				.headers(ch -> {
-					headers.entrySet().forEach(e -> {
-						ch.add(e.getKey(), e.getValue());
-					});
-				})
+				.headers(httpHeaders -> httpHeaders.addAll(new LinkedMultiValueMap<String, String>(headers)))
 				.exchangeToMono(response -> {
 					var result = new HttpResult();
 					result.setStatus(response.statusCode().value());
@@ -137,16 +133,12 @@ public class HttpDataSourceService {
 				.block();
 	}
 
-	public HttpResult postRequest(String name, String path, Map<String, List<String>> params, Map<String, String> headers,
+	public HttpResult postRequest(String name, String path, Map<String, List<String>> params, Map<String, List<String>> headers,
 			String data) {
 		return getWebClient(name)
 				.post()
 				.uri(uriBuilder -> uriBuilder.path(path).queryParams(prepareUriParams(params)).build())
-				.headers(ch -> {
-					headers.entrySet().forEach(e -> {
-						ch.add(e.getKey(), e.getValue());
-					});
-				})
+				.headers(httpHeaders -> httpHeaders.addAll(new LinkedMultiValueMap<String, String>(headers)))
 				.bodyValue(data)
 				.exchangeToMono(response -> {
 					var result = new HttpResult();
@@ -165,15 +157,11 @@ public class HttpDataSourceService {
 				.block();
 	}
 	
-	public HttpResult delRequest(String name, String path, Map<String, List<String>> params, Map<String, String> headers) {
+	public HttpResult delRequest(String name, String path, Map<String, List<String>> params, Map<String, List<String>> headers) {
 		return getWebClient(name)
 				.delete()
 				.uri(uriBuilder -> uriBuilder.path(path).queryParams(prepareUriParams(params)).build())
-				.headers(ch -> {
-					headers.entrySet().forEach(e -> {
-						ch.add(e.getKey(), e.getValue());
-					});
-				})
+				.headers(httpHeaders -> httpHeaders.addAll(new LinkedMultiValueMap<String, String>(headers)))
 				.exchangeToMono(response -> {
 					var result = new HttpResult();
 					result.setStatus(response.statusCode().value());

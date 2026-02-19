@@ -47,8 +47,8 @@ public class HttpManager {
 		return resultToMap(httpDataSourceService.getRequest(name, path, params, headers));
 	}
 	
-	public Map<String, Object> delete(String name, String path, Map<String, List<String>> params, Map<String, List<String>> headers) {
-		return resultToMap(httpDataSourceService.delRequest(name, path, params, headers));
+	public Map<String, Object> delete(String name, String path, Map<String, List<String>> params, Map<String, List<String>> headers, String data) {
+		return resultToMap(httpDataSourceService.delRequest(name, path, params, headers, data));
 	}
 	
 	public Map<String, Object> post(String name, String path, Map<String, List<String>> params, Map<String, List<String>> headers, String data) {

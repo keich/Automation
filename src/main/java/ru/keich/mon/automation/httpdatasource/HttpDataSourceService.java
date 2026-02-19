@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 
 import javax.net.ssl.SSLException;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -147,11 +148,13 @@ public class HttpDataSourceService {
 		return toResult(req);
 	}
 	
-	public HttpResult delRequest(String name, String path, Map<String, List<String>> params, Map<String, List<String>> headers) {
+	public HttpResult delRequest(String name, String path, Map<String, List<String>> params, Map<String, List<String>> headers,
+			String data) {
 		var req =  getWebClient(name)
-				.delete()
+				.method(HttpMethod.DELETE)
 				.uri(uriBuilder -> uriBuilder.path(path).queryParams(prepareUriParams(params)).build())
-				.headers(httpHeaders -> httpHeaders.addAll(new LinkedMultiValueMap<String, String>(headers)));
+				.headers(httpHeaders -> httpHeaders.addAll(new LinkedMultiValueMap<String, String>(headers)))
+				.bodyValue(data);
 		return toResult(req);
 	}
 	

@@ -83,7 +83,7 @@ public class SnmpService {
 		transport = new DefaultUdpTransportMapping();
 		snmp = new Snmp(transport);
 		treeUtils = new TreeUtils(snmp, new DefaultPDUFactory());
-		
+		treeUtils.setIgnoreLexicographicOrder(true);
 		snmp.listen();
 	}
 	
@@ -175,12 +175,7 @@ public class SnmpService {
 				} catch (InterruptedException e) {
 					log.log(Level.WARNING, "Walk retrieval interrupted: " + e.getMessage());
 				}
-				while (listner.hasFinished()) {
-					consumer.accept(listner.getFinished());
-				}
-			}
-			while (listner.hasFinished()) {
-				consumer.accept(listner.getFinished());
+				listner.doFinished(consumer);
 			}
 		}
 	}

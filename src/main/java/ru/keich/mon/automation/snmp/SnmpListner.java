@@ -1,8 +1,10 @@
 package ru.keich.mon.automation.snmp;
 
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
 
 import org.snmp4j.util.TreeEvent;
 import org.snmp4j.util.TreeListener;
@@ -26,7 +28,7 @@ import org.snmp4j.util.TreeListener;
 public class SnmpListner implements TreeListener {
 
 	private final Map<String, SnmpResult> results = new HashMap<>();
-	private final LinkedList<String> finished = new LinkedList<>();
+	private final Set<String> finished = new HashSet<>();
 
 	@Override
 	public synchronized boolean next(TreeEvent event) {
@@ -71,16 +73,14 @@ public class SnmpListner implements TreeListener {
 		results.put(key, new SnmpResult(key));
 	}
 
-	public synchronized boolean hasFinished() {
-		return finished.size() > 0;
-	}
-
-	public synchronized SnmpResult getFinished() {
-		if (results.size() > 0) {
-			var key = finished.pollFirst();
-			return results.remove(key);
-		}
-		return null;
+	public synchronized void doFinished(Consumer<SnmpResult> consumer) {
+		finished.forEach(key -> {
+			var data = results.remove(key);
+			if(data != null) {
+				consumer.accept(data);
+			}
+		});
+		finished.clear();
 	}
 
 }

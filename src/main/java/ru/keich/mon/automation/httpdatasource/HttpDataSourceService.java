@@ -116,6 +116,7 @@ public class HttpDataSourceService {
 		return req.exchangeToMono(response -> {
 			var result = new HttpResult();
 			result.setStatus(response.statusCode().value());
+			result.setHeaders(response.headers().asHttpHeaders());
 			return response.bodyToMono(String.class).map(data -> {
 				result.setData(data);
 				return result;
@@ -124,7 +125,7 @@ public class HttpDataSourceService {
 		.onErrorResume(e -> {
 			var result = new HttpResult();
 			result.setStatus(0);
-			result.setErrMessage(e.getMessage());
+			result.setErrorMessage(e.getMessage());
 			return Mono.just(result);
 		})
 		.block();

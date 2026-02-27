@@ -1,5 +1,9 @@
 package ru.keich.mon.automation.httpdatasource;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,7 +28,8 @@ import lombok.Setter;
 public class HttpResult {
 
 	private int status = 0;
-	private String errMessage = "";
+	private String errorMessage = "";
 	private String data = "";
+	private Map<String, List<String>> headers = Collections.emptyMap();
 
 }

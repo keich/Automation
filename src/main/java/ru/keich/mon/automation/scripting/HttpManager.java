@@ -28,6 +28,7 @@ public class HttpManager {
 	public final String RESULT_PARAM_STATUS = "status";
 	public final String RESULT_PARAM_ERR = "errorMessage";
 	public final String RESULT_PARAM_DATA = "data";
+	public final String RESULT_PARAM_HEADERS = "headers";
 	
 	private final HttpDataSourceService httpDataSourceService;
 
@@ -38,8 +39,9 @@ public class HttpManager {
 	private Map<String, Object> resultToMap(HttpResult result) {
 		var ret = new HashMap<String, Object>();
 		ret.put(RESULT_PARAM_STATUS, result.getStatus());
-		ret.put(RESULT_PARAM_ERR, result.getErrMessage());
+		ret.put(RESULT_PARAM_ERR, result.getErrorMessage());
 		ret.put(RESULT_PARAM_DATA, result.getData());
+		ret.put(RESULT_PARAM_HEADERS, result.getHeaders());
 		return ret;
 	}
 	

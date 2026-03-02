@@ -116,8 +116,8 @@ public class DBDataSourceService {
 		return dataSource;
 	}
 
-	public List<Map<String, Object>> queryForList(String dataSourceName, String sql) {
-		return getDataSource(dataSourceName).queryForList(sql);
+	public List<Map<String, Object>> queryForList(String dataSourceName, String sql, Object[] args) {
+		return getDataSource(dataSourceName).queryForList(sql, args);
 	}
 	
 	public int update(String dataSourceName, String sql, Object[] args) {

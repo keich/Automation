@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 
 import javax.net.ssl.SSLException;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
@@ -53,11 +54,11 @@ public class HttpDataSourceService {
 	
 	private final WebClient baseClient;
 	
-	public HttpDataSourceService(HttpDataSourceRepository httpDataSourceRepository) throws SSLException {
+	public HttpDataSourceService(HttpDataSourceRepository httpDataSourceRepository, @Value("${httpdatasource.maxinmemorysize:2621440}") Integer memSize) throws SSLException {
 		this.httpDataSourceRepository = httpDataSourceRepository;
 		
 		final ExchangeStrategies strategies = ExchangeStrategies.builder()
-				.codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(2621440)).build();
+				.codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(memSize)).build();
 		var sslContext = SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
 		var httpClient = HttpClient.create().secure(t -> t.sslContext(sslContext));
 		baseClient = WebClient

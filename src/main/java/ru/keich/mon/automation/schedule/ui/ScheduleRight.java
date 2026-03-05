@@ -128,6 +128,8 @@ public class ScheduleRight extends VerticalLayout {
 	private void clear() {
 		name.clear();
 		expression.clear();
+		scriptName.clear();
+		deleteButton.setEnabled(false);
 	}
 
 	public boolean add() {

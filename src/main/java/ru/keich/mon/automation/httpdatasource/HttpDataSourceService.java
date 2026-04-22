@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.net.ssl.SSLException;
@@ -117,7 +118,7 @@ public class HttpDataSourceService {
 		return req.exchangeToMono(response -> {
 			var result = new HttpResult();
 			result.setStatus(response.statusCode().value());
-			result.setHeaders(response.headers().asHttpHeaders());
+			result.setHeaders(response.headers().asHttpHeaders().headerSet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 			return response.bodyToMono(String.class).map(data -> {
 				result.setData(data);
 				return result;
@@ -136,7 +137,7 @@ public class HttpDataSourceService {
 		var req = getWebClient(name)
 				.get()
 				.uri(uriBuilder -> uriBuilder.path(path).queryParams(prepareUriParams(params)).build())
-				.headers(httpHeaders -> httpHeaders.addAll(new LinkedMultiValueMap<String, String>(headers)));
+				.headers(httpHeaders -> headers.entrySet().forEach(e -> httpHeaders.addAll(e.getKey(), e.getValue())));
 		return toResult(req);
 	}
 
@@ -145,7 +146,7 @@ public class HttpDataSourceService {
 		var req =  getWebClient(name)
 				.post()
 				.uri(uriBuilder -> uriBuilder.path(path).queryParams(prepareUriParams(params)).build())
-				.headers(httpHeaders -> httpHeaders.addAll(new LinkedMultiValueMap<String, String>(headers)))
+				.headers(httpHeaders -> headers.entrySet().forEach(e -> httpHeaders.addAll(e.getKey(), e.getValue())))
 				.bodyValue(data);
 		return toResult(req);
 	}
@@ -155,7 +156,7 @@ public class HttpDataSourceService {
 		var req =  getWebClient(name)
 				.method(HttpMethod.DELETE)
 				.uri(uriBuilder -> uriBuilder.path(path).queryParams(prepareUriParams(params)).build())
-				.headers(httpHeaders -> httpHeaders.addAll(new LinkedMultiValueMap<String, String>(headers)))
+				.headers(httpHeaders -> headers.entrySet().forEach(e -> httpHeaders.addAll(e.getKey(), e.getValue())))
 				.bodyValue(data);
 		return toResult(req);
 	}

@@ -2,13 +2,11 @@ package ru.keich.mon.automation;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-import com.vaadin.flow.spring.security.VaadinAwareSecurityContextHolderStrategyConfiguration;
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,7 +30,6 @@ import ru.keich.mon.automation.httplistner.HttpListnerService;
 
 @EnableWebSecurity
 @Configuration
-@Import(VaadinAwareSecurityContextHolderStrategyConfiguration.class)
 public class SecurityConfiguration {
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http, HttpListnerService httpListnerService) throws Exception {
@@ -51,6 +48,7 @@ public class SecurityConfiguration {
 		};
 		
 		http.authorizeHttpRequests(auth -> {
+			auth.requestMatchers("/ace-builds/**").authenticated();
 			auth.requestMatchers("/public/**").permitAll();
 			auth.requestMatchers(mather).permitAll();
 		});

@@ -3,8 +3,10 @@ package ru.keich.mon.automation;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.Push;
+import com.vaadin.flow.theme.lumo.Lumo;
 
 /*
  * Copyright 2026 the original author or authors.
@@ -24,6 +26,7 @@ import com.vaadin.flow.component.page.Push;
 
 
 @SpringBootApplication
+@StyleSheet(Lumo.STYLESHEET)
 @Push
 public class Application implements AppShellConfigurator {
 

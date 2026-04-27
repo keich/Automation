@@ -38,6 +38,7 @@ public class HttpListnerService {
 	private final ScheduleService scheduleService;
 	public static final String MAP_PATHPARAM = "pathparam";
 	public static final String MAP_REQPARAM = "reqparam";
+	public static final String MAP_HEADERS= "headers";
 	private final Map<String, HttpListner> cache = new ConcurrentHashMap<>();
 
 	public HttpListnerService(HttpListnerRepository httpListnerRepository, ScheduleService scheduleService) {
@@ -53,7 +54,7 @@ public class HttpListnerService {
 		return Math.toIntExact(httpListnerRepository.findAll().stream().skip(q.getOffset()).limit(q.getLimit()).count());
 	}
 
-	public Mono<String> run(HttpListner httpListner, String pathVar, MultiValueMap<String, String> reqParam) {
+	public Mono<String> run(HttpListner httpListner, MultiValueMap<String, String> headers, String pathVar, MultiValueMap<String, String> reqParam) {
 		Mono<String> result = Mono.create(sink -> {
 			var callBack = new ScriptCallBack() {
 
@@ -69,6 +70,7 @@ public class HttpListnerService {
 
 			};
 			var scriptParams = new HashMap<String, Object>();
+			scriptParams.put(MAP_HEADERS, headers);
 			scriptParams.put(MAP_REQPARAM, reqParam);
 			scriptParams.put(MAP_PATHPARAM, pathVar);
 			scheduleService.execute(httpListner.getScriptName(), scriptParams, callBack);

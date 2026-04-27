@@ -1,5 +1,10 @@
 package ru.keich.mon.automation.httplistner;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -9,6 +14,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.http.MediaType;
 
 
@@ -42,7 +50,7 @@ public class HttpListnerController {
 
 	@GetMapping(value = { "/{path}/{pathVar}", "/{path}" })
 	@ResponseBody
-	public Mono<ResponseEntity<String>> get(@RequestParam MultiValueMap<String, String> reqParam,
+	public Mono<ResponseEntity<String>> get(HttpServletRequest request, @RequestParam MultiValueMap<String, String> reqParam,
 			@PathVariable(required = true) String path, @PathVariable(required = false) String pathVar) {
 		var opt = httpListnerService.getHttListner(path);
 		if(opt.isEmpty()) {
@@ -52,7 +60,10 @@ public class HttpListnerController {
 		if (!httpListner.isEnable()) {
 			return Mono.just(ResponseEntity.status(HttpStatusCode.valueOf(503)).body("Path is disable"));
 		}
-		return httpListnerService.run(httpListner, pathVar, reqParam).map(data -> {
+		var headers = Collections.list(request.getHeaderNames()).stream()
+				.map(name -> Map.entry(name, (List<String>)Collections.list(request.getHeaders(name))))
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+		return httpListnerService.run(httpListner, MultiValueMap.fromMultiValue(headers), pathVar, reqParam).map(data -> {
 			var contetntType = MediaType.TEXT_HTML;
 			if(httpListner.getContentType() == HttpListner.ContentType.JSON) {
 				contetntType = MediaType.APPLICATION_JSON;

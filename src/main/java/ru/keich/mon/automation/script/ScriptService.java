@@ -1,8 +1,6 @@
 package ru.keich.mon.automation.script;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -105,17 +103,17 @@ public class ScriptService {
 			callBack.onError(new RuntimeException("Script not found"));
 		});
 	}
-	
+
 	public void run(Script script, Object param, ScriptCallBack callBack)  {
 		var scriptContext = new ScriptContext(dataSourceService, this, snmpService, httpDataSourceService);
 		scriptContext.setLogCallBack(callBack::onLog);
-		Map<String, Object> result = Collections.emptyMap();
+		final ScriptResult result;
 		try {
 			result = scriptContext.run(script, param);
-			if(result.containsKey(ScriptResult.KEY_RESULT)) {
-				callBack.onResult(result.get(ScriptResult.KEY_RESULT).toString());
+			if(!result.isError()) {
+				callBack.onResult(result.getValue().asString());
 			} else {
-				callBack.onError(new RuntimeException(result.get(ScriptResult.KEY_ERR).toString()));
+				callBack.onError(new RuntimeException(result.getError()));
 			}
 		} catch (Exception e){
 			callBack.onError(e);

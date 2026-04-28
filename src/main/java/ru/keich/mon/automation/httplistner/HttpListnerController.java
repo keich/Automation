@@ -1,11 +1,13 @@
 package ru.keich.mon.automation.httplistner;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.MultiValueMap;
@@ -16,10 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import jakarta.servlet.http.HttpServletRequest;
-
-import org.springframework.http.MediaType;
-
-
 import reactor.core.publisher.Mono;
 
 /*
@@ -42,6 +40,11 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/httplistner")
 public class HttpListnerController {
 
+	public static final String MAP_PATHPARAM = "pathParam";
+	public static final String MAP_REQPARAM = "reqParam";
+	public static final String MAP_OUTPUTHEADERS= "outputHeaders";
+	public static final String MAP_HEADERS= "headers";
+	
 	private final HttpListnerService httpListnerService;
 
 	public HttpListnerController(HttpListnerService httpListnerService) {
@@ -60,18 +63,19 @@ public class HttpListnerController {
 		if (!httpListner.isEnable()) {
 			return Mono.just(ResponseEntity.status(HttpStatusCode.valueOf(503)).body("Path is disable"));
 		}
+		var contetntType = httpListner.getContentType() == HttpListner.ContentType.JSON ? MediaType.APPLICATION_JSON :MediaType.TEXT_HTML;
 		var headers = Collections.list(request.getHeaderNames()).stream()
 				.map(name -> Map.entry(name, (List<String>)Collections.list(request.getHeaders(name))))
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-		return httpListnerService.run(httpListner, MultiValueMap.fromMultiValue(headers), pathVar, reqParam).map(data -> {
-			var contetntType = MediaType.TEXT_HTML;
-			if(httpListner.getContentType() == HttpListner.ContentType.JSON) {
-				contetntType = MediaType.APPLICATION_JSON;
-			}
-			return ResponseEntity.ok().contentType(contetntType).body(data);
-		}).onErrorResume(e -> {
-			return Mono.just(ResponseEntity.status(HttpStatusCode.valueOf(503)).body(e.getMessage()));
-		});
+		var outputHeaders = new HashMap<String, List<String>>();
+		var scriptParams = new HashMap<String, Object>();
+		scriptParams.put(MAP_HEADERS, headers);
+		scriptParams.put(MAP_REQPARAM, reqParam);
+		scriptParams.put(MAP_PATHPARAM, pathVar);
+		scriptParams.put(MAP_OUTPUTHEADERS, outputHeaders);
+		return httpListnerService.run(httpListner, scriptParams)
+				.map(data -> ResponseEntity.ok().headers(h -> outputHeaders.forEach(h::addAll)).contentType(contetntType).body(data))
+				.onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatusCode.valueOf(503)).body(e.getMessage())));
 	}
 
 }

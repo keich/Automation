@@ -1,8 +1,5 @@
 package ru.keich.mon.automation.script;
 
-import java.util.Collections;
-import java.util.Map;
-
 import org.graalvm.polyglot.Value;
 
 /*
@@ -21,18 +18,46 @@ import org.graalvm.polyglot.Value;
  * limitations under the License.
  */
 
+
 public class ScriptResult {
 
 	public static final String KEY_ERR = "error";
 	public static final String KEY_RESULT = "value";
+	
+	private String error;
+	private Value value;
 
-	public static Map<String, Object> ok(Value result) {
-		return Collections.singletonMap(KEY_RESULT, result);
-
+	private ScriptResult(Value value, String error) {
+		this.value = value;
+		this.error = error;
 	}
 
-	public static Map<String, Object> err(String errMsg) {
-		return Collections.singletonMap(KEY_ERR, errMsg);
+	public static ScriptResult ok(Value value) {
+		return new ScriptResult(value, null);
 	}
 
+	public static ScriptResult err(String errMsg) {
+		return new ScriptResult(null, errMsg);
+	}
+
+	public boolean isError() {
+		return error != null;
+	}
+
+	public Value getValue() {
+		return value;
+	}
+
+	public String getError() {
+		return error;
+	}
+
+	@Override
+	public String toString() {
+		if(error != null) {
+			return error;
+		}
+		return value.toString();
+	}
+ 
 }

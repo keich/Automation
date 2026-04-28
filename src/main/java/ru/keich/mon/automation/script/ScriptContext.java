@@ -1,5 +1,6 @@
 package ru.keich.mon.automation.script;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -96,12 +97,12 @@ public class ScriptContext {
 		return ret;
 	}
 	
-	public Map<String, Object> run(Script script, Object param) {
+	public ScriptResult run(Script script, Object param) {
 		if(stack.contains(script.getName())) {
 			logm.severe(script.getName() + LOG_MSG_HIERAR_CIRCLE);
 			return ScriptResult.err(LOG_MSG_HIERAR_CIRCLE);
 		}
-		Map<String, Object> result;
+		ScriptResult result;
 		stack.add(script.getName());
 		try {
 			var source = Source.newBuilder(LANG_JS, script.getCode(), script.getName()).build();
@@ -138,7 +139,12 @@ public class ScriptContext {
 		var result = new HashMap<String, Map<String, Object>>();
 		var scripts = scriptService.getChild(getScriptName());
 		scripts.stream().forEach(script -> {
-			result.put(script.getName(), run(script, param));
+			var r = run(script, param);
+			if(r.isError()) {
+				result.put(script.getName(), Collections.singletonMap(ScriptResult.KEY_ERR, r.getError()));
+			} else {
+				result.put(script.getName(), Collections.singletonMap(ScriptResult.KEY_RESULT, r.getValue()));
+			}
 		});
 		return result;
 	}

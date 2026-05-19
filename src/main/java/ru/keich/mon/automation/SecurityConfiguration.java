@@ -10,7 +10,9 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.java.Log;
 import ru.keich.mon.automation.httplistner.HttpListnerService;
+import ru.keich.mon.servicemanager.WebApplicationConfig;
 
 /*
  * Copyright 2026 the original author or authors.
@@ -30,6 +32,7 @@ import ru.keich.mon.automation.httplistner.HttpListnerService;
 
 @EnableWebSecurity
 @Configuration
+@Log
 public class SecurityConfiguration {
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http, HttpListnerService httpListnerService) throws Exception {
@@ -40,6 +43,7 @@ public class SecurityConfiguration {
 			public boolean matches(HttpServletRequest request) {
 				var arr = request.getRequestURI().split("/", 4);
 				if (arr.length > 2 && "httplistner".equals(arr[1])) {
+					log.info("Client: " + request.getRemoteAddr() + ":"+ request.getRemotePort() + " Request: " + request.getRequestURI());
 					return httpListnerService.getHttListner(arr[2]).map(h -> h.isEnable() && h.isPermitAllAccess()).orElse(false);
 				}
 				return false;

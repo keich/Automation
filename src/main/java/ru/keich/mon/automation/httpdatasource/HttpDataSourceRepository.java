@@ -1,5 +1,7 @@
 package ru.keich.mon.automation.httpdatasource;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /*
@@ -19,5 +21,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 
 public interface HttpDataSourceRepository extends JpaRepository<HttpDataSource, String> {
-
+	public List<HttpDataSource> findAllByOrderByNameAsc();
 }

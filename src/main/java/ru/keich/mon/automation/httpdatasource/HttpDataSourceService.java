@@ -69,11 +69,11 @@ public class HttpDataSourceService {
 	}
 	
 	public Stream<HttpDataSource> getAll(Query<HttpDataSource, Void> q) {
-		return httpDataSourceRepository.findAll().stream().skip(q.getOffset()).limit(q.getLimit());
+		return httpDataSourceRepository.findAllByOrderByNameAsc().stream().skip(q.getOffset()).limit(q.getLimit());
 	}
 	
 	public int getCount(Query<HttpDataSource, Void> q) {
-		return Math.toIntExact(httpDataSourceRepository.findAll().stream().skip(q.getOffset()).limit(q.getLimit()).count());
+		return Math.toIntExact(httpDataSourceRepository.findAllByOrderByNameAsc().stream().skip(q.getOffset()).limit(q.getLimit()).count());
 	}
 	
 	public void save(HttpDataSource dataSource) {

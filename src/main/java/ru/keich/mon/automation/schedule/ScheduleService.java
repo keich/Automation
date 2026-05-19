@@ -46,7 +46,7 @@ public class ScheduleService {
 		this.threadPoolTaskScheduler = threadPoolTaskScheduler;
 		this.scriptService = scriptService;
 
-		scheduleRepository.findAll().stream()
+		scheduleRepository.findAllByOrderByNameAsc().stream()
 				.filter(Schedule::isValid)
 				.filter(Schedule::isEnable)
 				.forEach(this::schedule);
@@ -55,7 +55,7 @@ public class ScheduleService {
 	}
 
 	public Stream<Schedule> getAll(Query<Schedule, Void> q) {
-		return scheduleRepository.findAll().stream().skip(q.getOffset()).limit(q.getLimit());
+		return scheduleRepository.findAllByOrderByNameAsc().stream().skip(q.getOffset()).limit(q.getLimit());
 	}
 
 	public int getCount(Query<Schedule, Void> q) {

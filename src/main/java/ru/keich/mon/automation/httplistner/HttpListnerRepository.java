@@ -1,5 +1,7 @@
 package ru.keich.mon.automation.httplistner;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /*
@@ -20,4 +22,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface HttpListnerRepository extends JpaRepository<HttpListner, String> {
 
+	public List<HttpListner> findAllByOrderByPathAsc();
 }

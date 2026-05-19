@@ -44,11 +44,11 @@ public class DBDataSourceService {
 	}
 	
 	public Stream<DBDataSource> getAll(Query<DBDataSource, Void> q) {
-		return dataSourceRepository.findAll().stream().skip(q.getOffset()).limit(q.getLimit());
+		return dataSourceRepository.findAllByOrderByNameAsc().stream().skip(q.getOffset()).limit(q.getLimit());
 	}
 	
 	public int getCount(Query<DBDataSource, Void> q) {
-		return Math.toIntExact(dataSourceRepository.findAll().stream().skip(q.getOffset()).limit(q.getLimit()).count());
+		return Math.toIntExact(dataSourceRepository.findAllByOrderByNameAsc().stream().skip(q.getOffset()).limit(q.getLimit()).count());
 	}
 	
 	public void save(DBDataSource dataSource) {

@@ -43,11 +43,11 @@ public class HttpListnerService {
 	}
 
 	public Stream<HttpListner> getAll(Query<HttpListner, Void> q) {
-		return httpListnerRepository.findAll().stream().skip(q.getOffset()).limit(q.getLimit());
+		return httpListnerRepository.findAllByOrderByPathAsc().stream().skip(q.getOffset()).limit(q.getLimit());
 	}
 
 	public int getCount(Query<HttpListner, Void> q) {
-		return Math.toIntExact(httpListnerRepository.findAll().stream().skip(q.getOffset()).limit(q.getLimit()).count());
+		return Math.toIntExact(httpListnerRepository.findAllByOrderByPathAsc().stream().skip(q.getOffset()).limit(q.getLimit()).count());
 	}
 
 	public Mono<String> run(HttpListner httpListner, HashMap<String, Object> scriptParams) {

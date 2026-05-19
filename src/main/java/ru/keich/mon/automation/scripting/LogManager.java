@@ -7,7 +7,6 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 
 import lombok.Getter;
-import lombok.extern.java.Log;
 
 /*
  * Copyright 2026 the original author or authors.
@@ -25,10 +24,10 @@ import lombok.extern.java.Log;
  * limitations under the License.
  */
 
-@Log
 public class LogManager {
 
 	private Consumer<Line> callBack;
+	public static final int MAXSIZE = 1024;
 
 	@Getter
 	public static class Line {
@@ -51,17 +50,23 @@ public class LogManager {
 	}
 
 	public void info(String msg) {
-		log.log(Level.INFO, msg);
+		if(msg.length() > MAXSIZE) {
+			msg =  msg.substring(0, MAXSIZE);
+		}
 		callBack.accept(new Line(Level.INFO, msg));
 	}
 
 	public void warning(String msg) {
-		log.log(Level.WARNING, msg);
+		if(msg.length() > MAXSIZE) {
+			msg =  msg.substring(0, MAXSIZE);
+		}
 		callBack.accept(new Line(Level.WARNING, msg));
 	}
 
 	public void severe(String msg) {
-		log.log(Level.SEVERE, msg);
+		if(msg.length() > MAXSIZE) {
+			msg =  msg.substring(0, MAXSIZE);
+		}
 		callBack.accept(new Line(Level.SEVERE, msg));
 	}
 

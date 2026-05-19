@@ -1,5 +1,9 @@
 package ru.keich.mon.automation.scripting;
 
+import java.util.logging.Level;
+
+import lombok.extern.java.Log;
+
 /*
  * Copyright 2026 the original author or authors.
  *
@@ -16,20 +20,21 @@ package ru.keich.mon.automation.scripting;
  * limitations under the License.
  */
 
+@Log
 public class ScriptCallBack {
 
 	public final static ScriptCallBack EMPTY_CALLBACK = new ScriptCallBack();
 	
 	public void onResult(String data) {
-
+		log.log(Level.INFO, data);
 	}
 
 	public void onError(Exception e) {
-
+		log.severe(e.getMessage());
 	}
 
 	public void onLog(LogManager.Line line) {
-
+		log.log(line.getLevel(), line.getMsg());
 	}
 
 }

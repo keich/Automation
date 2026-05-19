@@ -68,6 +68,7 @@ public class ScriptsEditRight extends VerticalLayout {
 	private final Grid<LogManager.Line> logsConsole;
 	private final TextField nameField;
 	private final ComboBox<String> parentField;
+	private final Button saveButton;
 
 	private final Dialog deleteDialog;
 
@@ -106,8 +107,9 @@ public class ScriptsEditRight extends VerticalLayout {
 		logsConsole.setItems(logs);
 		logsConsole.setSizeFull();
 
-		var saveButton = new Button(new Icon(VaadinIcon.DOWNLOAD));
+		saveButton = new Button(new Icon(VaadinIcon.DOWNLOAD));
 		saveButton.addClickListener(e -> save.accept(getScript()));
+		saveButton.setEnabled(false);
 		header.add(saveButton);
 
 		deleteDialog = createDeleteDialog(() -> delete.apply(getScript()));
@@ -140,7 +142,7 @@ public class ScriptsEditRight extends VerticalLayout {
 		var formLayout = new FormLayout();
 		formLayout.setWidthFull();
 
-		nameField = new TextField();
+		nameField = new TextField(this::validate);
 		formLayout.addFormItem(nameField, NAME);
 
 		parentField = new ComboBox<String>();
@@ -214,6 +216,10 @@ public class ScriptsEditRight extends VerticalLayout {
 		});
 		dialog.getFooter().add(yesBtn, noBtn);
 		return dialog;
+	}
+	
+	private void validate(Object event) {
+		saveButton.setEnabled(!nameField.getValue().isEmpty());
 	}
 
 }

@@ -12,7 +12,6 @@ import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.java.Log;
 import ru.keich.mon.automation.httplistner.HttpListnerService;
-import ru.keich.mon.servicemanager.WebApplicationConfig;
 
 /*
  * Copyright 2026 the original author or authors.

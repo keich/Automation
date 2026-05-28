@@ -46,7 +46,7 @@ public class ScriptsEdit extends Div {
 		this.setHeightFull();
 
 		var dataHierarchicaProvider = new ScriptHierarchicalDataProvider(scriptService);
-		var dataProvider = new ScriptDataProvider(scriptService);
+		var dataProvider = new ScriptNameDataProvider(scriptService);
 
 		right = new ScriptsEditRight(dataProvider, this::save, this::delete, this::run);
 		left = new ScriptsEditLeft(dataHierarchicaProvider, right::setScript, right::addNew);

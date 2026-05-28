@@ -7,7 +7,7 @@ import com.vaadin.flow.data.provider.DataProvider;
 import ru.keich.mon.automation.schedule.Schedule;
 import ru.keich.mon.automation.schedule.ScheduleService;
 import ru.keich.mon.automation.script.ScriptService;
-import ru.keich.mon.automation.script.ui.ScriptDataProvider;
+import ru.keich.mon.automation.script.ui.ScriptNameDataProvider;
 
 /*
  * Copyright 2026 the original author or authors.
@@ -42,7 +42,7 @@ public class ScheduleEdit extends Div {
 		this.setHeightFull();
 		
 		this.scheduleService = scheduleService;
-		var dataProvider = new ScriptDataProvider(scriptService);
+		var dataProvider = new ScriptNameDataProvider(scriptService);
 		
 		this.right = new ScheduleRight(dataProvider, this::save, this::delete);
 		this.left = new ScheduleLeft(DataProvider.fromCallbacks(scheduleService::getAll, scheduleService::getCount),

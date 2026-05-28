@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.vaadin.flow.data.provider.Query;
@@ -59,17 +61,21 @@ public class ScriptService {
 				.limit(q.getLimit()).count());
 	}
 
-	public Stream<String> getAll(Query<String, String> q) {
-		return getByNameContaing(q.getFilter()).stream().skip(q.getOffset()).limit(q.getLimit()).map(Script::getName);
+	public Stream<String> getAllNames(Query<String, String> q) {
+		return findNamesByNameContaing(q.getFilter(), q.getOffset(), q.getLimit()).stream().map(ScriptNameView::getName);
 	}
 
 	public int getCount(Query<String, String> q) {
 		return Math
-				.toIntExact(getByNameContaing(q.getFilter()).stream().skip(q.getOffset()).limit(q.getLimit()).count());
+				.toIntExact(findNamesByNameContaing(q.getFilter(), q.getOffset(), q.getLimit()).stream().count());
 	}
 
-	public List<Script> getByNameContaing(Optional<String> filter) {
-		return filter.map(scriptRepository::findByNameContainingIgnoreCase).orElse(scriptRepository.findAll());
+	public List<ScriptNameView> findNamesByNameContaing(Optional<String> filter, int offset, int limit) {
+		int page = offset / limit;
+		Pageable pageable = PageRequest.of(page, limit);
+		return filter
+				.map(name -> scriptRepository.findByNameContainingIgnoreCaseOrderByNameAsc(name, pageable))
+				.orElse(scriptRepository.findAllByOrderByNameAsc(pageable));
 	}
 	
 	public Optional<Script> getByName(String name) {

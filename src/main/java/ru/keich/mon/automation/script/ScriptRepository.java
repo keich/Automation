@@ -2,6 +2,7 @@ package ru.keich.mon.automation.script;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -23,7 +24,9 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface ScriptRepository extends JpaRepository<Script, String> {
 
-	public List<Script> findByNameContainingIgnoreCase(String name);
+	public List<ScriptNameView> findByNameContainingIgnoreCaseOrderByNameAsc(String name, Pageable pageable);
+	
+	public List<ScriptNameView> findAllByOrderByNameAsc(Pageable pageable);
 
 	@Query("select s from Script s WHERE s.name <> s.parent AND s.parent = ?1 ORDER BY s.name")
 	public List<Script> findByParent(String parent);

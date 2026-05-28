@@ -7,7 +7,7 @@ import com.vaadin.flow.data.provider.DataProvider;
 import ru.keich.mon.automation.httplistner.HttpListner;
 import ru.keich.mon.automation.httplistner.HttpListnerService;
 import ru.keich.mon.automation.script.ScriptService;
-import ru.keich.mon.automation.script.ui.ScriptDataProvider;
+import ru.keich.mon.automation.script.ui.ScriptNameDataProvider;
 
 /*
  * Copyright 2026 the original author or authors.
@@ -43,7 +43,7 @@ public class HttpListnerEdit extends Div {
 		this.setSizeFull();
 		this.setHeightFull();
 		
-		var dataProvider = new ScriptDataProvider(scriptService);
+		var dataProvider = new ScriptNameDataProvider(scriptService);
 		
 		this.right = new HttpListnerEditRight(dataProvider, this::save, this::delete);
 		

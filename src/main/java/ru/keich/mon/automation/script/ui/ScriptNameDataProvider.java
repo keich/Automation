@@ -23,19 +23,19 @@ import ru.keich.mon.automation.script.ScriptService;
  * limitations under the License.
  */
 
-public class ScriptDataProvider extends AbstractBackEndDataProvider<String, String> {
+public class ScriptNameDataProvider extends AbstractBackEndDataProvider<String, String> {
 
 	private static final long serialVersionUID = 2728430003441011070L;
 
 	private final ScriptService scriptService;
 
-	public ScriptDataProvider(ScriptService scriptService) {
+	public ScriptNameDataProvider(ScriptService scriptService) {
 		this.scriptService = scriptService;
 	}
 
 	@Override
 	protected Stream<String> fetchFromBackEnd(Query<String, String> query) {
-		return scriptService.getAll(query);
+		return scriptService.getAllNames(query);
 	}
 
 	@Override

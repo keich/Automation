@@ -5,7 +5,7 @@ import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.data.provider.DataProvider;
 
 import ru.keich.mon.automation.script.ScriptService;
-import ru.keich.mon.automation.script.ui.ScriptDataProvider;
+import ru.keich.mon.automation.script.ui.ScriptNameDataProvider;
 import ru.keich.mon.automation.snmp.SnmpScriptMapping;
 import ru.keich.mon.automation.snmp.SnmpService;
 
@@ -43,7 +43,7 @@ public class SnmpEdit extends Div {
 
 		this.snmpService = snmpService;
 
-		var dataProvider = new ScriptDataProvider(scriptService);
+		var dataProvider = new ScriptNameDataProvider(scriptService);
 		
 		this.right = new SnmpRight(dataProvider, this::save, this::delete);
 

@@ -51,7 +51,7 @@ public class HttpListnerController {
 		this.httpListnerService = httpListnerService;
 	}
 
-	@GetMapping(value = { "/{path}/{pathVar}", "/{path}" })
+	@GetMapping(value = { "/{path}/{*pathVar}", "/{path}" })
 	@ResponseBody
 	public Mono<ResponseEntity<String>> get(HttpServletRequest request, @RequestParam MultiValueMap<String, String> reqParam,
 			@PathVariable(required = true) String path, @PathVariable(required = false) String pathVar) {

@@ -3,8 +3,6 @@ package ru.keich.mon.automation.httplistner;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -44,6 +42,8 @@ public class HttpListnerController {
 	public static final String MAP_REQPARAM = "reqParam";
 	public static final String MAP_OUTPUTHEADERS= "outputHeaders";
 	public static final String MAP_HEADERS= "headers";
+	public static final String MAP_HEADERS_REMOTE_ADDR= "remote_addr";
+	public static final String MAP_HEADERS_REMOTE_PORT= "remote_port";
 	
 	private final HttpListnerService httpListnerService;
 
@@ -64,9 +64,16 @@ public class HttpListnerController {
 			return Mono.just(ResponseEntity.status(HttpStatusCode.valueOf(503)).body("Path is disable"));
 		}
 		var contetntType = httpListner.getContentType() == HttpListner.ContentType.JSON ? MediaType.APPLICATION_JSON :MediaType.TEXT_HTML;
-		var headers = Collections.list(request.getHeaderNames()).stream()
-				.map(name -> Map.entry(name, (List<String>)Collections.list(request.getHeaders(name))))
-				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+		
+		var headers = new HashMap<String, List<String>>();
+		var inHeaderNames = request.getHeaderNames();
+		while(inHeaderNames.hasMoreElements()) {
+			var name = inHeaderNames.nextElement();
+			headers.put(name, Collections.list(request.getHeaders(name)));
+		}
+		headers.put(MAP_HEADERS_REMOTE_ADDR, List.of(request.getRemoteAddr()));
+		headers.put(MAP_HEADERS_REMOTE_PORT, List.of(String.valueOf(request.getRemotePort())));
+		
 		var outputHeaders = new HashMap<String, List<String>>();
 		var scriptParams = new HashMap<String, Object>();
 		scriptParams.put(MAP_HEADERS, headers);

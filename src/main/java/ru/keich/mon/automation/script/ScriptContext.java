@@ -19,6 +19,7 @@ import ru.keich.mon.automation.scripting.HttpManager;
 import ru.keich.mon.automation.scripting.InetAddressManager;
 import ru.keich.mon.automation.scripting.LogManager;
 import ru.keich.mon.automation.scripting.LogManager.Line;
+import ru.keich.mon.automation.scripting.SSHManager;
 import ru.keich.mon.automation.scripting.ScriptManager;
 import ru.keich.mon.automation.scripting.SnmpManager;
 import ru.keich.mon.automation.snmp.SnmpService;
@@ -52,6 +53,7 @@ public class ScriptContext {
 	public static final String MEMBER_SNMP_NAME = "snmp";
 	public static final String MEMBER_HTTPREQUEST_NAME = "httpRequest";
 	public static final String MEMBER_DNS_NAME = "dns";
+	public static final String MEMBER_SSH_NAME = "ssh";
 
 	private final DBDataSourceService dataSourceService;
 	private final ScriptService scriptService;
@@ -94,6 +96,7 @@ public class ScriptContext {
 		ret.put(MEMBER_SNMP_NAME, new SnmpManager(snmpService, this));
 		ret.put(MEMBER_HTTPREQUEST_NAME, new HttpManager(httpDataSourceService, this));
 		ret.put(MEMBER_DNS_NAME, new InetAddressManager());
+		ret.put(MEMBER_SSH_NAME, new SSHManager());
 		return ret;
 	}
 	

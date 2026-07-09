@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import com.vaadin.flow.data.provider.Query;
@@ -40,12 +41,15 @@ public class ScriptService {
 	private final DBDataSourceService dataSourceService;
 	private final SnmpService snmpService;
 	private final HttpDataSourceService httpDataSourceService;
+	private final JavaMailSender mailSender;
 
-	public ScriptService(ScriptRepository scriptRepository, DBDataSourceService dataSourceService, SnmpService snmpService, HttpDataSourceService httpDataSourceService) {
+	public ScriptService(ScriptRepository scriptRepository, DBDataSourceService dataSourceService,
+			SnmpService snmpService, HttpDataSourceService httpDataSourceService, JavaMailSender mailSender) {
 		this.scriptRepository = scriptRepository;
 		this.dataSourceService = dataSourceService;
 		this.snmpService = snmpService;
 		this.httpDataSourceService = httpDataSourceService;
+		this.mailSender = mailSender;
 	}
 	
 	public void setScheduleService(ScheduleService scheduleService) {
@@ -111,7 +115,7 @@ public class ScriptService {
 	}
 
 	public void run(Script script, Object param, ScriptCallBack callBack)  {
-		var scriptContext = new ScriptContext(dataSourceService, this, snmpService, httpDataSourceService);
+		var scriptContext = new ScriptContext(dataSourceService, this, snmpService, httpDataSourceService, mailSender);
 		scriptContext.setLogCallBack(callBack::onLog);
 		final ScriptResult result;
 		try {

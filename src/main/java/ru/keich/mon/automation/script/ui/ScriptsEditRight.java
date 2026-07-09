@@ -62,6 +62,10 @@ public class ScriptsEditRight extends VerticalLayout {
 	public static final String LOG_MSG_RUN_OK = "Result: ";
 	public static final String LOG_MSG_RUN_ERR = "Error: ";
 	
+	public static final String TOOLTIP_TEXT_SAVE = "Save";
+	public static final String TOOLTIP_TEXT_DEL = "Delete";
+	public static final String TOOLTIP_TEXT_RUN = "Run";
+
 	private static final double SPLIT_POS = 80;
 
 	private final AceEditor textArea;
@@ -108,6 +112,7 @@ public class ScriptsEditRight extends VerticalLayout {
 		logsConsole.setSizeFull();
 
 		saveButton = new Button(new Icon(VaadinIcon.DOWNLOAD));
+		saveButton.setTooltipText(TOOLTIP_TEXT_SAVE);
 		saveButton.addClickListener(e -> save.accept(getScript()));
 		saveButton.setEnabled(false);
 		header.add(saveButton);
@@ -115,6 +120,7 @@ public class ScriptsEditRight extends VerticalLayout {
 		deleteDialog = createDeleteDialog(() -> delete.apply(getScript()));
 
 		var deleteButton = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE));
+		deleteButton.setTooltipText(TOOLTIP_TEXT_DEL);
 		deleteButton.addClickListener(e -> openDeleteDialog());
 		header.add(deleteButton);
 
@@ -137,6 +143,7 @@ public class ScriptsEditRight extends VerticalLayout {
 		};
 
 		playButton.addClickListener(e -> run.accept(getScript(), callBack));
+		playButton.setTooltipText(TOOLTIP_TEXT_RUN);
 		header.add(playButton);
 
 		var formLayout = new FormLayout();

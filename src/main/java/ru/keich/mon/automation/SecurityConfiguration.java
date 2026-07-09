@@ -51,9 +51,10 @@ public class SecurityConfiguration {
 		};
 		
 		http.authorizeHttpRequests(auth -> {
-			auth.requestMatchers("/ace-builds/**").authenticated();
-			auth.requestMatchers("/public/**").permitAll();
-			auth.requestMatchers(mather).permitAll();
+			auth.requestMatchers("/h2-console/**").authenticated()
+					.requestMatchers("/ace-builds/**").authenticated()
+					.requestMatchers("/public/**").permitAll()
+					.requestMatchers(mather).permitAll();
 		});
         http.csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"));
         //this will allow frames with same origin which is much more safe

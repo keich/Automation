@@ -4,6 +4,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Stream;
 
+import org.springframework.boot.SpringApplication.Running;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,12 @@ public class ScheduleService {
 	private final ThreadPoolTaskScheduler threadPoolTaskScheduler;
 
 	private final ConcurrentHashMap<Schedule, ScheduledFuture<?>> tasks = new ConcurrentHashMap<>();
+	
+	private final ConcurrentHashMap<String, Boolean> runningSchedules = new ConcurrentHashMap<>();
+	
+	public boolean isRunning(Schedule schedule) {
+		return runningSchedules.containsKey(schedule.getName());
+	}
 
 	public ScheduleService(ScheduleRepository scheduleRepository, ScriptService scriptService, ThreadPoolTaskScheduler threadPoolTaskScheduler) {
 		this.scheduleRepository = scheduleRepository;
@@ -77,11 +84,21 @@ public class ScheduleService {
 
 	private void schedule(Schedule schedule) {
 		var trigger = new CronTrigger(schedule.getExpression());
-		var future = threadPoolTaskScheduler.schedule(() -> {
-			scriptService.run(schedule.getScriptName(), null, ScriptCallBack.EMPTY_CALLBACK);
+		
+		var future = threadPoolTaskScheduler.schedule(() ->{
+			runningSchedules.put(schedule.getName(),true);
+			
+			try {
+				scriptService.run(schedule.getScriptName(), null, ScriptCallBack.EMPTY_CALLBACK);
+			
+			}
+			finally {
+				runningSchedules.remove(schedule.getName());
+			}
 		}, trigger);
-		tasks.put(schedule, future);
+		tasks.put(schedule,future);
 	}
+	
 
 	private void cancelSchedule(Schedule schedule) {
 		tasks.computeIfPresent(schedule, (s, future) -> {

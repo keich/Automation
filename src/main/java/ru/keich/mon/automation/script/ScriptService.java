@@ -1,5 +1,6 @@
 package ru.keich.mon.automation.script;
-
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -42,6 +43,7 @@ public class ScriptService {
 	private final SnmpService snmpService;
 	private final HttpDataSourceService httpDataSourceService;
 	private final JavaMailSender mailSender;
+	private final Set<String> activeScripts = ConcurrentHashMap.newKeySet();
 
 	public ScriptService(ScriptRepository scriptRepository, DBDataSourceService dataSourceService,
 			SnmpService snmpService, HttpDataSourceService httpDataSourceService, JavaMailSender mailSender) {
@@ -113,8 +115,10 @@ public class ScriptService {
 			callBack.onError(new RuntimeException("Script not found"));
 		});
 	}
+	
 
-	public void run(Script script, Object param, ScriptCallBack callBack)  {
+	public void run( Script script, Object param, ScriptCallBack callBack)  {
+		activeScripts.add(script.getName());
 		var scriptContext = new ScriptContext(dataSourceService, this, snmpService, httpDataSourceService, mailSender);
 		scriptContext.setLogCallBack(callBack::onLog);
 		final ScriptResult result;
@@ -128,8 +132,13 @@ public class ScriptService {
 		} catch (Exception e){
 			callBack.onError(e);
 		} finally {
+			activeScripts.remove(script.getName());
 			scriptContext.close();
-		}
+			}
+	}			
+	public Set<String> getActiveScripts()
+	{
+		return Set.copyOf(activeScripts);
 	}
 
 }

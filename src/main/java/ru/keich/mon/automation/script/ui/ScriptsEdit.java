@@ -1,11 +1,14 @@
 package ru.keich.mon.automation.script.ui;
-
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.html.Div;
+import ru.keich.mon.automation.scripting.LogManager;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 
 import ru.keich.mon.automation.schedule.ScheduleService;
 import ru.keich.mon.automation.script.Script;
 import ru.keich.mon.automation.script.ScriptService;
+import ru.keich.mon.automation.scripting.LogManager;
 import ru.keich.mon.automation.scripting.ScriptCallBack;
 
 /*
@@ -49,22 +52,52 @@ public class ScriptsEdit extends Div {
 		var dataProvider = new ScriptNameDataProvider(scriptService);
 
 		right = new ScriptsEditRight(dataProvider, this::save, this::delete, this::run);
-		left = new ScriptsEditLeft(dataHierarchicaProvider, right::setScript, right::addNew);
+		left = new ScriptsEditLeft(dataHierarchicaProvider, right::setScript, right::addNew,scriptService);
 
 		var split = new SplitLayout(left, right);
 		split.setSplitterPosition(SPLIT_POS);
 		split.setSizeFull();
 		split.setHeightFull();
 		this.add(split);
+		
 	}
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		super.onAttach(attachEvent);
+		
+		attachEvent.getUI().setPollInterval(1000);
+		attachEvent.getUI().addPollListener(event -> left.refresh());
+	}
+	
+	
 
 	private void save(Script script) {
 		scriptService.save(script);
 		left.refresh();
 	}
 
-	private void run(Script script, ScriptCallBack clackBack) {
-		scheduleService.execute(script, null, clackBack);
+	private void run(Script script, ScriptCallBack callBack) {
+		ScriptCallBack refreshCallBack = new ScriptCallBack() {
+			
+			@Override
+			public void onLog(LogManager.Line line) {
+				callBack.onLog(line);
+			}
+			
+			@Override
+			public void onResult(String data) {
+				callBack.onResult(data);
+				left.refresh();
+			}
+			
+			@Override 
+			public void onError(Exception e) {
+				callBack.onError(e);
+				left.refresh();
+			}
+		};
+		scheduleService.execute(script, null, refreshCallBack);
+		left.refresh();
 	}
 
 	private Boolean delete(Script script) {

@@ -1,5 +1,6 @@
 package ru.keich.mon.automation.schedule.ui;
-
+import  com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.data.provider.DataProvider;
@@ -46,7 +47,8 @@ public class ScheduleEdit extends Div {
 		
 		this.right = new ScheduleRight(dataProvider, this::save, this::delete);
 		this.left = new ScheduleLeft(DataProvider.fromCallbacks(scheduleService::getAll, scheduleService::getCount),
-				right::open, right::add);
+				right::open, right::add,scheduleService);
+		
 		
 		var split = new SplitLayout(left, right);
 		split.setSplitterPosition(SPLIT_POS);
@@ -54,6 +56,14 @@ public class ScheduleEdit extends Div {
 		split.setHeightFull();
 		this.add(split);
 	}
+	
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+				super.onAttach(attachEvent);
+				
+				attachEvent.getUI().setPollInterval(1000);
+				attachEvent.getUI().addPollListener(event -> left.refresh());
+			}
 
 	private void save(Schedule schedule) {
 		scheduleService.save(schedule);

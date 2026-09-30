@@ -51,7 +51,8 @@ public class SecurityConfiguration {
 		};
 		
 		http.authorizeHttpRequests(auth -> {
-			auth.requestMatchers("/h2-console/**").authenticated()
+			auth.requestMatchers("/login").permitAll()
+					.requestMatchers("/h2-console/**").authenticated()
 					.requestMatchers("/ace-builds/**").authenticated()
 					.requestMatchers("/public/**").permitAll()
 					.requestMatchers(mather).permitAll();

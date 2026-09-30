@@ -73,6 +73,7 @@ public class ScriptsEditRight extends VerticalLayout {
 	private final TextField nameField;
 	private final ComboBox<String> parentField;
 	private final Button saveButton;
+	private final Button dayButton;
 
 	private final Dialog deleteDialog;
 
@@ -110,7 +111,6 @@ public class ScriptsEditRight extends VerticalLayout {
 		
 		logsConsole.setItems(logs);
 		logsConsole.setSizeFull();
-
 		saveButton = new Button(new Icon(VaadinIcon.DOWNLOAD));
 		saveButton.setTooltipText(TOOLTIP_TEXT_SAVE);
 		saveButton.addClickListener(e -> save.accept(getScript()));

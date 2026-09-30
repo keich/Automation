@@ -21,6 +21,7 @@ import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.BackEndDataProvider;
+import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.BeforeLeaveEvent;
@@ -30,10 +31,10 @@ import com.vaadin.flow.router.BeforeLeaveObserver;
 import de.f0rce.ace.AceEditor;
 import lombok.extern.java.Log;
 import ru.keich.mon.automation.script.Script;
-import ru.keich.mon.automation.scripting.logging.LogManager;
-import ru.keich.mon.automation.scripting.logging.ScriptCallBack;
-import ru.keich.mon.automation.scripting.logging.ScriptLogRepository;
-import ru.keich.mon.automation.scripting.logging.LogManager.Line;
+import ru.keich.mon.automation.scripting.LogManager;
+import ru.keich.mon.automation.scripting.ScriptCallBack;
+/*import ru.keich.mon.automation.scripting.logging.ScriptLogRepository;*/
+import ru.keich.mon.automation.scripting.LogManager.Line;
 
 /*
  * Copyright 2026 the original author or authors.
@@ -52,7 +53,7 @@ import ru.keich.mon.automation.scripting.logging.LogManager.Line;
  */
 
 @Log
-public class ScriptsEditRight extends VerticalLayout implements BeforeLeaveObserver, BeforeEnterObserver {
+public class ScriptsEditRight extends VerticalLayout {//implements BeforeLeaveObserver, BeforeEnterObserver {
 
 	private static final long serialVersionUID = 344660752148918720L;
 
@@ -61,10 +62,12 @@ public class ScriptsEditRight extends VerticalLayout implements BeforeLeaveObser
 	
 	public static final String LOG_DIALOG_CLOSE_BUTTON_TEXT = "Close";
 	
-	public static final String SAVE_DIALOG_TEXT = "Unsaved Changes";
-	public static final String SAVE_DIALOG_SAVE = "Save";
-	public static final String SAVE_DIALOG_CLOSE = "X";
-	public static final String SAVE_DIALOG_LEAVE = "Leave";
+	/*
+	 * public static final String SAVE_DIALOG_TEXT = "Unsaved Changes"; public
+	 * static final String SAVE_DIALOG_SAVE = "Save"; public static final String
+	 * SAVE_DIALOG_CLOSE = "X"; public static final String SAVE_DIALOG_LEAVE =
+	 * "Leave";
+	 */
 	
 	public static final String DELETE_DIALOG_TEXT = "Want to delete ";
 	public static final String DELETE_DIALOG_YES = "Delete";
@@ -87,19 +90,15 @@ public class ScriptsEditRight extends VerticalLayout implements BeforeLeaveObser
 	private final TextField nameField;
 	private final ComboBox<String> parentField;
 	
-	private int _scriptCodeHash = "".hashCode();
-	private void updateCodeHash() {
-		this._scriptCodeHash = getScript().getCode().hashCode();
-	}
-	private boolean _hasChanges() {
-		System.out.println("firstCode: "+_scriptCodeHash+"; editor:"+getScript().getCode().hashCode());
-		return _scriptCodeHash != getScript().getCode().hashCode();
-	}
-	
-	private final Consumer<Boolean> _setButtonSaveEnable;
-	private final Consumer<Boolean> _setButtonPlayEnable;
-	private final Consumer<Boolean> _setButtonDeleteEnable;
-
+	/*
+	 * private int _scriptCodeHash = "".hashCode(); private void updateCodeHash() {
+	 * this._scriptCodeHash = getScript().getCode().hashCode(); } private boolean
+	 * _hasChanges() { return _scriptCodeHash != getScript().getCode().hashCode(); }
+	 * 
+	 * private final Consumer<Boolean> _setButtonSaveEnable; private final
+	 * Consumer<Boolean> _setButtonPlayEnable; private final Consumer<Boolean>
+	 * _setButtonDeleteEnable;
+	 */
 	private final Dialog deleteDialog;
 
 	private final LinkedList<LogManager.Line> logs = new LinkedList<>();
@@ -107,10 +106,9 @@ public class ScriptsEditRight extends VerticalLayout implements BeforeLeaveObser
 	private final Consumer<Script> _save;
 	
 	public ScriptsEditRight(BackEndDataProvider<String, String> dataProvider, Consumer<Script> save,
-			Function<Script, Boolean> delete, BiConsumer<Script, ScriptCallBack> run, ScriptLogRepository logRepository) {
+			Function<Script, Boolean> delete, BiConsumer<Script, ScriptCallBack> run){
 		
 		this._save = s-> {
-			
 			save.accept(s);
 		};
 		
@@ -148,7 +146,7 @@ public class ScriptsEditRight extends VerticalLayout implements BeforeLeaveObser
 		
 		var saveButton = new Button(new Icon(VaadinIcon.DOWNLOAD));
 		saveButton.setTooltipText(TOOLTIP_TEXT_SAVE);
-		this._setButtonSaveEnable = saveButton::setEnabled;
+		//this._setButtonSaveEnable = saveButton::setEnabled;
 		saveButton.addClickListener(e -> {
 			save.accept(getScript());
 		});
@@ -156,27 +154,24 @@ public class ScriptsEditRight extends VerticalLayout implements BeforeLeaveObser
 		header.add(saveButton);
 
 		deleteDialog = createDeleteDialog(() -> {
-			//this._hasChangeScript = false;
 			return delete.apply(getScript());}
 		);
 
 		var deleteButton = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE));
-		this._setButtonDeleteEnable = deleteButton::setEnabled;
+		//this._setButtonDeleteEnable = deleteButton::setEnabled;
 		deleteButton.setTooltipText(TOOLTIP_TEXT_DEL);
 		deleteButton.addClickListener(e -> openDeleteDialog());
 		deleteButton.setEnabled(false);
 		header.add(deleteButton);
 		
 		var playButton = new Button(new Icon(VaadinIcon.PLAY));
-		this._setButtonPlayEnable = playButton::setEnabled;
-		var callBack = new ScriptCallBack(logRepository) {
+		//this._setButtonPlayEnable = playButton::setEnabled;
+		var callBack = new ScriptCallBack() {
 			@Override
 			public void onLog(Line line) {
 				super.onLog(line);
-				addLogLine(line);
-				
+				addLogLine(line);	
 			}
-
 			@Override
 			public void onResult(String data) {
 				super.onResult(data);
@@ -189,7 +184,6 @@ public class ScriptsEditRight extends VerticalLayout implements BeforeLeaveObser
 				addLogLine(new Line(Level.SEVERE, LOG_MSG_RUN_ERR + e.getMessage()));
 			}
 		};
-
 		playButton.addClickListener(e -> run.accept(getScript(), callBack));
 		playButton.setTooltipText(TOOLTIP_TEXT_RUN);
 		playButton.setEnabled(false);
@@ -202,7 +196,12 @@ public class ScriptsEditRight extends VerticalLayout implements BeforeLeaveObser
 		formLayout.addFormItem(nameField, NAME);
 
 		parentField = new ComboBox<String>();
-		parentField.setItems(dataProvider);
+		DataProvider<String,String> dataProviderFilter = 
+		DataProvider.fromFilteringCallbacks(
+			(q)->dataProvider.fetch(q).filter(i->!getScript().getName().equals(i)),
+			(q)->dataProvider.size(q)
+		);
+		parentField.setItems(dataProviderFilter);
 		formLayout.addFormItem(parentField, PARENT);
 
 		header.add(formLayout);
@@ -227,25 +226,25 @@ public class ScriptsEditRight extends VerticalLayout implements BeforeLeaveObser
 					logsConsole.getDataProvider().refreshAll();
 				});
 			} catch(Exception e) {
-				System.out.println("UIDetachedException on ScriptEditRight.addLogLine methode.");
+				log.warning("UIDetachedException on ScriptEditRight.addLogLine methode.");
 			}
 		});
 	}
 
 	public boolean addNew() {
-		if (_hasChanges()) {
-			_createSaveDialog(
-					()->{
-						clearAll();
-						return true;
-					},
-					()->{
-						return true;
-					}
-				).open();
-		} else {
+//		if (_hasChanges()) {
+//			_createSaveDialog(
+//					()->{
+//						clearAll();
+//						return true;
+//					},
+//					()->{
+//						return true;
+//					}
+//				).open();
+//		} else {
 			clearAll();
-		}
+//		}
 		
 		return true;
 	}
@@ -268,16 +267,15 @@ public class ScriptsEditRight extends VerticalLayout implements BeforeLeaveObser
 	}
 
 	public void setScript(Script script) {
-		Supplier<Boolean> export = ()->{
+		//Supplier<Boolean> export = ()->{
 			nameField.setValue(script.getName());
 			textArea.setValue(script.getCode());
 			parentField.setValue(script.getParent());
-			validatePickScript();
-			this.updateCodeHash();
-			return true;
-		};
+			//validatePickScript();
+		//	this.updateCodeHash();
+			//return true;
+		/*};
 		
-		System.err.println("setScript "+this._hasChanges());
 		if (_hasChanges()) {
 			_createSaveDialog(
 				()->{
@@ -290,7 +288,7 @@ public class ScriptsEditRight extends VerticalLayout implements BeforeLeaveObser
 			).open();
 		} else {
 			export.get();
-		}
+		}*/
 	}
 
 	private void openDeleteDialog() {
@@ -313,64 +311,34 @@ public class ScriptsEditRight extends VerticalLayout implements BeforeLeaveObser
 	}
 	
 	private void validate(Object event) {
-		System.err.println("validate: "+this._hasChanges());
 		boolean bVisible = !nameField.getValue().isEmpty();
-	
-		this._setButtonSaveEnable.accept(bVisible);
-		this._setButtonPlayEnable.accept(bVisible);
+		/*
+		 * this._setButtonSaveEnable.accept(bVisible);
+		 * this._setButtonPlayEnable.accept(bVisible);
+		 */
 	}
 	
-	private void validatePickScript() {
-		this._setButtonDeleteEnable.accept(true);
-	}
-
-	private Dialog _createSaveDialog(Supplier<Boolean> afterPositiveDialog,Supplier<Boolean> afterNegativeDialog) {
-		Dialog d = new Dialog(SAVE_DIALOG_TEXT);
-		Supplier<Boolean> exitNegative = ()-> {
-			afterNegativeDialog.get();
-			d.close();
-			return true;
-		};
-		Supplier<Boolean> exitPositive = ()-> {
-			afterPositiveDialog.get();
-			d.close();
-			return true;
-		};
-		d.getHeader().add(new Button(SAVE_DIALOG_CLOSE,i->{d.close();}));
-		d.getFooter().add(
-				new Button(SAVE_DIALOG_SAVE, i->{
-					if (nameField.getValue().isBlank()) {
-						nameField.addClassName("err-field");
-						exitNegative.get();
-						return;
-					}	
-					_save.accept(getScript());
-					exitPositive.get();
-				}),
-				new Button(SAVE_DIALOG_LEAVE,i->exitPositive.get())
-			);
-				
-		return d;
-	}
-	@Override
-	public void beforeEnter(BeforeEnterEvent e) {
-		clearAll();
-	}
-	@Override
-	public void beforeLeave(BeforeLeaveEvent e) {
-		if (_hasChanges()) {
-			var action = e.postpone();
-			_createSaveDialog(
-				()->{
-					action.proceed();
-					return true;
-				},
-				() ->{
-					action.cancel();
-					return true;
-				}
-			).open();
-		}
-	}
-	
+	/*
+	 * private void validatePickScript() { this._setButtonDeleteEnable.accept(true);
+	 * }
+	 * 
+	 * private Dialog _createSaveDialog(Supplier<Boolean>
+	 * afterPositiveDialog,Supplier<Boolean> afterNegativeDialog) { Dialog d = new
+	 * Dialog(SAVE_DIALOG_TEXT); Supplier<Boolean> exitNegative = ()-> {
+	 * afterNegativeDialog.get(); d.close(); return true; }; Supplier<Boolean>
+	 * exitPositive = ()-> { afterPositiveDialog.get(); d.close(); return true; };
+	 * d.getHeader().add(new Button(SAVE_DIALOG_CLOSE,i->{d.close();}));
+	 * d.getFooter().add( new Button(SAVE_DIALOG_SAVE, i->{ if
+	 * (nameField.getValue().isBlank()) { nameField.addClassName("err-field");
+	 * exitNegative.get(); return; } _save.accept(getScript()); exitPositive.get();
+	 * }), new Button(SAVE_DIALOG_LEAVE,i->exitPositive.get()) );
+	 * 
+	 * return d; }
+	 * 
+	 * @Override public void beforeEnter(BeforeEnterEvent e) { clearAll(); }
+	 * 
+	 * @Override public void beforeLeave(BeforeLeaveEvent e) { if (_hasChanges()) {
+	 * var action = e.postpone(); _createSaveDialog( ()->{ action.proceed(); return
+	 * true; }, () ->{ action.cancel(); return true; } ).open(); } }
+	 */	
 }

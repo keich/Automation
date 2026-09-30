@@ -178,7 +178,7 @@ public class ScriptsEditRight extends VerticalLayout {
 					logsConsole.getDataProvider().refreshAll();
 				});
 			} catch(Exception e) {
-				System.out.println("UIDetachedException on ScriptEditRight.addLogLine methode.");
+				log.warning("UIDetachedException on ScriptEditRight.addLogLine methode.");
 			}
 		});
 	}

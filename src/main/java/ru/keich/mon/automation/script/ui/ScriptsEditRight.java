@@ -111,12 +111,6 @@ public class ScriptsEditRight extends VerticalLayout {
 		
 		logsConsole.setItems(logs);
 		logsConsole.setSizeFull();
-		
-		dayButton = new Button(new Icon(VaadinIcon.CHAT));	
-		dayButton.setTooltipText(TOOLTIP_TEXT_SAVE);
-		dayButton.setEnabled(true);	
-		header.add(dayButton);
-
 		saveButton = new Button(new Icon(VaadinIcon.DOWNLOAD));
 		saveButton.setTooltipText(TOOLTIP_TEXT_SAVE);
 		saveButton.addClickListener(e -> save.accept(getScript()));

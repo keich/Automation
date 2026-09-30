@@ -107,7 +107,7 @@ public class ScriptsEditRight extends VerticalLayout implements BeforeLeaveObser
 	private final Consumer<Script> _save;
 	
 	public ScriptsEditRight(BackEndDataProvider<String, String> dataProvider, Consumer<Script> save,
-			Function<Script, Boolean> delete, BiConsumer<Script, ScriptCallBack> run, ScriptLogRepository logRepository) {
+			Function<Script, Boolean> delete, BiConsumer<Script, ScriptCallBack> run){//, ScriptLogRepository logRepository) {
 		
 		this._save = s-> {
 			
@@ -169,7 +169,7 @@ public class ScriptsEditRight extends VerticalLayout implements BeforeLeaveObser
 		
 		var playButton = new Button(new Icon(VaadinIcon.PLAY));
 		this._setButtonPlayEnable = playButton::setEnabled;
-		var callBack = new ScriptCallBack(logRepository) {
+		var callBack = new ScriptCallBack() {
 			@Override
 			public void onLog(Line line) {
 				super.onLog(line);

@@ -227,7 +227,7 @@ public class ScriptsEditRight extends VerticalLayout implements BeforeLeaveObser
 					logsConsole.getDataProvider().refreshAll();
 				});
 			} catch(Exception e) {
-				System.out.println("UIDetachedException on ScriptEditRight.addLogLine methode.");
+				log.warning("UIDetachedException on ScriptEditRight.addLogLine methode.");
 			}
 		});
 	}

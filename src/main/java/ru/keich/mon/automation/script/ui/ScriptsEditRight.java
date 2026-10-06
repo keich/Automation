@@ -21,7 +21,6 @@ import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.BackEndDataProvider;
-import com.vaadin.flow.data.provider.DataProvider;
 
 import de.f0rce.ace.AceEditor;
 import lombok.extern.java.Log;
@@ -154,12 +153,7 @@ public class ScriptsEditRight extends VerticalLayout {
 		formLayout.addFormItem(nameField, NAME);
 
 		parentField = new ComboBox<String>();
-		DataProvider<String,String> dataProviderFilter = 
-				DataProvider.fromFilteringCallbacks(
-					(q)->dataProvider.fetch(q).filter(i->!getScript().getName().equals(i)),
-					(q)->dataProvider.size(q)
-				);
-				parentField.setItems(dataProviderFilter);
+		parentField.setItems(dataProvider);
 		formLayout.addFormItem(parentField, PARENT);
 
 		header.add(formLayout);

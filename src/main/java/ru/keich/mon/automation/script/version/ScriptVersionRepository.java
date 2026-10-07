@@ -12,5 +12,5 @@ public interface ScriptVersionRepository extends JpaRepository<ScriptVersion, In
 	
 	public Integer countByName(String name);
 	
-	public Optional<IScriptVersionLatestVersionQuery> findFirstByNameOrderByVersion(String name);
+	public Optional<IScriptVersionLatestVersionQuery> findFirstByNameOrderByVersionDesc(String name);
 }

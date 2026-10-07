@@ -45,7 +45,7 @@ public class ScriptsEdit extends Div {
 		this.scheduleService = scheduleService;
 		this.scriptService = scriptService;
 		this.scriptVersionService = scriptVersionService;
-		
+
 		this.setSizeFull();
 		this.setHeightFull();
 
@@ -59,7 +59,6 @@ public class ScriptsEdit extends Div {
 		split.setSizeFull();
 		split.setHeightFull();
 		this.add(split);
-
 	}
 
 	private void save(ScriptVersionSave svs) {

@@ -39,6 +39,7 @@ import ru.keich.mon.automation.snmp.SnmpService;
 
 @Service
 public class ScriptService {
+
 	private final ScriptRepository scriptRepository;
 	private final DBDataSourceService dataSourceService;
 	private final SnmpService snmpService;
@@ -69,12 +70,12 @@ public class ScriptService {
 	}
 
 	public Stream<String> getAllNames(Query<String, String> q) {
-		return findNamesByNameContaing(q.getFilter(), q.getOffset(), q.getLimit()).stream()
-				.map(ScriptNameView::getName);
+		return findNamesByNameContaing(q.getFilter(), q.getOffset(), q.getLimit()).stream().map(ScriptNameView::getName);
 	}
 
 	public int getCount(Query<String, String> q) {
-		return Math.toIntExact(findNamesByNameContaing(q.getFilter(), q.getOffset(), q.getLimit()).stream().count());
+		return Math
+				.toIntExact(findNamesByNameContaing(q.getFilter(), q.getOffset(), q.getLimit()).stream().count());
 	}
 
 	public List<ScriptNameView> findNamesByNameContaing(Optional<String> filter, int offset, int limit) {

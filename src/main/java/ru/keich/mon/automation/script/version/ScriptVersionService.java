@@ -47,7 +47,7 @@ public class ScriptVersionService {
 	public Integer getLatestVersionIncrement(String scriptName) {
 		int version = 1;
 		try {
-			version = this._scriptVersionRepo.findFirstByNameOrderByVersion(scriptName).get().getVersion();
+			version = this._scriptVersionRepo.findFirstByNameOrderByVersion(scriptName).get().getVersion()+1;
 		} catch(Exception e) {}
 		return version;
 	}

@@ -1,9 +1,7 @@
 package ru.keich.mon.automation.script.ui;
-
 import java.util.function.Consumer;
 import ru.keich.mon.automation.script.ScriptService;
 import java.util.function.Supplier;
-
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -12,7 +10,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 
 import ru.keich.mon.automation.script.Script;
-
 
 /*
  * Copyright 2026 the original author or authors.
@@ -33,22 +30,21 @@ import ru.keich.mon.automation.script.Script;
 public class ScriptsEditLeft extends VerticalLayout {
 	private static final long serialVersionUID = -406569669034516329L;
 	private final TreeGrid<Script> grid;
-	private final ScriptService scriptService;
 
-	public ScriptsEditLeft(ScriptHierarchicalDataProvider dataProvider, Consumer<Script> open,
-			Supplier<Boolean> addNew, ScriptService scriptService){
-		this.scriptService = scriptService;
+	public ScriptsEditLeft(ScriptHierarchicalDataProvider dataProvider, Consumer<Script> open, Supplier<Boolean> addNew,
+			ScriptService scriptService) {
 		grid = new TreeGrid<Script>();
 		grid.addItemClickListener(e -> open.accept(e.getItem()));
 		grid.addHierarchyColumn(Script::getName);
-		grid.addColumn(script -> { boolean running = scriptService.getActiveScripts().stream().anyMatch(active -> active.getName().equals(script.getName()));
-		return running ? "Running" : "";
-		}).setHeader("Status");
+		grid.addColumn(script -> scriptService
+				.getActiveScripts()
+				.contains(script.getName()) ? "Running" : "")
+				.setHeader("Status");
 		grid.setDataProvider(dataProvider);
 
 		var plusButton = new Button(new Icon(VaadinIcon.PLUS));
 		plusButton.addClickListener(e -> addNew.get());
-		
+
 		var buttons = new HorizontalLayout();
 		buttons.setSpacing(true);
 

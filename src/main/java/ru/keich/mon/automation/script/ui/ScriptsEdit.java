@@ -1,4 +1,5 @@
 package ru.keich.mon.automation.script.ui;
+
 import com.vaadin.flow.component.html.Div;
 import ru.keich.mon.automation.scripting.LogManager;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
@@ -34,6 +35,7 @@ public class ScriptsEdit extends Div {
 	private final ScriptsEditRight right;
 	private final ScriptService scriptService;
 	private final ScheduleService scheduleService;
+
 	public ScriptsEdit(ScriptService scriptService, ScheduleService scheduleService) {
 		super();
 
@@ -47,14 +49,15 @@ public class ScriptsEdit extends Div {
 		var dataProvider = new ScriptNameDataProvider(scriptService);
 
 		right = new ScriptsEditRight(dataProvider, this::save, this::delete, this::run);
-		left = new ScriptsEditLeft(dataHierarchicaProvider, right::setScript, right::addNew,scriptService);
+		left = new ScriptsEditLeft(dataHierarchicaProvider, right::setScript, right::addNew, scriptService);
 		var split = new SplitLayout(left, right);
 		split.setSplitterPosition(SPLIT_POS);
 		split.setSizeFull();
 		split.setHeightFull();
 		this.add(split);
-		
+
 	}
+
 	private void save(Script script) {
 		scriptService.save(script);
 		left.refresh();
@@ -62,27 +65,27 @@ public class ScriptsEdit extends Div {
 
 	private void run(Script script, ScriptCallBack callBack) {
 		ScriptCallBack refreshCallBack = new ScriptCallBack() {
-			
+
 			@Override
 			public void onStart() {
 				left.refresh();
 			}
+
 			@Override
 			public void onLog(LogManager.Line line) {
 				callBack.onLog(line);
 			}
-			
+
 			@Override
 			public void onResult(String data) {
 				callBack.onResult(data);
 			}
-			
-			@Override 
+
+			@Override
 			public void onError(Exception e) {
 				callBack.onError(e);
 			}
-			
-			
+
 			public void onFinish() {
 				left.refresh();
 			}

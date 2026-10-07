@@ -68,7 +68,7 @@ public class SnmpService {
 	
 	private final Map<String, SnmpScriptMapping> cache = new ConcurrentHashMap<>();
 
-	public SnmpService(SnmpRepository snmpRepository, @Value("${snmp.interface:udp:127.0.0.1/162}") String snmpAddr) throws IOException {
+	public SnmpService(SnmpRepository snmpRepository, @Value("${snmp.interface:udp:127.0.0.1/1162}") String snmpAddr) throws IOException {
 		this.snmpRepository = snmpRepository;
 		this.snmpAddr = snmpAddr;
 

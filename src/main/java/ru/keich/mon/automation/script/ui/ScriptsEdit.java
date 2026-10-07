@@ -1,18 +1,18 @@
 package ru.keich.mon.automation.script.ui;
 
 import com.vaadin.flow.component.html.Div;
+import ru.keich.mon.automation.scripting.LogManager;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 
 import ru.keich.mon.automation.schedule.ScheduleService;
 import ru.keich.mon.automation.script.Script;
 import ru.keich.mon.automation.script.ScriptService;
+import ru.keich.mon.automation.script.version.dataProviderDto.ScriptVersionSave;
 import ru.keich.mon.automation.scripting.ScriptCallBack;
 import ru.keich.mon.automation.script.version.ScriptVersionService;
 import ru.keich.mon.automation.script.version.dataProviderDto.ScriptVersionSave;
-
 /*
  * Copyright 2026 the original author or authors.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -34,19 +34,18 @@ public class ScriptsEdit extends Div {
 
 	private final ScriptsEditLeft left;
 	private final ScriptsEditRight right;
-
 	private final ScriptService scriptService;
-	private final ScriptVersionService scriptVersionService;
 	private final ScheduleService scheduleService;
+	private final ScriptVersionService scriptVersionService;
 
-	public ScriptsEdit(ScriptService scriptService, ScheduleService scheduleService,
+	public ScriptsEdit(ScriptService scriptService, ScheduleService scheduleService, 
 			ScriptVersionService scriptVersionService) {
 		super();
 
 		this.scheduleService = scheduleService;
 		this.scriptService = scriptService;
 		this.scriptVersionService = scriptVersionService;
-
+		
 		this.setSizeFull();
 		this.setHeightFull();
 
@@ -54,13 +53,13 @@ public class ScriptsEdit extends Div {
 		var dataProvider = new ScriptNameDataProvider(scriptService);
 
 		right = new ScriptsEditRight(dataProvider, this::save, this::delete, this::run);
-		left = new ScriptsEditLeft(dataHierarchicaProvider, right::setScript, right::addNew);
-
+		left = new ScriptsEditLeft(dataHierarchicaProvider, right::setScript, right::addNew, scriptService);
 		var split = new SplitLayout(left, right);
 		split.setSplitterPosition(SPLIT_POS);
 		split.setSizeFull();
 		split.setHeightFull();
 		this.add(split);
+
 	}
 
 	private void save(ScriptVersionSave svs) {
@@ -69,8 +68,34 @@ public class ScriptsEdit extends Div {
 		left.refresh();
 	}
 
-	private void run(Script script, ScriptCallBack clackBack) {
-		scheduleService.execute(script, null, clackBack);
+	private void run(Script script, ScriptCallBack callBack) {
+		ScriptCallBack refreshCallBack = new ScriptCallBack() {
+
+			@Override
+			public void onStart() {
+				left.refresh();
+			}
+
+			@Override
+			public void onLog(LogManager.Line line) {
+				callBack.onLog(line);
+			}
+
+			@Override
+			public void onResult(String data) {
+				callBack.onResult(data);
+			}
+
+			@Override
+			public void onError(Exception e) {
+				callBack.onError(e);
+			}
+
+			public void onFinish() {
+				left.refresh();
+			}
+		};
+		scheduleService.execute(script, null, refreshCallBack);
 	}
 
 	private Boolean delete(Script script) {

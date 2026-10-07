@@ -19,10 +19,10 @@ public class ScriptVersion {
 	private String note;
 	@Column()
 	private String name;
-	@Column()
+	@Column(columnDefinition = "TEXT")
 	private String code;
-	
-	public ScriptVersion(int version, String note,String name,String code) {
+
+	public ScriptVersion(int version, String note, String name, String code) {
 		this.id = Instant.now();
 		this.version = version;
 		this.note = note;

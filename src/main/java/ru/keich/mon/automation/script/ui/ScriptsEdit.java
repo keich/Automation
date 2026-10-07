@@ -7,6 +7,8 @@ import ru.keich.mon.automation.schedule.ScheduleService;
 import ru.keich.mon.automation.script.Script;
 import ru.keich.mon.automation.script.ScriptService;
 import ru.keich.mon.automation.scripting.ScriptCallBack;
+import ru.keich.mon.automation.script.version.ScriptVersionService;
+import ru.keich.mon.automation.script.version.dataProviderDto.ScriptVersionSave;
 
 /*
  * Copyright 2026 the original author or authors.
@@ -34,13 +36,16 @@ public class ScriptsEdit extends Div {
 	private final ScriptsEditRight right;
 
 	private final ScriptService scriptService;
+	private final ScriptVersionService scriptVersionService;
 	private final ScheduleService scheduleService;
 
-	public ScriptsEdit(ScriptService scriptService, ScheduleService scheduleService) {
+	public ScriptsEdit(ScriptService scriptService, ScheduleService scheduleService,
+			ScriptVersionService scriptVersionService) {
 		super();
 
 		this.scheduleService = scheduleService;
 		this.scriptService = scriptService;
+		this.scriptVersionService = scriptVersionService;
 
 		this.setSizeFull();
 		this.setHeightFull();
@@ -58,8 +63,9 @@ public class ScriptsEdit extends Div {
 		this.add(split);
 	}
 
-	private void save(Script script) {
-		scriptService.save(script);
+	private void save(ScriptVersionSave svs) {
+		scriptService.save(svs.script());
+		scriptVersionService.save(svs);
 		left.refresh();
 	}
 

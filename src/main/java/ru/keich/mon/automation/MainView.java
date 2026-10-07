@@ -25,6 +25,7 @@ import ru.keich.mon.automation.schedule.ScheduleService;
 import ru.keich.mon.automation.schedule.ui.ScheduleEdit;
 import ru.keich.mon.automation.script.ScriptService;
 import ru.keich.mon.automation.script.ui.ScriptsEdit;
+import ru.keich.mon.automation.script.version.ScriptVersionService;
 import ru.keich.mon.automation.security.SecurityService;
 import ru.keich.mon.automation.snmp.SnmpService;
 import ru.keich.mon.automation.snmp.ui.SnmpEdit;
@@ -80,13 +81,14 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 	private final HttpListnerEdit httpEdit;
 
 	public MainView(SecurityService securityService, DBDataSourceService dataSourceService, ScriptService scriptService,
-			ScheduleService scheduleService, SnmpService snmpService, HttpDataSourceService httpDataSourceService, HttpListnerService httpListnerService) {
+			ScheduleService scheduleService, SnmpService snmpService, HttpDataSourceService httpDataSourceService, 
+			HttpListnerService httpListnerService, ScriptVersionService scriptVersionService) {
 		super();
 		dataSourceView = new DBDataSourceEdit(dataSourceService);
 		
 		scheduleEdit = new ScheduleEdit(scheduleService, scriptService);
 
-		scriptsView = new ScriptsEdit(scriptService, scheduleService);
+		scriptsView = new ScriptsEdit(scriptService, scheduleService,scriptVersionService);
 		
 		snmpEdit = new SnmpEdit(snmpService, scriptService);
 		

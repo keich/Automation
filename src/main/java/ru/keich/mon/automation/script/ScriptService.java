@@ -1,5 +1,8 @@
 package ru.keich.mon.automation.script;
 
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -42,6 +45,7 @@ public class ScriptService {
 	private final SnmpService snmpService;
 	private final HttpDataSourceService httpDataSourceService;
 	private final JavaMailSender mailSender;
+	private final Set<String> activeScripts = ConcurrentHashMap.newKeySet();
 
 	public ScriptService(ScriptRepository scriptRepository, DBDataSourceService dataSourceService,
 			SnmpService snmpService, HttpDataSourceService httpDataSourceService, JavaMailSender mailSender) {
@@ -51,7 +55,7 @@ public class ScriptService {
 		this.httpDataSourceService = httpDataSourceService;
 		this.mailSender = mailSender;
 	}
-	
+
 	public void setScheduleService(ScheduleService scheduleService) {
 		snmpService.setScheduleService(scheduleService);
 	}
@@ -77,11 +81,10 @@ public class ScriptService {
 	public List<ScriptNameView> findNamesByNameContaing(Optional<String> filter, int offset, int limit) {
 		int page = offset / limit;
 		Pageable pageable = PageRequest.of(page, limit);
-		return filter
-				.map(name -> scriptRepository.findByNameContainingIgnoreCaseOrderByNameAsc(name, pageable))
+		return filter.map(name -> scriptRepository.findByNameContainingIgnoreCaseOrderByNameAsc(name, pageable))
 				.orElse(scriptRepository.findAllByOrderByNameAsc(pageable));
 	}
-	
+
 	public Optional<Script> getByName(String name) {
 		return scriptRepository.findById(name);
 	}
@@ -109,27 +112,35 @@ public class ScriptService {
 	public void run(String name, Object param, ScriptCallBack callBack) {
 		scriptRepository.findById(name).ifPresentOrElse(script -> {
 			run(script, param, callBack);
-		}, () -> { 
+		}, () -> {
 			callBack.onError(new RuntimeException("Script not found"));
 		});
 	}
 
-	public void run(Script script, Object param, ScriptCallBack callBack)  {
+	public void run(Script script, Object param, ScriptCallBack callBack) {
+		activeScripts.add(script.getName());
+		callBack.onStart();
 		var scriptContext = new ScriptContext(dataSourceService, this, snmpService, httpDataSourceService, mailSender);
 		scriptContext.setLogCallBack(callBack::onLog);
 		final ScriptResult result;
 		try {
 			result = scriptContext.run(script, param);
-			if(!result.isError()) {
+			if (!result.isError()) {
 				callBack.onResult(result.getValue().asString());
 			} else {
 				callBack.onError(new RuntimeException(result.getError()));
 			}
-		} catch (Exception e){
+		} catch (Exception e) {
 			callBack.onError(e);
 		} finally {
+			activeScripts.remove(script.getName());
+			callBack.onFinish();
 			scriptContext.close();
 		}
+	}
+
+	public Set<String> getActiveScripts() {
+		return Set.copyOf(activeScripts);
 	}
 
 }

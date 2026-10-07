@@ -31,8 +31,8 @@ import ru.keich.mon.automation.script.ScriptService;
 public class ScriptsEditLeft extends VerticalLayout {
 
 	private static final long serialVersionUID = -406569669034516329L;
-	public static final String SCRIPT_STATUS = "Running";
-	public static final String SCRIPT_STATUS_RUNNING = "Status";
+	public static final String SCRIPT_STATUS = "Status";
+	public static final String SCRIPT_STATUS_RUNNING = "Running";
 
 	private final TreeGrid<Script> grid;
 

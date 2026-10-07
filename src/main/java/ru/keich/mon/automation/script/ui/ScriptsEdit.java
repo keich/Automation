@@ -1,6 +1,4 @@
 package ru.keich.mon.automation.script.ui;
-import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.html.Div;
 import ru.keich.mon.automation.scripting.LogManager;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
@@ -13,7 +11,6 @@ import ru.keich.mon.automation.scripting.ScriptCallBack;
 
 /*
  * Copyright 2026 the original author or authors.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -35,10 +32,8 @@ public class ScriptsEdit extends Div {
 
 	private final ScriptsEditLeft left;
 	private final ScriptsEditRight right;
-
 	private final ScriptService scriptService;
 	private final ScheduleService scheduleService;
-
 	public ScriptsEdit(ScriptService scriptService, ScheduleService scheduleService) {
 		super();
 
@@ -53,7 +48,6 @@ public class ScriptsEdit extends Div {
 
 		right = new ScriptsEditRight(dataProvider, this::save, this::delete, this::run);
 		left = new ScriptsEditLeft(dataHierarchicaProvider, right::setScript, right::addNew,scriptService);
-
 		var split = new SplitLayout(left, right);
 		split.setSplitterPosition(SPLIT_POS);
 		split.setSizeFull();
@@ -61,16 +55,6 @@ public class ScriptsEdit extends Div {
 		this.add(split);
 		
 	}
-	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		super.onAttach(attachEvent);
-		
-		attachEvent.getUI().setPollInterval(1000);
-		attachEvent.getUI().addPollListener(event -> left.refresh());
-	}
-	
-	
-
 	private void save(Script script) {
 		scriptService.save(script);
 		left.refresh();
@@ -80,6 +64,10 @@ public class ScriptsEdit extends Div {
 		ScriptCallBack refreshCallBack = new ScriptCallBack() {
 			
 			@Override
+			public void onStart() {
+				left.refresh();
+			}
+			@Override
 			public void onLog(LogManager.Line line) {
 				callBack.onLog(line);
 			}
@@ -87,17 +75,19 @@ public class ScriptsEdit extends Div {
 			@Override
 			public void onResult(String data) {
 				callBack.onResult(data);
-				left.refresh();
 			}
 			
 			@Override 
 			public void onError(Exception e) {
 				callBack.onError(e);
+			}
+			
+			
+			public void onFinish() {
 				left.refresh();
 			}
 		};
 		scheduleService.execute(script, null, refreshCallBack);
-		left.refresh();
 	}
 
 	private Boolean delete(Script script) {

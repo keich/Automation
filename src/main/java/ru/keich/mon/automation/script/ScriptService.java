@@ -1,5 +1,6 @@
 package ru.keich.mon.automation.script;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Optional;
@@ -37,13 +38,13 @@ import ru.keich.mon.automation.snmp.SnmpService;
 
 @Service
 public class ScriptService {
-
+	private final List<Runnable> listenners = new CopyOnWriteArrayList<>();
 	private final ScriptRepository scriptRepository;
 	private final DBDataSourceService dataSourceService;
 	private final SnmpService snmpService;
 	private final HttpDataSourceService httpDataSourceService;
 	private final JavaMailSender mailSender;
-	private final Set<String> activeScripts = ConcurrentHashMap.newKeySet();
+	private final Set<Script> activeScripts = ConcurrentHashMap.newKeySet();
 
 	public ScriptService(ScriptRepository scriptRepository, DBDataSourceService dataSourceService,
 			SnmpService snmpService, HttpDataSourceService httpDataSourceService, JavaMailSender mailSender) {
@@ -52,8 +53,7 @@ public class ScriptService {
 		this.snmpService = snmpService;
 		this.httpDataSourceService = httpDataSourceService;
 		this.mailSender = mailSender;
-	}
-	
+	}	
 	public void setScheduleService(ScheduleService scheduleService) {
 		snmpService.setScheduleService(scheduleService);
 	}
@@ -118,7 +118,8 @@ public class ScriptService {
 	
 
 	public void run( Script script, Object param, ScriptCallBack callBack)  {
-		activeScripts.add(script.getName());
+		activeScripts.add(script);
+		callBack.onStart();
 		var scriptContext = new ScriptContext(dataSourceService, this, snmpService, httpDataSourceService, mailSender);
 		scriptContext.setLogCallBack(callBack::onLog);
 		final ScriptResult result;
@@ -132,11 +133,12 @@ public class ScriptService {
 		} catch (Exception e){
 			callBack.onError(e);
 		} finally {
-			activeScripts.remove(script.getName());
+			activeScripts.remove(script);
+			callBack.onFinish();
 			scriptContext.close();
-			}
+		}
 	}			
-	public Set<String> getActiveScripts()
+	public Set<Script> getActiveScripts()
 	{
 		return Set.copyOf(activeScripts);
 	}

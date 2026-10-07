@@ -46,7 +46,7 @@ import ru.keich.mon.automation.snmp.SnmpService;
 public class ScriptContext {
 
 	public static final String LANG_JS = "js";
-	
+
 	public static final String LOG_MSG_HIERAR_CIRCLE = "Circle found";
 
 	public static final String MEMBER_LOG_NAME = "log";
@@ -66,7 +66,7 @@ public class ScriptContext {
 	private final String languare = LANG_JS;
 	private final Context context;
 	private final JavaMailSender mailSender;
-	
+
 	// TODO Use LinkedHashSet if java 21
 	private final Stack<String> stack = new Stack<>();
 
@@ -79,7 +79,7 @@ public class ScriptContext {
 		this.mailSender = mailSender;
 		context = cretaeContext();
 	}
-	
+
 	public void setLogCallBack(Consumer<Line> callBack) {
 		logm.setCallBack(callBack);
 	}
@@ -106,9 +106,9 @@ public class ScriptContext {
 		ret.put(MEMBER_MAIL_NAME, new MailManager(mailSender));
 		return ret;
 	}
-	
+
 	public ScriptResult run(Script script, Object param) {
-		if(stack.contains(script.getName())) {
+		if (stack.contains(script.getName())) {
 			logm.severe(script.getName() + LOG_MSG_HIERAR_CIRCLE);
 			return ScriptResult.err(LOG_MSG_HIERAR_CIRCLE);
 		}
@@ -123,7 +123,7 @@ public class ScriptContext {
 			var first = true;
 			for (var tr : e.getPolyglotStackTrace()) {
 				if (tr.isGuestFrame()) {
-					if(first) {
+					if (first) {
 						str.append("\nStackTrace: \n");
 						first = false;
 					} else {
@@ -140,17 +140,17 @@ public class ScriptContext {
 		stack.pop();
 		return result;
 	}
-	
+
 	public String getScriptName() {
 		return stack.peek();
 	}
-	
+
 	public Map<String, Map<String, Object>> runChild(Object param) {
 		var result = new HashMap<String, Map<String, Object>>();
 		var scripts = scriptService.getChild(getScriptName());
 		scripts.stream().forEach(script -> {
 			var r = run(script, param);
-			if(r.isError()) {
+			if (r.isError()) {
 				result.put(script.getName(), Collections.singletonMap(ScriptResult.KEY_ERR, r.getError()));
 			} else {
 				result.put(script.getName(), Collections.singletonMap(ScriptResult.KEY_RESULT, r.getValue()));
@@ -158,7 +158,7 @@ public class ScriptContext {
 		});
 		return result;
 	}
-	
+
 	public void close() {
 		context.close();
 	}

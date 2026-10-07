@@ -78,6 +78,8 @@ public class ScriptsEditRight extends VerticalLayout {
 	private final Dialog deleteDialog;
 
 	private final LinkedList<LogManager.Line> logs = new LinkedList<>();
+	
+	private int saveScriptHash = 0;
 
 	public ScriptsEditRight(BackEndDataProvider<String, String> dataProvider, 
 			Consumer<ScriptVersionSave> save,
@@ -115,11 +117,19 @@ public class ScriptsEditRight extends VerticalLayout {
 
 		saveButton = new Button(new Icon(VaadinIcon.DOWNLOAD));
 		saveButton.setTooltipText(TOOLTIP_TEXT_SAVE);
-		saveButton.addClickListener(e -> save.accept(getScript()));
+		saveButton.addClickListener(e -> {
+			var sc = getScript();
+			
+			if (this.saveScriptHash == sc.script().getCode().hashCode()) { return; }
+			this.saveScriptHash = sc.script().getCode().hashCode();
+			save.accept(sc);
+		});
 		saveButton.setEnabled(false);
 		header.add(saveButton);
 
-		deleteDialog = createDeleteDialog(() -> delete.apply(getScript().script()));
+		deleteDialog = createDeleteDialog(() -> {
+			return delete.apply(getScript().script());
+		});
 
 		var deleteButton = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE));
 		deleteButton.setTooltipText(TOOLTIP_TEXT_DEL);
@@ -171,7 +181,7 @@ public class ScriptsEditRight extends VerticalLayout {
 
 		addAndExpand(split);
 	}
-
+	
 	public void addLogLine(LogManager.Line line) {
 		logsConsole.getUI().ifPresent(ui -> {
 			try {
@@ -187,6 +197,7 @@ public class ScriptsEditRight extends VerticalLayout {
 
 	public boolean addNew() {
 		clearAll();
+		
 		return true;
 	}
 
@@ -194,6 +205,7 @@ public class ScriptsEditRight extends VerticalLayout {
 		textArea.clear();
 		nameField.clear();
 		parentField.clear();
+		this.saveScriptHash = "".hashCode();
 	}
 
 	private ScriptVersionSave getScript() {
@@ -203,6 +215,7 @@ public class ScriptsEditRight extends VerticalLayout {
 		parentField.getOptionalValue().ifPresent(parent -> {
 			ret.setParent(parent);
 		});
+		
 		return new ScriptVersionSave(ret, "note.");
 	}
 
@@ -210,6 +223,8 @@ public class ScriptsEditRight extends VerticalLayout {
 		nameField.setValue(script.getName());
 		textArea.setValue(script.getCode());
 		parentField.setValue(script.getParent());
+		
+		this.saveScriptHash = script.getCode().hashCode();
 	}
 
 	private void openDeleteDialog() {

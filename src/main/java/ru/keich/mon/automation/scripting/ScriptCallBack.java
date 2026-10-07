@@ -24,7 +24,15 @@ import lombok.extern.java.Log;
 public class ScriptCallBack {
 
 	public final static ScriptCallBack EMPTY_CALLBACK = new ScriptCallBack();
-	
+
+	public void onStart() {
+
+	}
+
+	public void onFinish() {
+
+	}
+
 	public void onResult(String data) {
 		log.log(Level.INFO, data);
 	}

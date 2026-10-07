@@ -1,15 +1,10 @@
 package ru.keich.mon.automation.script.version;
 
 import lombok.Data;
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import ru.keich.mon.automation.script.Script;
-import ru.keich.mon.automation.script.version.dataProviderDto.ScriptVersionSave;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
 import java.time.Instant;
 
 @Entity
@@ -33,9 +28,5 @@ public class ScriptVersion {
 		this.note = note;
 		this.name = name;
 		this.code = code;
-	}
-	
-	public static ScriptVersion fromScript(ScriptVersionSave svs) {
-		return new ScriptVersion(0,svs.note(),svs.script().getName(),svs.script().getCode());
 	}
 }

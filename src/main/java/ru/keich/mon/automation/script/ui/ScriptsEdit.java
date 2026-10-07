@@ -39,13 +39,14 @@ public class ScriptsEdit extends Div {
 	private final ScriptVersionService scriptVersionService;
 	private final ScheduleService scheduleService;
 
-	public ScriptsEdit(ScriptService scriptService, ScheduleService scheduleService, ScriptVersionService scriptVersionService) {
+	public ScriptsEdit(ScriptService scriptService, ScheduleService scheduleService,
+			ScriptVersionService scriptVersionService) {
 		super();
 
 		this.scheduleService = scheduleService;
 		this.scriptService = scriptService;
-		this.scriptVersionService =scriptVersionService;
-		
+		this.scriptVersionService = scriptVersionService;
+
 		this.setSizeFull();
 		this.setHeightFull();
 

@@ -53,16 +53,16 @@ public class ScriptsEditRight extends VerticalLayout {
 
 	public static final String NAME = "Name";
 	public static final String PARENT = "Parent";
-	
+
 	public static final String LOG_DIALOG_CLOSE_BUTTON_TEXT = "Close";
 
 	public static final String DELETE_DIALOG_TEXT = "Want to delete ";
 	public static final String DELETE_DIALOG_YES = "Delete";
 	public static final String DELETE_DIALOG_NO = "Cancel";
-	
+
 	public static final String LOG_MSG_RUN_OK = "Result: ";
 	public static final String LOG_MSG_RUN_ERR = "Error: ";
-	
+
 	public static final String TOOLTIP_TEXT_SAVE = "Save";
 	public static final String TOOLTIP_TEXT_DEL = "Delete";
 	public static final String TOOLTIP_TEXT_RUN = "Run";
@@ -78,11 +78,10 @@ public class ScriptsEditRight extends VerticalLayout {
 	private final Dialog deleteDialog;
 
 	private final LinkedList<LogManager.Line> logs = new LinkedList<>();
-	
+
 	private int saveScriptHash = 0;
 
-	public ScriptsEditRight(BackEndDataProvider<String, String> dataProvider, 
-			Consumer<ScriptVersionSave> save,
+	public ScriptsEditRight(BackEndDataProvider<String, String> dataProvider, Consumer<ScriptVersionSave> save,
 			Function<Script, Boolean> delete, BiConsumer<Script, ScriptCallBack> run) {
 		var header = new Header();
 		header.setWidthFull();
@@ -91,7 +90,7 @@ public class ScriptsEditRight extends VerticalLayout {
 		logsConsole.addColumn(LogManager.Line::getTimeFormatter).setFlexGrow(2);// .getStyle().setMaxWidth("8em");
 		logsConsole.addColumn(LogManager.Line::getLevel).setFlexGrow(1);
 		logsConsole.addColumn(LogManager.Line::getMsg).setFlexGrow(20);
-		
+
 		var logDialogDetails = new Dialog();
 		logDialogDetails.setDraggable(true);
 		logDialogDetails.setResizable(true);
@@ -102,16 +101,15 @@ public class ScriptsEditRight extends VerticalLayout {
 		logDetails.setReadOnly(true);
 		var logDialogDetailsLayout = new VerticalLayout(logDetails);
 		logDialogDetailsLayout.setSizeFull();
-		
+
 		logDialogDetails.add(logDialogDetailsLayout);
-		
-		
+
 		logsConsole.addItemDoubleClickListener(event -> {
 			logDialogDetails.setHeaderTitle(event.getItem().getLevel().toString());
 			logDetails.setValue(event.getItem().getMsg());
 			logDialogDetails.open();
 		});
-		
+
 		logsConsole.setItems(logs);
 		logsConsole.setSizeFull();
 
@@ -119,8 +117,10 @@ public class ScriptsEditRight extends VerticalLayout {
 		saveButton.setTooltipText(TOOLTIP_TEXT_SAVE);
 		saveButton.addClickListener(e -> {
 			var sc = getScript();
-			
-			if (this.saveScriptHash == sc.script().getCode().hashCode()) { return; }
+
+			if (this.saveScriptHash == sc.script().getCode().hashCode()) {
+				return;
+			}
 			this.saveScriptHash = sc.script().getCode().hashCode();
 			save.accept(sc);
 		});
@@ -181,15 +181,15 @@ public class ScriptsEditRight extends VerticalLayout {
 
 		addAndExpand(split);
 	}
-	
+
 	public void addLogLine(LogManager.Line line) {
 		logsConsole.getUI().ifPresent(ui -> {
 			try {
-				ui.access(() ->{
+				ui.access(() -> {
 					logs.addFirst(line);
 					logsConsole.getDataProvider().refreshAll();
 				});
-			} catch(Exception e) {
+			} catch (Exception e) {
 				log.warning("UIDetachedException on ScriptEditRight.addLogLine methode.");
 			}
 		});
@@ -197,7 +197,7 @@ public class ScriptsEditRight extends VerticalLayout {
 
 	public boolean addNew() {
 		clearAll();
-		
+
 		return true;
 	}
 
@@ -215,7 +215,7 @@ public class ScriptsEditRight extends VerticalLayout {
 		parentField.getOptionalValue().ifPresent(parent -> {
 			ret.setParent(parent);
 		});
-		
+
 		return new ScriptVersionSave(ret, "note.");
 	}
 
@@ -223,7 +223,7 @@ public class ScriptsEditRight extends VerticalLayout {
 		nameField.setValue(script.getName());
 		textArea.setValue(script.getCode());
 		parentField.setValue(script.getParent());
-		
+
 		this.saveScriptHash = script.getCode().hashCode();
 	}
 
@@ -245,7 +245,7 @@ public class ScriptsEditRight extends VerticalLayout {
 		dialog.getFooter().add(yesBtn, noBtn);
 		return dialog;
 	}
-	
+
 	private void validate(Object event) {
 		saveButton.setEnabled(!nameField.getValue().isEmpty());
 	}

@@ -25,6 +25,7 @@ import com.vaadin.flow.data.provider.BackEndDataProvider;
 import de.f0rce.ace.AceEditor;
 import lombok.extern.java.Log;
 import ru.keich.mon.automation.script.Script;
+import ru.keich.mon.automation.script.version.dataProviderDto.ScriptVersionSave;
 import ru.keich.mon.automation.scripting.LogManager;
 import ru.keich.mon.automation.scripting.LogManager.Line;
 import ru.keich.mon.automation.scripting.ScriptCallBack;
@@ -78,7 +79,8 @@ public class ScriptsEditRight extends VerticalLayout {
 
 	private final LinkedList<LogManager.Line> logs = new LinkedList<>();
 
-	public ScriptsEditRight(BackEndDataProvider<String, String> dataProvider, Consumer<Script> save,
+	public ScriptsEditRight(BackEndDataProvider<String, String> dataProvider, 
+			Consumer<ScriptVersionSave> save,
 			Function<Script, Boolean> delete, BiConsumer<Script, ScriptCallBack> run) {
 		var header = new Header();
 		header.setWidthFull();
@@ -117,7 +119,7 @@ public class ScriptsEditRight extends VerticalLayout {
 		saveButton.setEnabled(false);
 		header.add(saveButton);
 
-		deleteDialog = createDeleteDialog(() -> delete.apply(getScript()));
+		deleteDialog = createDeleteDialog(() -> delete.apply(getScript().script()));
 
 		var deleteButton = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE));
 		deleteButton.setTooltipText(TOOLTIP_TEXT_DEL);
@@ -142,7 +144,7 @@ public class ScriptsEditRight extends VerticalLayout {
 			}
 		};
 
-		playButton.addClickListener(e -> run.accept(getScript(), callBack));
+		playButton.addClickListener(e -> run.accept(getScript().script(), callBack));
 		playButton.setTooltipText(TOOLTIP_TEXT_RUN);
 		header.add(playButton);
 
@@ -194,14 +196,14 @@ public class ScriptsEditRight extends VerticalLayout {
 		parentField.clear();
 	}
 
-	private Script getScript() {
+	private ScriptVersionSave getScript() {
 		var ret = new Script();
 		ret.setName(nameField.getValue());
 		ret.setCode(textArea.getValue());
 		parentField.getOptionalValue().ifPresent(parent -> {
 			ret.setParent(parent);
 		});
-		return ret;
+		return new ScriptVersionSave(ret, "note.");
 	}
 
 	public void setScript(Script script) {

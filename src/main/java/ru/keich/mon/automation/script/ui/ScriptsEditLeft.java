@@ -9,6 +9,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 
+import lombok.extern.java.Log;
 import ru.keich.mon.automation.script.Script;
 import ru.keich.mon.automation.script.ScriptService;
 
@@ -28,6 +29,7 @@ import ru.keich.mon.automation.script.ScriptService;
  * limitations under the License.
  */
 
+@Log
 public class ScriptsEditLeft extends VerticalLayout {
 
 	private static final long serialVersionUID = -406569669034516329L;
@@ -59,9 +61,13 @@ public class ScriptsEditLeft extends VerticalLayout {
 
 	public void refresh() {
 		grid.getUI().ifPresent(ui -> {
-			ui.access(() -> {
-				grid.getDataProvider().refreshAll();
-			});
+			try {
+				ui.access(() -> {
+					grid.getDataProvider().refreshAll();
+				});
+			} catch (Exception e) {
+				log.warning("UIDetachedException on ScriptsEditLeft.refresh method.");
+			}
 		});
 	}
 

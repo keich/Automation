@@ -30,7 +30,7 @@ public class ScriptsEdit extends Div {
 
 	private static final long serialVersionUID = 5065116144261992678L;
 
-	private static final double SPLIT_POS = 20;
+	private static final double SPLIT_POS = 30;
 
 	private final ScriptsEditLeft left;
 	private final ScriptsEditRight right;

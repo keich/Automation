@@ -42,11 +42,12 @@ public class ScriptsEditLeft extends VerticalLayout {
 			ScriptService scriptService) {
 		grid = new TreeGrid<Script>();
 		grid.addItemClickListener(e -> open.accept(e.getItem()));
-		grid.addHierarchyColumn(Script::getName);
+		grid.addHierarchyColumn(Script::getName).setSortable(false);
 		grid.addColumn(script -> scriptService
 				.getActiveScripts()
 				.contains(script.getName()) ? SCRIPT_STATUS_RUNNING : "")
-				.setHeader(SCRIPT_STATUS);
+				.setHeader(SCRIPT_STATUS)
+				.setFlexGrow(0);
 		grid.setDataProvider(dataProvider);
 
 		var plusButton = new Button(new Icon(VaadinIcon.PLUS));

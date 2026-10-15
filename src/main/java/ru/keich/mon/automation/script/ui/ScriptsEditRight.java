@@ -166,6 +166,7 @@ public class ScriptsEditRight extends VerticalLayout {
 
 		parentField = new ComboBox<String>();
 		parentField.setItems(dataProvider);
+		parentField.setClearButtonVisible(true);
 		formLayout.addFormItem(parentField, PARENT);
 
 		header.add(formLayout);
@@ -212,10 +213,7 @@ public class ScriptsEditRight extends VerticalLayout {
 		var ret = new Script();
 		ret.setName(nameField.getValue());
 		ret.setCode(textArea.getValue());
-		parentField.getOptionalValue().ifPresent(parent -> {
-			ret.setParent(parent);
-		});
-
+		ret.setParent(parentField.getValue());
 		return new ScriptVersionSave(ret, "note.");
 	}
 

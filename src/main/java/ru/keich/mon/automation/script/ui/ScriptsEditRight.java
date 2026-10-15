@@ -118,10 +118,10 @@ public class ScriptsEditRight extends VerticalLayout {
 		saveButton.addClickListener(e -> {
 			var sc = getScript();
 
-			if (this.saveScriptHash == sc.script().getCode().hashCode()) {
+			if (this.saveScriptHash == sc.script().hashCode()) {
 				return;
 			}
-			this.saveScriptHash = sc.script().getCode().hashCode();
+			this.saveScriptHash = sc.script().hashCode();
 			save.accept(sc);
 		});
 		saveButton.setEnabled(false);
@@ -224,7 +224,7 @@ public class ScriptsEditRight extends VerticalLayout {
 		textArea.setValue(script.getCode());
 		parentField.setValue(script.getParent());
 
-		this.saveScriptHash = script.getCode().hashCode();
+		this.saveScriptHash = script.hashCode();
 	}
 
 	private void openDeleteDialog() {

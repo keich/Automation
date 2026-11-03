@@ -1,11 +1,15 @@
 package ru.keich.mon.automation.script.ui;
 
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
+import java.util.stream.Stream;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -20,11 +24,14 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.AbstractBackEndDataProvider;
 import com.vaadin.flow.data.provider.BackEndDataProvider;
+import com.vaadin.flow.data.provider.Query;
 
 import de.f0rce.ace.AceEditor;
 import lombok.extern.java.Log;
 import ru.keich.mon.automation.script.Script;
+import ru.keich.mon.automation.script.version.ScriptVersion;
 import ru.keich.mon.automation.script.version.dataProviderDto.ScriptVersionSave;
 import ru.keich.mon.automation.scripting.LogManager;
 import ru.keich.mon.automation.scripting.LogManager.Line;
@@ -73,7 +80,9 @@ public class ScriptsEditRight extends VerticalLayout {
 	private final Grid<LogManager.Line> logsConsole;
 	private final TextField nameField;
 	private final ComboBox<String> parentField;
+	private final ComboBox<Instant> versionField; 
 	private final Button saveButton;
+	private final Dialog versionDialog;
 
 	private final Dialog deleteDialog;
 
@@ -82,7 +91,7 @@ public class ScriptsEditRight extends VerticalLayout {
 	private int saveScriptHash = 0;
 
 	public ScriptsEditRight(BackEndDataProvider<String, String> dataProvider, Consumer<ScriptVersionSave> save,
-			Function<Script, Boolean> delete, BiConsumer<Script, ScriptCallBack> run) {
+			Function<Script, Boolean> delete, BiConsumer<Script, ScriptCallBack> run,BackEndDataProvider<Instant,String> dataProviderVersion, Function<Instant,ScriptVersion> getScriptVersion) {
 		var header = new Header();
 		header.setWidthFull();
 
@@ -112,7 +121,7 @@ public class ScriptsEditRight extends VerticalLayout {
 
 		logsConsole.setItems(logs);
 		logsConsole.setSizeFull();
-
+		
 		saveButton = new Button(new Icon(VaadinIcon.DOWNLOAD));
 		saveButton.setTooltipText(TOOLTIP_TEXT_SAVE);
 		saveButton.addClickListener(e -> {
@@ -158,6 +167,7 @@ public class ScriptsEditRight extends VerticalLayout {
 		playButton.setTooltipText(TOOLTIP_TEXT_RUN);
 		header.add(playButton);
 
+		
 		var formLayout = new FormLayout();
 		formLayout.setWidthFull();
 
@@ -168,10 +178,41 @@ public class ScriptsEditRight extends VerticalLayout {
 		parentField.setItems(dataProvider);
 		parentField.setClearButtonVisible(true);
 		formLayout.addFormItem(parentField, PARENT);
-
-		header.add(formLayout);
-
+		
 		textArea = new AceEditor();
+		
+		versionDialog = new Dialog("Version File Choice");
+		
+		versionField = new ComboBox<Instant>();
+		versionField.setItemLabelGenerator(i->i.toString());
+		versionField.setItems(new AbstractBackEndDataProvider<Instant, String>(){
+			Supplier<String> getName =  nameField::getValue;
+			
+			@Override
+			protected Stream<Instant> fetchFromBackEnd(Query<Instant, String> query) {
+				var q = new Query<Instant,String>(query.getOffset(),query.getLimit(),null,null,getName.get());
+				return dataProviderVersion.fetch(q);
+			}
+
+			@Override
+			protected int sizeInBackEnd(Query<Instant, String> query) {
+				var q = new Query<Instant,String>(query.getOffset(),query.getLimit(),null,null,getName.get());
+				return dataProviderVersion.size(q);
+			}
+			
+		});
+		versionField.addValueChangeListener(i->{
+			versionDialog.close();
+			textArea.setValue( getScriptVersion.apply(i.getValue()).getCode());
+		});
+		versionDialog.add(versionField);
+		//formLayout.add(versionField);
+		
+		var versionButton = new Button(new Icon(VaadinIcon.TOOLBOX));
+		versionButton.addClickListener(i->versionDialog.open());
+		header.add(versionButton);
+		
+		header.add(formLayout);
 
 		add(header);
 
@@ -182,6 +223,7 @@ public class ScriptsEditRight extends VerticalLayout {
 
 		addAndExpand(split);
 	}
+	
 
 	public void addLogLine(LogManager.Line line) {
 		logsConsole.getUI().ifPresent(ui -> {
@@ -206,6 +248,7 @@ public class ScriptsEditRight extends VerticalLayout {
 		textArea.clear();
 		nameField.clear();
 		parentField.clear();
+		versionField.clear();
 		this.saveScriptHash = "".hashCode();
 	}
 
@@ -218,10 +261,11 @@ public class ScriptsEditRight extends VerticalLayout {
 	}
 
 	public void setScript(Script script) {
+		versionField.clear();
+		versionField.getDataProvider().refreshAll();
 		nameField.setValue(script.getName());
 		textArea.setValue(script.getCode());
 		parentField.setValue(script.getParent());
-
 		this.saveScriptHash = script.hashCode();
 	}
 

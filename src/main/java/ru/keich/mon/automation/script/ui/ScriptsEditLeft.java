@@ -1,4 +1,5 @@
 package ru.keich.mon.automation.script.ui;
+
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -9,6 +10,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 
+import lombok.extern.java.Log;
 import ru.keich.mon.automation.script.Script;
 import ru.keich.mon.automation.script.ScriptService;
 
@@ -28,11 +30,12 @@ import ru.keich.mon.automation.script.ScriptService;
  * limitations under the License.
  */
 
+@Log
 public class ScriptsEditLeft extends VerticalLayout {
 
 	private static final long serialVersionUID = -406569669034516329L;
-	public static final String SCRIPT_STATUS = "Running";
-	public static final String SCRIPT_STATUS_RUNNING = "Status";
+	public static final String SCRIPT_STATUS = "Status";
+	public static final String SCRIPT_STATUS_RUNNING = "run";
 
 	private final TreeGrid<Script> grid;
 
@@ -40,11 +43,14 @@ public class ScriptsEditLeft extends VerticalLayout {
 			ScriptService scriptService) {
 		grid = new TreeGrid<Script>();
 		grid.addItemClickListener(e -> open.accept(e.getItem()));
-		grid.addHierarchyColumn(Script::getName);
-		grid.addColumn(script -> scriptService
-				.getActiveScripts()
-				.contains(script.getName()) ? SCRIPT_STATUS_RUNNING : "")
-				.setHeader(SCRIPT_STATUS);
+		grid.addHierarchyColumn(Script::getName).setSortable(false);
+		grid.addColumn(script -> {
+			long count = scriptService.getActiveScriptCount(script.getName());
+			if (count == 0) {
+				return "";
+			}
+			return SCRIPT_STATUS_RUNNING + " (" + count + ")";
+		}).setHeader(SCRIPT_STATUS).setFlexGrow(0);
 		grid.setDataProvider(dataProvider);
 
 		var plusButton = new Button(new Icon(VaadinIcon.PLUS));
@@ -59,9 +65,13 @@ public class ScriptsEditLeft extends VerticalLayout {
 
 	public void refresh() {
 		grid.getUI().ifPresent(ui -> {
-			ui.access(() -> {
-				grid.getDataProvider().refreshAll();
-			});
+			try {
+				ui.access(() -> {
+					grid.getDataProvider().refreshAll();
+				});
+			} catch (Exception e) {
+				log.warning("UIDetachedException on ScriptsEditLeft.refresh method.");
+			}
 		});
 	}
 

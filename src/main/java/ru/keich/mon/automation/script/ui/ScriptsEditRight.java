@@ -1,9 +1,7 @@
 package ru.keich.mon.automation.script.ui;
 
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -91,7 +89,9 @@ public class ScriptsEditRight extends VerticalLayout {
 	private int saveScriptHash = 0;
 
 	public ScriptsEditRight(BackEndDataProvider<String, String> dataProvider, Consumer<ScriptVersionSave> save,
-			Function<Script, Boolean> delete, BiConsumer<Script, ScriptCallBack> run,BackEndDataProvider<Instant,String> dataProviderVersion, Function<Instant,ScriptVersion> getScriptVersion) {
+			Function<Script, Boolean> delete, BiConsumer<Script, ScriptCallBack> run,
+			BackEndDataProvider<Instant, String> dataProviderScriptVersion,
+			Function<Instant, ScriptVersion> getScriptVersionByInstant) {
 		var header = new Header();
 		header.setWidthFull();
 
@@ -121,7 +121,7 @@ public class ScriptsEditRight extends VerticalLayout {
 
 		logsConsole.setItems(logs);
 		logsConsole.setSizeFull();
-		
+
 		saveButton = new Button(new Icon(VaadinIcon.DOWNLOAD));
 		saveButton.setTooltipText(TOOLTIP_TEXT_SAVE);
 		saveButton.addClickListener(e -> {
@@ -185,25 +185,27 @@ public class ScriptsEditRight extends VerticalLayout {
 		
 		versionField = new ComboBox<Instant>();
 		versionField.setItemLabelGenerator(i->i.toString());
-		versionField.setItems(new AbstractBackEndDataProvider<Instant, String>(){
-			Supplier<String> getName =  nameField::getValue;
-			
+		versionField.setItems(new AbstractBackEndDataProvider<Instant, String>() {
+
+			private static final long serialVersionUID = 3091922418847440830L;
+			Supplier<String> getName = nameField::getValue;
+
 			@Override
 			protected Stream<Instant> fetchFromBackEnd(Query<Instant, String> query) {
-				var q = new Query<Instant,String>(query.getOffset(),query.getLimit(),null,null,getName.get());
-				return dataProviderVersion.fetch(q);
+				var q = new Query<Instant, String>(query.getOffset(), query.getLimit(), null, null, getName.get());
+				return dataProviderScriptVersion.fetch(q);
 			}
 
 			@Override
 			protected int sizeInBackEnd(Query<Instant, String> query) {
-				var q = new Query<Instant,String>(query.getOffset(),query.getLimit(),null,null,getName.get());
-				return dataProviderVersion.size(q);
+				var q = new Query<Instant, String>(query.getOffset(), query.getLimit(), null, null, getName.get());
+				return dataProviderScriptVersion.size(q);
 			}
-			
+
 		});
 		versionField.addValueChangeListener(i->{
 			versionDialog.close();
-			textArea.setValue( getScriptVersion.apply(i.getValue()).getCode());
+			textArea.setValue( getScriptVersionByInstant.apply(i.getValue()).getCode());
 		});
 		versionDialog.add(versionField);
 		//formLayout.add(versionField);

@@ -1,19 +1,18 @@
 package ru.keich.mon.automation.script.ui;
 
+import java.time.Instant;
+
 import com.vaadin.flow.component.html.Div;
-import ru.keich.mon.automation.scripting.LogManager;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 
 import ru.keich.mon.automation.schedule.ScheduleService;
 import ru.keich.mon.automation.script.Script;
 import ru.keich.mon.automation.script.ScriptService;
-import ru.keich.mon.automation.script.version.dataProviderDto.ScriptVersionSave;
-import ru.keich.mon.automation.script.version.ScriptVersion;
-import ru.keich.mon.automation.scripting.ScriptCallBack;
 import ru.keich.mon.automation.script.version.ScriptVersion;
 import ru.keich.mon.automation.script.version.ScriptVersionService;
 import ru.keich.mon.automation.script.version.dataProviderDto.ScriptVersionSave;
-import java.time.Instant;
+import ru.keich.mon.automation.scripting.LogManager;
+import ru.keich.mon.automation.scripting.ScriptCallBack;
 
 /*
  * Copyright 2026 the original author or authors.
@@ -57,7 +56,7 @@ public class ScriptsEdit extends Div {
 		var dataProvider = new ScriptNameDataProvider(scriptService);
 		var dataProviderVersion = new ScriptVersionDataProvider(scriptVersionService);
 		
-		right = new ScriptsEditRight(dataProvider, this::save, this::delete, this::run, dataProviderVersion, this::setScriptByVersion);
+		right = new ScriptsEditRight(dataProvider, this::save, this::delete, this::run, dataProviderVersion, this::getScriptVersionByInstant);
 		left = new ScriptsEditLeft(dataHierarchicaProvider, right::setScript, right::addNew, scriptService);
 		var split = new SplitLayout(left, right);
 		split.setSplitterPosition(SPLIT_POS);
@@ -65,9 +64,11 @@ public class ScriptsEdit extends Div {
 		split.setHeightFull();
 		this.add(split);
 	}
-	private ScriptVersion setScriptByVersion(Instant id) {
+
+	private ScriptVersion getScriptVersionByInstant(Instant id) {
 		return scriptVersionService.findById(id);
-	} 
+	}
+
 	private void save(ScriptVersionSave svs) {
 		scriptService.save(svs.script());
 		scriptVersionService.save(svs);

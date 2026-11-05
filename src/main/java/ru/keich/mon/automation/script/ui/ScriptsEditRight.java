@@ -2,6 +2,7 @@ package ru.keich.mon.automation.script.ui;
 
 import java.time.Instant;
 import java.util.LinkedList;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -91,7 +92,7 @@ public class ScriptsEditRight extends VerticalLayout {
 	public ScriptsEditRight(BackEndDataProvider<String, String> dataProvider, Consumer<ScriptVersionSave> save,
 			Function<Script, Boolean> delete, BiConsumer<Script, ScriptCallBack> run,
 			BackEndDataProvider<Instant, String> dataProviderScriptVersion,
-			Function<Instant, ScriptVersion> getScriptVersionByInstant) {
+			Function<Instant, Optional<ScriptVersion>> getScriptVersionByInstant) {
 		var header = new Header();
 		header.setWidthFull();
 
@@ -184,28 +185,13 @@ public class ScriptsEditRight extends VerticalLayout {
 		versionDialog = new Dialog("Version File Choice");
 		
 		versionField = new ComboBox<Instant>();
-		versionField.setItemLabelGenerator(i->i.toString());
-		versionField.setItems(new AbstractBackEndDataProvider<Instant, String>() {
-
-			private static final long serialVersionUID = 3091922418847440830L;
-			Supplier<String> getName = nameField::getValue;
-
-			@Override
-			protected Stream<Instant> fetchFromBackEnd(Query<Instant, String> query) {
-				var q = new Query<Instant, String>(query.getOffset(), query.getLimit(), null, null, getName.get());
-				return dataProviderScriptVersion.fetch(q);
+		versionField.setItemLabelGenerator(i -> i.toString());
+		versionField.setItems(dataProviderScriptVersion);
+		versionField.addValueChangeListener(i -> {
+			var val = i.getValue();
+			if(val != null) {
+				getScriptVersionByInstant.apply(val).ifPresent(code -> textArea.setValue(code.getCode()));
 			}
-
-			@Override
-			protected int sizeInBackEnd(Query<Instant, String> query) {
-				var q = new Query<Instant, String>(query.getOffset(), query.getLimit(), null, null, getName.get());
-				return dataProviderScriptVersion.size(q);
-			}
-
-		});
-		versionField.addValueChangeListener(i->{
-			versionDialog.close();
-			textArea.setValue( getScriptVersionByInstant.apply(i.getValue()).getCode());
 		});
 		versionDialog.add(versionField);
 		//formLayout.add(versionField);

@@ -1,6 +1,7 @@
 package ru.keich.mon.automation.script.version;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.springframework.data.domain.PageRequest;
@@ -37,8 +38,8 @@ public class ScriptVersionService {
 		return _scriptVersionRepo.countByName(name);
 	}
 
-	public ScriptVersion findById(Instant id) {
-		return _scriptVersionRepo.findById(id).orElseThrow();
+	public Optional<ScriptVersion> findById(Instant id) {
+		return _scriptVersionRepo.findById(id);
 	}
 
 }

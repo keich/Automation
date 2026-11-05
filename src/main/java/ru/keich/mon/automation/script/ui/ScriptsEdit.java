@@ -1,6 +1,7 @@
 package ru.keich.mon.automation.script.ui;
 
 import java.time.Instant;
+import java.util.Optional;
 
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
@@ -40,6 +41,7 @@ public class ScriptsEdit extends Div {
 	private final ScriptService scriptService;
 	private final ScheduleService scheduleService;
 	private final ScriptVersionService scriptVersionService;
+	private final ScriptVersionDataProvider dataProviderVersion;
 
 	public ScriptsEdit(ScriptService scriptService, ScheduleService scheduleService, 
 			ScriptVersionService scriptVersionService) {
@@ -54,10 +56,10 @@ public class ScriptsEdit extends Div {
 
 		var dataHierarchicaProvider = new ScriptHierarchicalDataProvider(scriptService);
 		var dataProvider = new ScriptNameDataProvider(scriptService);
-		var dataProviderVersion = new ScriptVersionDataProvider(scriptVersionService);
+		dataProviderVersion = new ScriptVersionDataProvider(scriptVersionService);
 		
 		right = new ScriptsEditRight(dataProvider, this::save, this::delete, this::run, dataProviderVersion, this::getScriptVersionByInstant);
-		left = new ScriptsEditLeft(dataHierarchicaProvider, right::setScript, right::addNew, scriptService);
+		left = new ScriptsEditLeft(dataHierarchicaProvider, this::setScript, right::addNew, scriptService);
 		var split = new SplitLayout(left, right);
 		split.setSplitterPosition(SPLIT_POS);
 		split.setSizeFull();
@@ -65,7 +67,12 @@ public class ScriptsEdit extends Div {
 		this.add(split);
 	}
 
-	private ScriptVersion getScriptVersionByInstant(Instant id) {
+	void setScript(Script script) {
+		dataProviderVersion.setScriptName(script.getName());
+		right.setScript(script);
+	}
+
+	private Optional<ScriptVersion> getScriptVersionByInstant(Instant id) {
 		return scriptVersionService.findById(id);
 	}
 

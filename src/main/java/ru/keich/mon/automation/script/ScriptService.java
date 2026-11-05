@@ -6,7 +6,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import java.util.UUID;
 
+import java.util.Map;
+import java.util.HashSet;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -45,7 +48,7 @@ public class ScriptService {
 	private final SnmpService snmpService;
 	private final HttpDataSourceService httpDataSourceService;
 	private final JavaMailSender mailSender;
-	private final Set<String> activeScripts = ConcurrentHashMap.newKeySet();
+	private final Map<UUID, String> activeScripts = new ConcurrentHashMap<>();
 
 	public ScriptService(ScriptRepository scriptRepository, DBDataSourceService dataSourceService,
 			SnmpService snmpService, HttpDataSourceService httpDataSourceService, JavaMailSender mailSender) {
@@ -118,7 +121,8 @@ public class ScriptService {
 	}
 
 	public void run(Script script, Object param, ScriptCallBack callBack) {
-		activeScripts.add(script.getName());
+		UUID runId = UUID.randomUUID();
+		activeScripts.put(runId, script.getName());
 		callBack.onStart();
 		var scriptContext = new ScriptContext(dataSourceService, this, snmpService, httpDataSourceService, mailSender);
 		scriptContext.setLogCallBack(callBack::onLog);
@@ -133,14 +137,18 @@ public class ScriptService {
 		} catch (Exception e) {
 			callBack.onError(e);
 		} finally {
-			activeScripts.remove(script.getName());
+			activeScripts.remove(runId);
 			callBack.onFinish();
 			scriptContext.close();
 		}
 	}
 
 	public Set<String> getActiveScripts() {
-		return Set.copyOf(activeScripts);
+		return new HashSet<>(activeScripts.values());
+	}
+
+	public long getActiveScriptCount(String name) {
+		return activeScripts.values().stream().filter(name::equals).count();
 	}
 
 }

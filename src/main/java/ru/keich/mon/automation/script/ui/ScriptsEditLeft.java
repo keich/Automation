@@ -1,4 +1,5 @@
 package ru.keich.mon.automation.script.ui;
+
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -33,8 +34,7 @@ import ru.keich.mon.automation.script.ScriptService;
 public class ScriptsEditLeft extends VerticalLayout {
 
 	private static final long serialVersionUID = -406569669034516329L;
-	public static final String SCRIPT_STATUS = "Status";
-	public static final String SCRIPT_STATUS_RUNNING = "Running";
+	public static final String SCRIPT_STATUS = "Running";
 
 	private final TreeGrid<Script> grid;
 
@@ -43,11 +43,10 @@ public class ScriptsEditLeft extends VerticalLayout {
 		grid = new TreeGrid<Script>();
 		grid.addItemClickListener(e -> open.accept(e.getItem()));
 		grid.addHierarchyColumn(Script::getName).setSortable(false);
-		grid.addColumn(script -> scriptService
-				.getActiveScripts()
-				.contains(script.getName()) ? SCRIPT_STATUS_RUNNING : "")
-				.setHeader(SCRIPT_STATUS)
-				.setFlexGrow(0);
+		grid.addColumn(script -> {
+			var count = scriptService.getActiveScriptCount(script.getName());
+			return count == 0 ? "" :  count;
+		}).setHeader(SCRIPT_STATUS).setFlexGrow(0);
 		grid.setDataProvider(dataProvider);
 
 		var plusButton = new Button(new Icon(VaadinIcon.PLUS));

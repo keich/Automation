@@ -118,10 +118,10 @@ public class ScriptsEditRight extends VerticalLayout {
 		saveButton.addClickListener(e -> {
 			var sc = getScript();
 
-			if (this.saveScriptHash == sc.script().getCode().hashCode()) {
+			if (this.saveScriptHash == sc.script().hashCode()) {
 				return;
 			}
-			this.saveScriptHash = sc.script().getCode().hashCode();
+			this.saveScriptHash = sc.script().hashCode();
 			save.accept(sc);
 		});
 		saveButton.setEnabled(false);
@@ -166,6 +166,7 @@ public class ScriptsEditRight extends VerticalLayout {
 
 		parentField = new ComboBox<String>();
 		parentField.setItems(dataProvider);
+		parentField.setClearButtonVisible(true);
 		formLayout.addFormItem(parentField, PARENT);
 
 		header.add(formLayout);
@@ -190,7 +191,7 @@ public class ScriptsEditRight extends VerticalLayout {
 					logsConsole.getDataProvider().refreshAll();
 				});
 			} catch (Exception e) {
-				log.warning("UIDetachedException on ScriptEditRight.addLogLine methode.");
+				log.warning("UIDetachedException on ScriptEditRight.addLogLine method.");
 			}
 		});
 	}
@@ -212,10 +213,7 @@ public class ScriptsEditRight extends VerticalLayout {
 		var ret = new Script();
 		ret.setName(nameField.getValue());
 		ret.setCode(textArea.getValue());
-		parentField.getOptionalValue().ifPresent(parent -> {
-			ret.setParent(parent);
-		});
-
+		ret.setParent(parentField.getValue());
 		return new ScriptVersionSave(ret, "note.");
 	}
 
@@ -224,7 +222,7 @@ public class ScriptsEditRight extends VerticalLayout {
 		textArea.setValue(script.getCode());
 		parentField.setValue(script.getParent());
 
-		this.saveScriptHash = script.getCode().hashCode();
+		this.saveScriptHash = script.hashCode();
 	}
 
 	private void openDeleteDialog() {

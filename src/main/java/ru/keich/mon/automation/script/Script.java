@@ -1,6 +1,7 @@
 package ru.keich.mon.automation.script;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -47,6 +48,24 @@ public class Script implements Serializable {
 	@Override
 	public String toString() {
 		return "Script [name=" + name + ", type=" + type + ", code=" + code + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(code, name, parent, type);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Script other = (Script) obj;
+		return Objects.equals(code, other.code) && Objects.equals(name, other.name)
+				&& Objects.equals(parent, other.parent) && type == other.type;
 	}
 
 }

@@ -34,8 +34,7 @@ import ru.keich.mon.automation.script.ScriptService;
 public class ScriptsEditLeft extends VerticalLayout {
 
 	private static final long serialVersionUID = -406569669034516329L;
-	public static final String SCRIPT_STATUS = "Status";
-	public static final String SCRIPT_STATUS_RUNNING = "run";
+	public static final String SCRIPT_STATUS = "Running";
 
 	private final TreeGrid<Script> grid;
 
@@ -45,11 +44,8 @@ public class ScriptsEditLeft extends VerticalLayout {
 		grid.addItemClickListener(e -> open.accept(e.getItem()));
 		grid.addHierarchyColumn(Script::getName).setSortable(false);
 		grid.addColumn(script -> {
-			long count = scriptService.getActiveScriptCount(script.getName());
-			if (count == 0) {
-				return "";
-			}
-			return SCRIPT_STATUS_RUNNING + " (" + count + ")";
+			var count = scriptService.getActiveScriptCount(script.getName());
+			return count == 0 ? "" :  count;
 		}).setHeader(SCRIPT_STATUS).setFlexGrow(0);
 		grid.setDataProvider(dataProvider);
 

@@ -1,16 +1,20 @@
 package ru.keich.mon.automation.script.ui;
 
+import java.time.Instant;
+import java.util.Optional;
+
 import com.vaadin.flow.component.html.Div;
-import ru.keich.mon.automation.scripting.LogManager;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 
 import ru.keich.mon.automation.schedule.ScheduleService;
 import ru.keich.mon.automation.script.Script;
 import ru.keich.mon.automation.script.ScriptService;
-import ru.keich.mon.automation.script.version.dataProviderDto.ScriptVersionSave;
-import ru.keich.mon.automation.scripting.ScriptCallBack;
+import ru.keich.mon.automation.script.version.ScriptVersion;
 import ru.keich.mon.automation.script.version.ScriptVersionService;
 import ru.keich.mon.automation.script.version.dataProviderDto.ScriptVersionSave;
+import ru.keich.mon.automation.scripting.LogManager;
+import ru.keich.mon.automation.scripting.ScriptCallBack;
+
 /*
  * Copyright 2026 the original author or authors.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,6 +41,7 @@ public class ScriptsEdit extends Div {
 	private final ScriptService scriptService;
 	private final ScheduleService scheduleService;
 	private final ScriptVersionService scriptVersionService;
+	private final ScriptVersionDataProvider dataProviderVersion;
 
 	public ScriptsEdit(ScriptService scriptService, ScheduleService scheduleService, 
 			ScriptVersionService scriptVersionService) {
@@ -51,14 +56,24 @@ public class ScriptsEdit extends Div {
 
 		var dataHierarchicaProvider = new ScriptHierarchicalDataProvider(scriptService);
 		var dataProvider = new ScriptNameDataProvider(scriptService);
-
-		right = new ScriptsEditRight(dataProvider, this::save, this::delete, this::run);
-		left = new ScriptsEditLeft(dataHierarchicaProvider, right::setScript, right::addNew, scriptService);
+		dataProviderVersion = new ScriptVersionDataProvider(scriptVersionService);
+		
+		right = new ScriptsEditRight(dataProvider, this::save, this::delete, this::run, dataProviderVersion, this::getScriptVersionByInstant);
+		left = new ScriptsEditLeft(dataHierarchicaProvider, this::setScript, right::addNew, scriptService);
 		var split = new SplitLayout(left, right);
 		split.setSplitterPosition(SPLIT_POS);
 		split.setSizeFull();
 		split.setHeightFull();
 		this.add(split);
+	}
+
+	void setScript(Script script) {
+		dataProviderVersion.setScriptName(script.getName());
+		right.setScript(script);
+	}
+
+	private Optional<ScriptVersion> getScriptVersionByInstant(Instant id) {
+		return scriptVersionService.findById(id);
 	}
 
 	private void save(ScriptVersionSave svs) {

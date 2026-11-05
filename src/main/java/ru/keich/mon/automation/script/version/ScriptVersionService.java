@@ -23,7 +23,6 @@ public class ScriptVersionService {
 
 	@Transactional(isolation = Isolation.REPEATABLE_READ)
 	public ScriptVersion save(ScriptVersionSave svs) {
-		System.out.println("Save 2");
 		return this._scriptVersionRepo.save(new ScriptVersion(
 				this._scriptVersionRepo.findFirstByNameOrderByVersionDesc(svs.script().getName())
 						.map(i -> i.getVersion()+1).orElse(1),
@@ -34,7 +33,6 @@ public class ScriptVersionService {
 		return _scriptVersionRepo.findAllByNameOrderById(name, PageRequest.of(page, pSize)).stream().map(IScriptVersionIdQuery::id);
 	}
 	public int getAllByNameCount(String name) {
-		System.out.println(name);
 		return _scriptVersionRepo.countByName(name);
 	}
 	public ScriptVersion findById(Instant id) {

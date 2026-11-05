@@ -70,7 +70,6 @@ public class ScriptsEdit extends Div {
 	} 
 	private void save(ScriptVersionSave svs) {
 		scriptService.save(svs.script());
-		System.out.println("Save");
 		scriptVersionService.save(svs);
 		left.refresh();
 	}

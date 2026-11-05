@@ -1,6 +1,5 @@
 package ru.keich.mon.automation.dbdatasource;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Getter;

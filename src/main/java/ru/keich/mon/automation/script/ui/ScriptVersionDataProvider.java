@@ -19,7 +19,7 @@ public class ScriptVersionDataProvider extends AbstractBackEndDataProvider<Insta
 
 	@Override
 	protected Stream<Instant> fetchFromBackEnd(Query<Instant, String> query) {
-		return service.findAllByName(query.getPageSize(), query.getPage(), scriptName);
+		return service.findAllInstantByName(query.getPageSize(), query.getPage(), scriptName);
 
 	}
 

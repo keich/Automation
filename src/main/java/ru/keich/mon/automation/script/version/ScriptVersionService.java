@@ -28,9 +28,13 @@ public class ScriptVersionService {
 				svs.note(), svs.script().getName(), svs.script().getCode()));
 	}
 
-	public Stream<Instant> findAllByName(int pSize, int page, String name) {
+	public Stream<ScriptVersion> findAllByName(int pSize, int page, String name) {
 		return _scriptVersionRepo
-				.findAllByNameOrderById(name, PageRequest.of(page, pSize)).stream()
+				.findAllByNameOrderById(name, PageRequest.of(page, pSize)).stream();
+	}
+	public Stream<Instant> findAllInstantByName(int pSize, int page, String name) {
+		return _scriptVersionRepo
+				.findAllInstantByNameOrderById(name, PageRequest.of(page, pSize)).stream()
 				.map(IScriptVersionIdQuery::id);
 	}
 

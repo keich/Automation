@@ -81,7 +81,6 @@ public class ScriptsEditRight extends VerticalLayout {
 	private final ComboBox<String> parentField;
 	private final ComboBox<Instant> versionField; 
 	private final Button saveButton;
-	private final Dialog versionDialog;
 
 	private final Dialog deleteDialog;
 
@@ -92,7 +91,7 @@ public class ScriptsEditRight extends VerticalLayout {
 	public ScriptsEditRight(BackEndDataProvider<String, String> dataProvider, Consumer<ScriptVersionSave> save,
 			Function<Script, Boolean> delete, BiConsumer<Script, ScriptCallBack> run,
 			BackEndDataProvider<Instant, String> dataProviderScriptVersion,
-			Function<Instant, Optional<ScriptVersion>> getScriptVersionByInstant) {
+			Function<Instant, Optional<ScriptVersion>> getScriptVersionByInstant, Function<String,Boolean> setRightContentOnVersions) {
 		var header = new Header();
 		header.setWidthFull();
 
@@ -182,8 +181,6 @@ public class ScriptsEditRight extends VerticalLayout {
 		
 		textArea = new AceEditor();
 		
-		versionDialog = new Dialog("Version File Choice");
-		
 		versionField = new ComboBox<Instant>();
 		versionField.setItemLabelGenerator(i -> i.toString());
 		versionField.setItems(dataProviderScriptVersion);
@@ -193,11 +190,9 @@ public class ScriptsEditRight extends VerticalLayout {
 				getScriptVersionByInstant.apply(val).ifPresent(code -> textArea.setValue(code.getCode()));
 			}
 		});
-		versionDialog.add(versionField);
-		//formLayout.add(versionField);
 		
 		var versionButton = new Button(new Icon(VaadinIcon.TOOLBOX));
-		versionButton.addClickListener(i->versionDialog.open());
+		versionButton.addClickListener(i->setRightContentOnVersions.apply(this.nameField.getValue()));
 		header.add(versionButton);
 		
 		header.add(formLayout);

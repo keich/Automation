@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.UUID;
-
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.Map;
 import java.util.HashSet;
 import org.springframework.data.domain.PageRequest;
@@ -49,6 +49,7 @@ public class ScriptService {
 	private final HttpDataSourceService httpDataSourceService;
 	private final JavaMailSender mailSender;
 	private final Map<UUID, String> activeScripts = new ConcurrentHashMap<>();
+	private final CopyOnWriteArrayList<Runnable> statusListeners = new CopyOnWriteArrayList<>();
 
 	public ScriptService(ScriptRepository scriptRepository, DBDataSourceService dataSourceService,
 			SnmpService snmpService, HttpDataSourceService httpDataSourceService, JavaMailSender mailSender) {
@@ -73,12 +74,12 @@ public class ScriptService {
 	}
 
 	public Stream<String> getAllNames(Query<String, String> q) {
-		return findNamesByNameContaing(q.getFilter(), q.getOffset(), q.getLimit()).stream().map(ScriptNameView::getName);
+		return findNamesByNameContaing(q.getFilter(), q.getOffset(), q.getLimit()).stream()
+				.map(ScriptNameView::getName);
 	}
 
 	public int getCount(Query<String, String> q) {
-		return Math
-				.toIntExact(findNamesByNameContaing(q.getFilter(), q.getOffset(), q.getLimit()).stream().count());
+		return Math.toIntExact(findNamesByNameContaing(q.getFilter(), q.getOffset(), q.getLimit()).stream().count());
 	}
 
 	public List<ScriptNameView> findNamesByNameContaing(Optional<String> filter, int offset, int limit) {
@@ -120,9 +121,25 @@ public class ScriptService {
 		});
 	}
 
+	public Runnable subscribeStatus(Runnable listener) {
+		statusListeners.add(listener);
+		return () -> statusListeners.remove(listener);
+	}
+
+	public void notifyChangedStatus() {
+		for (Runnable listenner : statusListeners) {
+			try {
+				listenner.run();
+			} catch (Exception e) {
+				java.util.logging.Logger.getLogger(ScriptService.class.getName()).warning("status listenner error" + e);
+			}
+		}
+	}
+
 	public void run(Script script, Object param, ScriptCallBack callBack) {
 		UUID runId = UUID.randomUUID();
 		activeScripts.put(runId, script.getName());
+		notifyChangedStatus();
 		callBack.onStart();
 		var scriptContext = new ScriptContext(dataSourceService, this, snmpService, httpDataSourceService, mailSender);
 		scriptContext.setLogCallBack(callBack::onLog);
@@ -137,9 +154,13 @@ public class ScriptService {
 		} catch (Exception e) {
 			callBack.onError(e);
 		} finally {
-			activeScripts.remove(runId);
-			callBack.onFinish();
-			scriptContext.close();
+			try {
+				scriptContext.close();
+			} finally {
+				activeScripts.remove(runId);
+				notifyChangedStatus();
+				scriptContext.close();
+			}
 		}
 	}
 

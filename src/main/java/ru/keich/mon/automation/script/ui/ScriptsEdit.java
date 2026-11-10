@@ -38,7 +38,7 @@ public class ScriptsEdit extends Div {
 	private final ScheduleService scheduleService;
 	private final ScriptVersionService scriptVersionService;
 
-	public ScriptsEdit(ScriptService scriptService, ScheduleService scheduleService, 
+	public ScriptsEdit(ScriptService scriptService, ScheduleService scheduleService,
 			ScriptVersionService scriptVersionService) {
 		super();
 
@@ -64,43 +64,17 @@ public class ScriptsEdit extends Div {
 	private void save(ScriptVersionSave svs) {
 		scriptService.save(svs.script());
 		scriptVersionService.save(svs);
-		left.refresh();
+		scriptService.notifyChangedStatus();
 	}
 
 	private void run(Script script, ScriptCallBack callBack) {
-		ScriptCallBack refreshCallBack = new ScriptCallBack() {
-
-			@Override
-			public void onStart() {
-				left.refresh();
-			}
-
-			@Override
-			public void onLog(LogManager.Line line) {
-				callBack.onLog(line);
-			}
-
-			@Override
-			public void onResult(String data) {
-				callBack.onResult(data);
-			}
-
-			@Override
-			public void onError(Exception e) {
-				callBack.onError(e);
-			}
-
-			public void onFinish() {
-				left.refresh();
-			}
-		};
-		scheduleService.execute(script, null, refreshCallBack);
+		scheduleService.execute(script, null, callBack);
 	}
 
 	private Boolean delete(Script script) {
 		scriptService.delete(script);
 		right.addNew();
-		left.refresh();
+		scriptService.notifyChangedStatus();
 		return false;
 	}
 

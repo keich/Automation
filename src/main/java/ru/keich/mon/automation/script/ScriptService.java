@@ -1,15 +1,15 @@
 package ru.keich.mon.automation.script;
 
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
-import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.Map;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Stream;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalQuery;
 
+import lombok.extern.java.Log;
 import ru.keich.mon.automation.dbdatasource.DBDataSourceService;
 import ru.keich.mon.automation.httpdatasource.HttpDataSourceService;
 import ru.keich.mon.automation.schedule.ScheduleService;
@@ -41,6 +42,7 @@ import ru.keich.mon.automation.snmp.SnmpService;
  */
 
 @Service
+@Log
 public class ScriptService {
 
 	private final ScriptRepository scriptRepository;
@@ -49,7 +51,7 @@ public class ScriptService {
 	private final HttpDataSourceService httpDataSourceService;
 	private final JavaMailSender mailSender;
 	private final Map<UUID, String> activeScripts = new ConcurrentHashMap<>();
-	private final CopyOnWriteArrayList<Runnable> statusListeners = new CopyOnWriteArrayList<>();
+	private final List<Runnable> statusListeners = new CopyOnWriteArrayList<>();
 
 	public ScriptService(ScriptRepository scriptRepository, DBDataSourceService dataSourceService,
 			SnmpService snmpService, HttpDataSourceService httpDataSourceService, JavaMailSender mailSender) {
@@ -107,10 +109,12 @@ public class ScriptService {
 
 	public void save(Script script) {
 		scriptRepository.save(script);
+		notifyChangedStatus();
 	}
 
 	public void delete(Script script) {
 		scriptRepository.delete(script);
+		notifyChangedStatus();
 	}
 
 	public void run(String name, Object param, ScriptCallBack callBack) {
@@ -126,12 +130,12 @@ public class ScriptService {
 		return () -> statusListeners.remove(listener);
 	}
 
-	public void notifyChangedStatus() {
+	private void notifyChangedStatus() {
 		for (Runnable listenner : statusListeners) {
 			try {
 				listenner.run();
 			} catch (Exception e) {
-				java.util.logging.Logger.getLogger(ScriptService.class.getName()).warning("status listenner error" + e);
+				log.warning("Status listenner error " + e.getMessage());
 			}
 		}
 	}
@@ -157,11 +161,11 @@ public class ScriptService {
 			try {
 				scriptContext.close();
 			} finally {
-				activeScripts.remove(runId);
-				notifyChangedStatus();
-				scriptContext.close();
+				// Nothing
 			}
 		}
+		activeScripts.remove(runId);
+		notifyChangedStatus();
 	}
 
 	public Set<String> getActiveScripts() {

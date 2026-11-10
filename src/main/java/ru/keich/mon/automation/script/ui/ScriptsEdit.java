@@ -1,30 +1,14 @@
 package ru.keich.mon.automation.script.ui;
 
 import com.vaadin.flow.component.html.Div;
-import ru.keich.mon.automation.scripting.LogManager;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 
 import ru.keich.mon.automation.schedule.ScheduleService;
 import ru.keich.mon.automation.script.Script;
 import ru.keich.mon.automation.script.ScriptService;
-import ru.keich.mon.automation.script.version.dataProviderDto.ScriptVersionSave;
-import ru.keich.mon.automation.scripting.ScriptCallBack;
 import ru.keich.mon.automation.script.version.ScriptVersionService;
 import ru.keich.mon.automation.script.version.dataProviderDto.ScriptVersionSave;
-/*
- * Copyright 2026 the original author or authors.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+import ru.keich.mon.automation.scripting.ScriptCallBack;
 
 public class ScriptsEdit extends Div {
 
@@ -64,7 +48,6 @@ public class ScriptsEdit extends Div {
 	private void save(ScriptVersionSave svs) {
 		scriptService.save(svs.script());
 		scriptVersionService.save(svs);
-		scriptService.notifyChangedStatus();
 	}
 
 	private void run(Script script, ScriptCallBack callBack) {
@@ -74,7 +57,6 @@ public class ScriptsEdit extends Div {
 	private Boolean delete(Script script) {
 		scriptService.delete(script);
 		right.addNew();
-		scriptService.notifyChangedStatus();
 		return false;
 	}
 

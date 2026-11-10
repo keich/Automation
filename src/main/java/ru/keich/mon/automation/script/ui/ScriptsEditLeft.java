@@ -37,6 +37,7 @@ public class ScriptsEditLeft extends VerticalLayout {
 	public static final String SCRIPT_STATUS = "Running";
 
 	private final TreeGrid<Script> grid;
+	private Runnable unsubscribeStatus;
 
 	public ScriptsEditLeft(ScriptHierarchicalDataProvider dataProvider, Consumer<Script> open, Supplier<Boolean> addNew,
 			ScriptService scriptService) {
@@ -45,7 +46,7 @@ public class ScriptsEditLeft extends VerticalLayout {
 		grid.addHierarchyColumn(Script::getName).setSortable(false);
 		grid.addColumn(script -> {
 			var count = scriptService.getActiveScriptCount(script.getName());
-			return count == 0 ? "" :  count;
+			return count == 0 ? "" : count;
 		}).setHeader(SCRIPT_STATUS).setFlexGrow(0);
 		grid.setDataProvider(dataProvider);
 
@@ -57,18 +58,23 @@ public class ScriptsEditLeft extends VerticalLayout {
 
 		add(buttons);
 		add(grid);
-	}
+		addAttachListener(event -> {
+			var ui = event.getUI();
+			if (unsubscribeStatus != null) {
+				unsubscribeStatus.run();
+			}
+			unsubscribeStatus = scriptService.subscribeStatus(ui.accessLater(() -> {
+				grid.getDataProvider().refreshAll();
+			}, () -> {
+			}));
+			grid.getDataProvider().refreshAll();
+		});
 
-	public void refresh() {
-		grid.getUI().ifPresent(ui -> {
-			try {
-				ui.access(() -> {
-					grid.getDataProvider().refreshAll();
-				});
-			} catch (Exception e) {
-				log.warning("UIDetachedException on ScriptsEditLeft.refresh method.");
+		addDetachListener(event -> {
+			if (unsubscribeStatus != null) {
+				unsubscribeStatus.run();
+				unsubscribeStatus = null;
 			}
 		});
 	}
-
-}
+};

@@ -1,18 +1,13 @@
 package ru.keich.mon.automation.script.ui;
 
-import java.time.Instant;
-import java.util.Optional;
-
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 
 import ru.keich.mon.automation.schedule.ScheduleService;
 import ru.keich.mon.automation.script.Script;
 import ru.keich.mon.automation.script.ScriptService;
-import ru.keich.mon.automation.script.version.ScriptVersion;
 import ru.keich.mon.automation.script.version.ScriptVersionService;
 import ru.keich.mon.automation.script.version.dataProviderDto.ScriptVersionSave;
-import ru.keich.mon.automation.scripting.LogManager;
 import ru.keich.mon.automation.scripting.ScriptCallBack;
 
 /*
@@ -43,7 +38,7 @@ public class ScriptsEdit extends Div {
 	private final ScriptVersionService scriptVersionService;
 	private final ScriptVersionDataProvider dataProviderVersion;
 
-	public ScriptsEdit(ScriptService scriptService, ScheduleService scheduleService, 
+	public ScriptsEdit(ScriptService scriptService, ScheduleService scheduleService,
 			ScriptVersionService scriptVersionService) {
 		super();
 
@@ -79,43 +74,15 @@ public class ScriptsEdit extends Div {
 	private void save(ScriptVersionSave svs) {
 		scriptService.save(svs.script());
 		scriptVersionService.save(svs);
-		left.refresh();
 	}
 
 	private void run(Script script, ScriptCallBack callBack) {
-		ScriptCallBack refreshCallBack = new ScriptCallBack() {
-
-			@Override
-			public void onStart() {
-				left.refresh();
-			}
-
-			@Override
-			public void onLog(LogManager.Line line) {
-				callBack.onLog(line);
-			}
-
-			@Override
-			public void onResult(String data) {
-				callBack.onResult(data);
-			}
-
-			@Override
-			public void onError(Exception e) {
-				callBack.onError(e);
-			}
-
-			public void onFinish() {
-				left.refresh();
-			}
-		};
-		scheduleService.execute(script, null, refreshCallBack);
+		scheduleService.execute(script, null, callBack);
 	}
 
 	private Boolean delete(Script script) {
 		scriptService.delete(script);
 		right.addNew();
-		left.refresh();
 		return false;
 	}
 

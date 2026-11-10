@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalQuery;
 
+import lombok.extern.java.Log;
 import ru.keich.mon.automation.dbdatasource.DBDataSourceService;
 import ru.keich.mon.automation.httpdatasource.HttpDataSourceService;
 import ru.keich.mon.automation.schedule.ScheduleService;
@@ -40,6 +42,7 @@ import ru.keich.mon.automation.snmp.SnmpService;
  */
 
 @Service
+@Log
 public class ScriptService {
 
 	private final ScriptRepository scriptRepository;
@@ -48,6 +51,7 @@ public class ScriptService {
 	private final HttpDataSourceService httpDataSourceService;
 	private final JavaMailSender mailSender;
 	private final Map<UUID, String> activeScripts = new ConcurrentHashMap<>();
+	private final List<Runnable> statusListeners = new CopyOnWriteArrayList<>();
 
 	public ScriptService(ScriptRepository scriptRepository, DBDataSourceService dataSourceService,
 			SnmpService snmpService, HttpDataSourceService httpDataSourceService, JavaMailSender mailSender) {
@@ -72,12 +76,12 @@ public class ScriptService {
 	}
 
 	public Stream<String> getAllNames(Query<String, String> q) {
-		return findNamesByNameContaing(q.getFilter(), q.getOffset(), q.getLimit()).stream().map(ScriptNameView::getName);
+		return findNamesByNameContaing(q.getFilter(), q.getOffset(), q.getLimit()).stream()
+				.map(ScriptNameView::getName);
 	}
 
 	public int getCount(Query<String, String> q) {
-		return Math
-				.toIntExact(findNamesByNameContaing(q.getFilter(), q.getOffset(), q.getLimit()).stream().count());
+		return Math.toIntExact(findNamesByNameContaing(q.getFilter(), q.getOffset(), q.getLimit()).stream().count());
 	}
 
 	public List<ScriptNameView> findNamesByNameContaing(Optional<String> filter, int offset, int limit) {
@@ -105,10 +109,12 @@ public class ScriptService {
 
 	public void save(Script script) {
 		scriptRepository.save(script);
+		notifyChangedStatus();
 	}
 
 	public void delete(Script script) {
 		scriptRepository.delete(script);
+		notifyChangedStatus();
 	}
 
 	public void run(String name, Object param, ScriptCallBack callBack) {
@@ -119,9 +125,25 @@ public class ScriptService {
 		});
 	}
 
+	public Runnable subscribeStatus(Runnable listener) {
+		statusListeners.add(listener);
+		return () -> statusListeners.remove(listener);
+	}
+
+	private void notifyChangedStatus() {
+		for (Runnable listenner : statusListeners) {
+			try {
+				listenner.run();
+			} catch (Exception e) {
+				log.warning("Status listenner error " + e.getMessage());
+			}
+		}
+	}
+
 	public void run(Script script, Object param, ScriptCallBack callBack) {
 		UUID runId = UUID.randomUUID();
 		activeScripts.put(runId, script.getName());
+		notifyChangedStatus();
 		callBack.onStart();
 		var scriptContext = new ScriptContext(dataSourceService, this, snmpService, httpDataSourceService, mailSender);
 		scriptContext.setLogCallBack(callBack::onLog);
@@ -136,10 +158,14 @@ public class ScriptService {
 		} catch (Exception e) {
 			callBack.onError(e);
 		} finally {
-			activeScripts.remove(runId);
-			callBack.onFinish();
-			scriptContext.close();
+			try {
+				scriptContext.close();
+			} finally {
+				// Nothing
+			}
 		}
+		activeScripts.remove(runId);
+		notifyChangedStatus();
 	}
 
 	public Set<String> getActiveScripts() {

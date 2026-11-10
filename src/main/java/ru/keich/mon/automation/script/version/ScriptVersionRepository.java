@@ -11,7 +11,8 @@ import java.time.Instant;
 
 public interface ScriptVersionRepository extends JpaRepository<ScriptVersion, Integer> {
 	public Optional<IScriptVersionLatestVersionQuery> findFirstByNameOrderByVersionDesc(String name);
-	public List<IScriptVersionIdQuery> findAllByNameOrderById(String name, Pageable page);
+	public List<IScriptVersionIdQuery> findAllInstantByNameOrderById(String name, Pageable page);
+	public List<ScriptVersion> findAllByNameOrderById(String name, Pageable page);
 	public int countByName(String name);
 	public Optional<ScriptVersion> findById(Instant id);
 }

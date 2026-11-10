@@ -2,11 +2,14 @@ package ru.keich.mon.automation.script.ui;
 
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 
 import ru.keich.mon.automation.schedule.ScheduleService;
 import ru.keich.mon.automation.script.Script;
 import ru.keich.mon.automation.script.ScriptService;
 import ru.keich.mon.automation.script.version.ScriptVersionService;
+import ru.keich.mon.automation.script.version.ScriptEditRightVersion;
 import ru.keich.mon.automation.script.version.dataProviderDto.ScriptVersionSave;
 import ru.keich.mon.automation.scripting.ScriptCallBack;
 
@@ -25,7 +28,7 @@ import ru.keich.mon.automation.scripting.ScriptCallBack;
  * limitations under the License.
  */
 
-public class ScriptsEdit extends Div {
+public class ScriptsEdit extends Div implements BeforeEnterObserver {
 
 	private static final long serialVersionUID = 5065116144261992678L;
 
@@ -33,10 +36,12 @@ public class ScriptsEdit extends Div {
 
 	private final ScriptsEditLeft left;
 	private final ScriptsEditRight right;
+	private final SplitLayout split;
 	private final ScriptService scriptService;
 	private final ScheduleService scheduleService;
 	private final ScriptVersionService scriptVersionService;
 	private final ScriptVersionDataProvider dataProviderVersion;
+	private final ScriptEditRightVersion scriptEditRightVersion;
 
 	public ScriptsEdit(ScriptService scriptService, ScheduleService scheduleService,
 			ScriptVersionService scriptVersionService) {
@@ -53,15 +58,28 @@ public class ScriptsEdit extends Div {
 		var dataProvider = new ScriptNameDataProvider(scriptService);
 		dataProviderVersion = new ScriptVersionDataProvider(scriptVersionService);
 		
-		right = new ScriptsEditRight(dataProvider, this::save, this::delete, this::run, dataProviderVersion, this::getScriptVersionByInstant);
+		right = new ScriptsEditRight(dataProvider, this::save, this::delete, this::run, dataProviderVersion, this::getScriptVersionByInstant, this::setRightContentOnVersions);
 		left = new ScriptsEditLeft(dataHierarchicaProvider, this::setScript, right::addNew, scriptService);
-		var split = new SplitLayout(left, right);
+		split = new SplitLayout(left, right);
 		split.setSplitterPosition(SPLIT_POS);
 		split.setSizeFull();
 		split.setHeightFull();
 		this.add(split);
+		
+		scriptEditRightVersion = new ScriptEditRightVersion(scriptVersionService,dataProvider,this::getScriptVersionByInstant); 
 	}
-
+	
+	private void _removeLastElement() {
+		this.getComponentAt(this.getComponentCount()-1).removeFromParent();
+	}
+	
+	private boolean setRightContentOnVersions(String scriptName) {
+		_removeLastElement();
+		scriptEditRightVersion.setScriptName(scriptName);
+		add(scriptEditRightVersion);
+		return true;
+	}
+	
 	void setScript(Script script) {
 		dataProviderVersion.setScriptName(script.getName());
 		right.setScript(script);
@@ -79,11 +97,14 @@ public class ScriptsEdit extends Div {
 	private void run(Script script, ScriptCallBack callBack) {
 		scheduleService.execute(script, null, callBack);
 	}
-
 	private Boolean delete(Script script) {
 		scriptService.delete(script);
 		right.addNew();
 		return false;
 	}
-
+	@Override
+	public void beforeEnter(BeforeEnterEvent event) {
+		_removeLastElement();
+		this.add(split);
+	}
 }

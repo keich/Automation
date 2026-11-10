@@ -77,4 +77,5 @@ public class ScriptsEditLeft extends VerticalLayout {
 			}
 		});
 	}
-};
+
+}

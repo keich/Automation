@@ -17,7 +17,6 @@ import ru.keich.mon.automation.script.version.ScriptVersion;
 import ru.keich.mon.automation.script.version.dataProviderDto.ScriptVersionSave;
 import ru.keich.mon.automation.scripting.ScriptCallBack;
 
-
 /*
  * Copyright 2026 the original author or authors.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -62,29 +61,31 @@ public class ScriptsEdit extends Div implements BeforeEnterObserver {
 		var dataHierarchicaProvider = new ScriptHierarchicalDataProvider(scriptService);
 		var dataProvider = new ScriptNameDataProvider(scriptService);
 		dataProviderVersion = new ScriptVersionDataProvider(scriptVersionService);
-		
-		right = new ScriptsEditRight(dataProvider, this::save, this::delete, this::run, dataProviderVersion, this::getScriptVersionByInstant, this::setRightContentOnVersions);
+
+		right = new ScriptsEditRight(dataProvider, this::save, this::delete, this::run, dataProviderVersion,
+				this::getScriptVersionByInstant, this::setRightContentOnVersions);
 		left = new ScriptsEditLeft(dataHierarchicaProvider, this::setScript, right::addNew, scriptService);
 		split = new SplitLayout(left, right);
 		split.setSplitterPosition(SPLIT_POS);
 		split.setSizeFull();
 		split.setHeightFull();
 		this.add(split);
-		
-		scriptEditRightVersion = new ScriptEditRightVersion(scriptVersionService,dataProvider,this::getScriptVersionByInstant); 
+
+		scriptEditRightVersion = new ScriptEditRightVersion(scriptVersionService, dataProvider,
+				this::getScriptVersionByInstant);
 	}
-	
+
 	private void _removeLastElement() {
-		this.getComponentAt(this.getComponentCount()-1).removeFromParent();
+		this.getComponentAt(this.getComponentCount() - 1).removeFromParent();
 	}
-	
+
 	private boolean setRightContentOnVersions(String scriptName) {
 		_removeLastElement();
 		scriptEditRightVersion.setScriptName(scriptName);
 		add(scriptEditRightVersion);
 		return true;
 	}
-	
+
 	void setScript(Script script) {
 		dataProviderVersion.setScriptName(script.getName());
 		right.setScript(script);
@@ -102,14 +103,17 @@ public class ScriptsEdit extends Div implements BeforeEnterObserver {
 	private void run(Script script, ScriptCallBack callBack) {
 		scheduleService.execute(script, null, callBack);
 	}
+
 	private Boolean delete(Script script) {
 		scriptService.delete(script);
 		right.addNew();
 		return false;
 	}
+
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
 		_removeLastElement();
 		this.add(split);
 	}
+
 }

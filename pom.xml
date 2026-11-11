@@ -41,6 +41,18 @@
 			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-dev</artifactId>
+			<version>${vaadin.version}</version>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
@@ -230,12 +242,12 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
-                    <jvmArguments>
-                        -XX:+UnlockExperimentalVMOptions
-                        -XX:+EnableJVMCI
-                        --upgrade-module-path=${project.build.directory}/compiler
-                    </jvmArguments>
-                </configuration>
+					<jvmArguments>
+						-XX:+UnlockExperimentalVMOptions
+						-XX:+EnableJVMCI
+						--upgrade-module-path=${project.build.directory}/compiler
+					</jvmArguments>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

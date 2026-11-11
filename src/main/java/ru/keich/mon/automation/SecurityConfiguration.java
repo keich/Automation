@@ -6,8 +6,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
-import org.springframework.core.annotation.Order;
 
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
 
@@ -35,15 +33,6 @@ import ru.keich.mon.automation.httplistner.HttpListnerService;
 @Configuration
 @Log
 public class SecurityConfiguration {
-	@Bean
-	@Order(1)
-	public SecurityFilterChain prometheusSecurity(HttpSecurity http) throws Exception {
-
-		http.securityMatcher(EndpointRequest.to("prometheus"))
-				.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
-
-		return http.build();
-	}
 
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http, HttpListnerService httpListnerService) throws Exception {
@@ -65,8 +54,11 @@ public class SecurityConfiguration {
 		};
 
 		http.authorizeHttpRequests(auth -> {
-			auth.requestMatchers("/h2-console/**").authenticated().requestMatchers("/ace-builds/**").authenticated()
-					.requestMatchers("/public/**").permitAll().requestMatchers(mather).permitAll();
+			auth.requestMatchers("/h2-console/**").authenticated()
+					.requestMatchers("/ace-builds/**").authenticated()
+					.requestMatchers("/public/**").permitAll()
+					.requestMatchers("/actuator/**").permitAll()
+					.requestMatchers(mather).permitAll();
 		});
 		http.csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"));
 		// this will allow frames with same origin which is much more safe
@@ -85,4 +77,5 @@ public class SecurityConfiguration {
 
 		return http.build();
 	}
+
 }

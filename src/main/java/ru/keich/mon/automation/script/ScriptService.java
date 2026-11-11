@@ -176,4 +176,8 @@ public class ScriptService {
 		return activeScripts.values().stream().filter(name::equals).count();
 	}
 
+	public int getTotalActiveScripts() {
+		return activeScripts.size();
+	}
+
 }

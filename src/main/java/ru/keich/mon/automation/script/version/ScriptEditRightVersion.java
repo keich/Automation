@@ -2,12 +2,10 @@ package ru.keich.mon.automation.script.version;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import com.github.difflib.text.DiffRow;
 import com.vaadin.flow.component.button.Button;
@@ -15,15 +13,11 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Header;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Element;
 import ru.keich.mon.automation.script.ui.ScriptNameDataProvider;
-import ru.keich.mon.automation.script.ui.ScriptVersionDataProvider;
-import ru.keich.mon.automation.script.version.dataProviderDto.ScriptVersionSave;
 
 public class ScriptEditRightVersion extends Div {
 	record CheckBoxChoosenState(ScriptVersion sc, Consumer<Boolean> setCheckboxValue) {

@@ -2,6 +2,7 @@ package ru.keich.mon.automation.script.version;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -14,6 +15,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Header;
 import com.vaadin.flow.component.html.Span;
@@ -37,7 +39,6 @@ public class ScriptEditRightVersion extends Div {
 	private final Grid<ScriptVersion> grid;
 	private final Dialog diffDialog;
 	private final Button diffBtn;
-	private final String diffDialog_DIFFMAINAREA_KEY = "DiffMainArea";
 	private final List<CheckBoxChoosenState> choosenScripts;
 	
 	
@@ -46,16 +47,6 @@ public class ScriptEditRightVersion extends Div {
 		versionField.setValue(name);
 		grid.getDataProvider().refreshAll();
 	} 
-	
-	private void setTextAndOpenDiffDialog(List<DiffRow> rows) {
-		var area = diffDialog.getChildren()
-				.filter((i) -> i.getId().isPresent() && i.getId().orElse("").equals(diffDialog_DIFFMAINAREA_KEY))
-				.findFirst();
-		if (area.isPresent() && area.orElseThrow() instanceof Grid text) {
-			text.setItems(rows); 
-		}
-		diffDialog.open();
-	}
 	
 	private void clear() {
 		choosenScripts.stream().forEach((i)->i.setCheckboxValue.accept(false));
@@ -83,7 +74,6 @@ public class ScriptEditRightVersion extends Div {
 		diffDialog.setWidth("80%");
 		diffDialog.setHeight("70%");
 		var diffArea = new Grid<DiffRow>();
-		diffArea.setId(diffDialog_DIFFMAINAREA_KEY);
 		diffArea.addColumn(DiffRow::getTag)
 		.setHeader("");
 		diffArea.addColumn(DiffRow::getNewLine)
@@ -118,7 +108,7 @@ public class ScriptEditRightVersion extends Div {
 				System.err.println(ex);
 			}
 			clear();
-			setTextAndOpenDiffDialog(rows);
+			diffArea.setItems(rows);
 		});
 		
 		

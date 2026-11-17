@@ -21,7 +21,6 @@ import com.vaadin.flow.component.html.Header;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Element;
-
 import ru.keich.mon.automation.script.ui.ScriptNameDataProvider;
 import ru.keich.mon.automation.script.ui.ScriptVersionDataProvider;
 import ru.keich.mon.automation.script.version.dataProviderDto.ScriptVersionSave;
@@ -33,15 +32,15 @@ public class ScriptEditRightVersion extends Div {
 			return sc.hashCode();
 		}
 	}
-	
+
+	private static final long serialVersionUID = 9051167217283860982L;
 	private String scriptName;
 	private final ComboBox<String> versionField;
 	private final Grid<ScriptVersion> grid;
 	private final Dialog diffDialog;
 	private final Button diffBtn;
 	private final List<CheckBoxChoosenState> choosenScripts;
-	
-	
+
 	public void setScriptName(String name) {
 		this.scriptName = name;
 		versionField.setValue(name);
@@ -110,8 +109,6 @@ public class ScriptEditRightVersion extends Div {
 			clear();
 			diffArea.setItems(rows);
 		});
-		
-		
 		var header = new Header();
 		versionField = new ComboBox<String>();
 		versionField.setItemLabelGenerator(i -> i.toString());
@@ -121,7 +118,7 @@ public class ScriptEditRightVersion extends Div {
 			clear();
 		});
 		header.add(versionField);
-		
+
 		var layout = new VerticalLayout();
 		grid = new Grid<ScriptVersion>();
 		grid.addColumn(ScriptVersion::getId).setHeader("ID");
@@ -149,12 +146,14 @@ public class ScriptEditRightVersion extends Div {
 		grid.setItemsPageable(page->{
 			return versionsService.findAllByName(page.getPageSize(), page.getPageNumber(), scriptName).toList();
 		});
-		grid.addItemDoubleClickListener((evnt)->{
-			
+
+		grid.addItemDoubleClickListener((evnt) -> {
+
 		});
 		layout.add(grid);
 		
 		this.add(header);
 		this.add(layout);
 	}
+
 }

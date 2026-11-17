@@ -11,11 +11,10 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import ru.keich.mon.automation.schedule.ScheduleService;
 import ru.keich.mon.automation.script.Script;
 import ru.keich.mon.automation.script.ScriptService;
-import ru.keich.mon.automation.script.version.ScriptVersion;
 import ru.keich.mon.automation.script.version.ScriptVersionService;
 import ru.keich.mon.automation.script.version.ScriptEditRightVersion;
+import ru.keich.mon.automation.script.version.ScriptVersion;
 import ru.keich.mon.automation.script.version.dataProviderDto.ScriptVersionSave;
-import ru.keich.mon.automation.scripting.LogManager;
 import ru.keich.mon.automation.scripting.ScriptCallBack;
 
 /*
@@ -48,7 +47,7 @@ public class ScriptsEdit extends Div implements BeforeEnterObserver {
 	private final ScriptVersionDataProvider dataProviderVersion;
 	private final ScriptEditRightVersion scriptEditRightVersion;
 
-	public ScriptsEdit(ScriptService scriptService, ScheduleService scheduleService, 
+	public ScriptsEdit(ScriptService scriptService, ScheduleService scheduleService,
 			ScriptVersionService scriptVersionService) {
 		super();
 
@@ -62,29 +61,31 @@ public class ScriptsEdit extends Div implements BeforeEnterObserver {
 		var dataHierarchicaProvider = new ScriptHierarchicalDataProvider(scriptService);
 		var dataProvider = new ScriptNameDataProvider(scriptService);
 		dataProviderVersion = new ScriptVersionDataProvider(scriptVersionService);
-		
-		right = new ScriptsEditRight(dataProvider, this::save, this::delete, this::run, dataProviderVersion, this::getScriptVersionByInstant, this::setRightContentOnVersions);
+
+		right = new ScriptsEditRight(dataProvider, this::save, this::delete, this::run, dataProviderVersion,
+				this::getScriptVersionByInstant, this::setRightContentOnVersions);
 		left = new ScriptsEditLeft(dataHierarchicaProvider, this::setScript, right::addNew, scriptService);
 		split = new SplitLayout(left, right);
 		split.setSplitterPosition(SPLIT_POS);
 		split.setSizeFull();
 		split.setHeightFull();
 		this.add(split);
-		
-		scriptEditRightVersion = new ScriptEditRightVersion(scriptVersionService,dataProvider,this::getScriptVersionByInstant); 
+
+		scriptEditRightVersion = new ScriptEditRightVersion(scriptVersionService, dataProvider,
+				this::getScriptVersionByInstant);
 	}
-	
+
 	private void _removeLastElement() {
-		this.getComponentAt(this.getComponentCount()-1).removeFromParent();
+		this.getComponentAt(this.getComponentCount() - 1).removeFromParent();
 	}
-	
+
 	private boolean setRightContentOnVersions(String scriptName) {
 		_removeLastElement();
 		scriptEditRightVersion.setScriptName(scriptName);
 		add(scriptEditRightVersion);
 		return true;
 	}
-	
+
 	void setScript(Script script) {
 		dataProviderVersion.setScriptName(script.getName());
 		right.setScript(script);
@@ -97,47 +98,22 @@ public class ScriptsEdit extends Div implements BeforeEnterObserver {
 	private void save(ScriptVersionSave svs) {
 		scriptService.save(svs.script());
 		scriptVersionService.save(svs);
-		left.refresh();
 	}
 
 	private void run(Script script, ScriptCallBack callBack) {
-		ScriptCallBack refreshCallBack = new ScriptCallBack() {
-
-			@Override
-			public void onStart() {
-				left.refresh();
-			}
-
-			@Override
-			public void onLog(LogManager.Line line) {
-				callBack.onLog(line);
-			}
-
-			@Override
-			public void onResult(String data) {
-				callBack.onResult(data);
-			}
-
-			@Override
-			public void onError(Exception e) {
-				callBack.onError(e);
-			}
-
-			public void onFinish() {
-				left.refresh();
-			}
-		};
-		scheduleService.execute(script, null, refreshCallBack);
+		scheduleService.execute(script, null, callBack);
 	}
+
 	private Boolean delete(Script script) {
 		scriptService.delete(script);
 		right.addNew();
-		left.refresh();
 		return false;
 	}
+
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
 		_removeLastElement();
 		this.add(split);
 	}
+
 }

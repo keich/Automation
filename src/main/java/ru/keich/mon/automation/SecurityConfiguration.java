@@ -22,7 +22,7 @@ import ru.keich.mon.automation.httplistner.HttpListnerService;
  *
  *      https://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicI.getCurrent().getPage().setLocatiable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -33,33 +33,37 @@ import ru.keich.mon.automation.httplistner.HttpListnerService;
 @Configuration
 @Log
 public class SecurityConfiguration {
+
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http, HttpListnerService httpListnerService) throws Exception {
 		// Configure your static resources with public access
-		
+
 		var mather = new RequestMatcher() {
 			@Override
 			public boolean matches(HttpServletRequest request) {
 				var arr = request.getRequestURI().split("/", 4);
 				if (arr.length > 2 && "httplistner".equals(arr[1])) {
-					log.info("Client: " + request.getRemoteAddr() + ":"+ request.getRemotePort() + " Request: " + request.getRequestURI());
-					return httpListnerService.getHttListner(arr[2]).map(h -> h.isEnable() && h.isPermitAllAccess()).orElse(false);
+					log.info("Client: " + request.getRemoteAddr() + ":" + request.getRemotePort() + " Request: "
+							+ request.getRequestURI());
+					return httpListnerService.getHttListner(arr[2]).map(h -> h.isEnable() && h.isPermitAllAccess())
+							.orElse(false);
 				}
 				return false;
 			}
 
 		};
-		
+
 		http.authorizeHttpRequests(auth -> {
 			auth.requestMatchers("/h2-console/**").authenticated()
 					.requestMatchers("/ace-builds/**").authenticated()
 					.requestMatchers("/public/**").permitAll()
+					.requestMatchers("/actuator/**").permitAll()
 					.requestMatchers(mather).permitAll();
 		});
-        http.csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"));
-        //this will allow frames with same origin which is much more safe
-        http.headers(headers -> headers.frameOptions( frame -> frame.sameOrigin()));
-		
+		http.csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"));
+		// this will allow frames with same origin which is much more safe
+		http.headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
+
 		// Configure Vaadin's security using VaadinSecurityConfigurer
 		http.with(VaadinSecurityConfigurer.vaadin(), configurer -> {
 			// This is important to register your login view to the
@@ -73,4 +77,5 @@ public class SecurityConfiguration {
 
 		return http.build();
 	}
+
 }

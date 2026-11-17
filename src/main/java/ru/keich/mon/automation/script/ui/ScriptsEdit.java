@@ -72,7 +72,7 @@ public class ScriptsEdit extends Div implements BeforeEnterObserver {
 		this.add(split);
 
 		scriptEditRightVersion = new ScriptEditRightVersion(scriptVersionService, dataProvider,
-				this::getScriptVersionByInstant);
+				this::getScriptVersionByInstant, this::setVersionsOnRightContent, this::setScriptByScriptVersion);
 	}
 
 	private void _removeLastElement() {
@@ -85,7 +85,21 @@ public class ScriptsEdit extends Div implements BeforeEnterObserver {
 		add(scriptEditRightVersion);
 		return true;
 	}
-
+	
+	private boolean setVersionsOnRightContent() {
+		_removeLastElement();
+		this.add(split);
+		return true;
+	}
+	
+	void setScriptByScriptVersion(ScriptVersion sc) {
+		var r = scriptService.getByName(sc.getName());
+		if (r.isEmpty()) throw new RuntimeException("Cannot find script by name in setScriptByVerion().");
+		var script = r.get();
+		script.setCode(sc.getCode());
+		setScript(script);
+	}
+	
 	void setScript(Script script) {
 		dataProviderVersion.setScriptName(script.getName());
 		right.setScript(script);
@@ -112,8 +126,7 @@ public class ScriptsEdit extends Div implements BeforeEnterObserver {
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
-		_removeLastElement();
-		this.add(split);
+		setVersionsOnRightContent();
 	}
 
 }

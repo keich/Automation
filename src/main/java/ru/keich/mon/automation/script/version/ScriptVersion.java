@@ -30,7 +30,7 @@ import java.util.Comparator;
 @Entity
 @Data
 @NoArgsConstructor
-public class ScriptVersion implements Comparable  {
+public class ScriptVersion implements Comparable<ScriptVersion>  {
 	@Id
 	private Instant id;
 	@Column()
@@ -63,12 +63,9 @@ public class ScriptVersion implements Comparable  {
 	}
 
 	@Override
-	public int compareTo(Object o) {
-		Objects.requireNonNull(o);
-		if (o instanceof ScriptVersion sc) 
-			return this.getId().compareTo(sc.getId());
-		else
-			throw new ClassCastException();
+	public int compareTo(ScriptVersion o) {
+		Objects.requireNonNull(o);	 
+		return this.getId().compareTo(o.getId());
 	}
 
 }

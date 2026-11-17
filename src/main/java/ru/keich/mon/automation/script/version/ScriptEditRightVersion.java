@@ -2,6 +2,8 @@ package ru.keich.mon.automation.script.version;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -12,13 +14,17 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Header;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Element;
-import ru.keich.mon.automation.script.ui.ScriptNameDataProvider;
 
+import ru.keich.mon.automation.script.ui.ScriptNameDataProvider;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 public class ScriptEditRightVersion extends Div {
 	record CheckBoxChoosenState(ScriptVersion sc, Consumer<Boolean> setCheckboxValue) {
 		@Override
@@ -57,8 +63,9 @@ public class ScriptEditRightVersion extends Div {
 		getElement().appendChild(el);
 	}
 	
+	Instant currentId;
 	public ScriptEditRightVersion(ScriptVersionService versionsService, ScriptNameDataProvider nameProvider, 
-			Function<Instant, Optional<ScriptVersion>> getScriptVersionByInstant) 
+			Function<Instant, Optional<ScriptVersion>> getScriptVersionByInstant, Supplier<Boolean> setContent, Consumer<ScriptVersion> setScript) 
 	{
 		setStyle();
 		choosenScripts = new ArrayList<>();
@@ -70,6 +77,8 @@ public class ScriptEditRightVersion extends Div {
 		diffArea.addColumn(DiffRow::getTag)
 		.setHeader("");
 		diffArea.addColumn(DiffRow::getNewLine)
+		.setHeader("");
+		diffArea.addColumn(DiffRow::getOldLine)
 		.setHeader("");
 		diffArea.setPartNameGenerator((i)->{
 			switch (i.getTag()) {
@@ -83,6 +92,7 @@ public class ScriptEditRightVersion extends Div {
 					return null;
 			}
 		});
+		
 		diffDialog.add(diffArea);
 		
 		diffBtn = new Button("Diff");
@@ -96,12 +106,13 @@ public class ScriptEditRightVersion extends Div {
 										.sorted()
 										.toList();
 				
-				rows.addAll(gen.generateDiffRows(List.of(st.get(0).getCode()), List.of(st.get(1).getCode())));
+				rows.addAll(gen.generateDiffRows(Arrays.asList(st.get(0).getCode().split("\n")), Arrays.asList(st.get(1).getCode().split("\n"))));
 			} catch(Exception ex) {
 				System.err.println(ex);
 			}
 			clear();
 			diffArea.setItems(rows);
+			diffDialog.open();
 		});
 		var header = new Header();
 		versionField = new ComboBox<String>();
@@ -111,17 +122,47 @@ public class ScriptEditRightVersion extends Div {
 			setScriptName(i.getValue());
 			clear();
 		});
+		versionField.getStyle().set("padding-left","15px");
 		header.add(versionField);
 
 		var layout = new VerticalLayout();
+		
 		grid = new Grid<ScriptVersion>();
-		grid.addColumn(ScriptVersion::getId).setHeader("ID");
+		grid.setItemsPageable(page->{
+			var data = versionsService.findAllByName(page.getPageSize(), page.getPageNumber(), scriptName).sorted(Comparator.reverseOrder()).toList();
+			if (!data.isEmpty())
+				currentId = data.get(0).getId();
+			return data;
+		});
+		grid.addComponentColumn(el->{
+			var text = new Span(el.getId().toString());
+			if (el.getId().equals(currentId)) {
+				text.setText("current");
+				text.getStyle()
+					.set("background-color","#C0C0E2")
+					.set("border","2px, solid, #333381")
+					.set("border-radius","25px")
+					.set("padding", "3px")
+					.set("color", "#333381")
+					.set("box-shadow","0px 0px 10px #52529C");
+			}
+			
+			return text;
+		}).setHeader("").setTextAlign(ColumnTextAlign.CENTER).getStyle().set("padding","10px");
+		
 		grid.addColumn(ScriptVersion::getNote).setHeader("NOTE");
+		Consumer<ScriptVersion> sendToIde = (sc) -> {
+			setScript.accept(sc);
+			setContent.get();
+		};
 		grid.addComponentColumn((sc) -> {
-			var btn = new Button("Reject");
-			btn.addClickListener((evt)->{});
+			var btn = new Button("Send To IDE");
+			btn.addClickListener((evt)->
+				sendToIde.accept(sc)
+			);
 			return btn;
 		}).setHeader("");
+		
 		grid.addComponentColumn((sc) -> {
 			var chk = new Checkbox();
 			chk.addClickListener((evnt) -> {
@@ -137,17 +178,13 @@ public class ScriptEditRightVersion extends Div {
 			});
 			return chk;
 		}).setHeader(diffBtn);
-		grid.setItemsPageable(page->{
-			return versionsService.findAllByName(page.getPageSize(), page.getPageNumber(), scriptName).toList();
-		});
-
-		grid.addItemDoubleClickListener((evnt) -> {
-
-		});
+		
+		grid.addItemDoubleClickListener((evnt) -> 
+			sendToIde.accept(evnt.getItem())
+		);
 		layout.add(grid);
 		
 		this.add(header);
 		this.add(layout);
 	}
-
 }

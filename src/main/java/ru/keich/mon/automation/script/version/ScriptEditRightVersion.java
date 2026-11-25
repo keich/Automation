@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import com.github.difflib.text.DiffRow;
 import com.vaadin.flow.component.button.Button;
@@ -22,9 +23,8 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Element;
 
+import lombok.extern.java.Log;
 import ru.keich.mon.automation.script.ui.ScriptNameDataProvider;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 /*
  * Copyright 2026 the original author or authors.
@@ -41,6 +41,7 @@ import java.util.stream.Stream;
  * limitations under the License.
  */
 
+@Log
 public class ScriptEditRightVersion extends Div {
 	record CheckBoxChoosenState(ScriptVersion sc, Consumer<Boolean> setCheckboxValue) {
 		@Override
@@ -124,7 +125,7 @@ public class ScriptEditRightVersion extends Div {
 				
 				rows.addAll(gen.generateDiffRows(Arrays.asList(st.get(0).getCode().split("\n")), Arrays.asList(st.get(1).getCode().split("\n"))));
 			} catch(Exception ex) {
-				System.err.println(ex);
+				log.info(ex.toString());
 			}
 			clear();
 			diffArea.setItems(rows);

@@ -9,15 +9,20 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
+import com.vaadin.flow.component.ModalityMode;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Header;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -75,12 +80,13 @@ public class ScriptsEditRight extends VerticalLayout {
 	private final AceEditor textArea;
 	private final Grid<LogManager.Line> logsConsole;
 	private final TextField nameField;
-	private final ComboBox<String> parentField;
-	private final ComboBox<Instant> versionField; 
-	private final Button saveButton;
-
+	private final ComboBox<String> parentField; 
 	private final Dialog deleteDialog;
-
+	private final Button saveButton;
+	private final Button deleteButton;
+	private final Button playButton;
+	private final TextField noteField;
+	private final String noteFieldEmptyValue = "nothing";
 	private final LinkedList<LogManager.Line> logs = new LinkedList<>();
 
 	private int saveScriptHash = 0;
@@ -118,31 +124,46 @@ public class ScriptsEditRight extends VerticalLayout {
 
 		logsConsole.setItems(logs);
 		logsConsole.setSizeFull();
-
+		
+		noteField = new TextField();
+		noteField.setValue(noteFieldEmptyValue);
 		saveButton = new Button(new Icon(VaadinIcon.DOWNLOAD));
+		saveButton.setEnabled(false);
 		saveButton.setTooltipText(TOOLTIP_TEXT_SAVE);
 		saveButton.addClickListener(e -> {
 			var sc = getScript();
-
 			if (this.saveScriptHash == sc.script().hashCode()) {
 				return;
 			}
-			this.saveScriptHash = sc.script().hashCode();
-			save.accept(sc);
+			Dialog noteDialog = new Dialog();
+			noteDialog.setModality(ModalityMode.MODELESS);
+			noteDialog.setDraggable(true);
+			noteDialog.getHeader().add(new H2("Update Note."));
+			noteDialog.getHeader().add(new Button(new Icon(VaadinIcon.CLOSE),(i)->{
+				noteDialog.close();
+			}));
+			noteDialog.add(noteField);
+			noteDialog.getFooter().add(new Button("Save",i->{
+				this.saveScriptHash = sc.script().hashCode();
+				save.accept(sc);
+				noteDialog.close();
+			}));
+			noteDialog.open();
+			
 		});
-		saveButton.setEnabled(false);
+		
 		header.add(saveButton);
 
 		deleteDialog = createDeleteDialog(() -> {
 			return delete.apply(getScript().script());
 		});
 
-		var deleteButton = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE));
+		deleteButton = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE));
 		deleteButton.setTooltipText(TOOLTIP_TEXT_DEL);
 		deleteButton.addClickListener(e -> openDeleteDialog());
 		header.add(deleteButton);
 
-		var playButton = new Button(new Icon(VaadinIcon.PLAY));
+		playButton = new Button(new Icon(VaadinIcon.PLAY));
 		var callBack = new ScriptCallBack() {
 			@Override
 			public void onLog(Line line) {
@@ -163,6 +184,7 @@ public class ScriptsEditRight extends VerticalLayout {
 		playButton.addClickListener(e -> run.accept(getScript().script(), callBack));
 		playButton.setTooltipText(TOOLTIP_TEXT_RUN);
 		header.add(playButton);
+		header.add(createSpan());
 
 		
 		var formLayout = new FormLayout();
@@ -178,16 +200,6 @@ public class ScriptsEditRight extends VerticalLayout {
 		
 		textArea = new AceEditor();
 		
-		versionField = new ComboBox<Instant>();
-		versionField.setItemLabelGenerator(i -> i.toString());
-		versionField.setItems(dataProviderScriptVersion);
-		versionField.addValueChangeListener(i -> {
-			var val = i.getValue();
-			if(val != null) {
-				getScriptVersionByInstant.apply(val).ifPresent(code -> textArea.setValue(code.getCode()));
-			}
-		});
-		
 		var versionButton = new Button(new Icon(VaadinIcon.TOOLBOX));
 		versionButton.addClickListener(i->setRightContentOnVersions.apply(this.nameField.getValue()));
 		header.add(versionButton);
@@ -202,6 +214,8 @@ public class ScriptsEditRight extends VerticalLayout {
 		split.setWidthFull();
 
 		addAndExpand(split);
+		
+		setEnabledScriptButtons(false);
 	}
 	
 
@@ -220,15 +234,19 @@ public class ScriptsEditRight extends VerticalLayout {
 
 	public boolean addNew() {
 		clearAll();
-
+		setEnabledScriptButtons(false);
 		return true;
 	}
 
+	private void setEnabledScriptButtons(boolean val) {
+		playButton.setEnabled(val);
+		deleteButton.setEnabled(val);
+	}
+	
 	private void clearAll() {
 		textArea.clear();
 		nameField.clear();
 		parentField.clear();
-		versionField.clear();
 		this.saveScriptHash = "".hashCode();
 	}
 
@@ -237,12 +255,23 @@ public class ScriptsEditRight extends VerticalLayout {
 		ret.setName(nameField.getValue());
 		ret.setCode(textArea.getValue());
 		ret.setParent(parentField.getValue());
-		return new ScriptVersionSave(ret, "note.");
+		return new ScriptVersionSave(ret, noteField.getValue());
 	}
-
+	
+	private Span createSpan() {
+		var span = new Span("");
+		span.getStyle()
+			.set("height",saveButton.getHeight())
+			.set("box-shadow", "0px 0px 10px #C0C0E2")
+			.set("border","1px solid #52529C")
+			.set("border-radius","10px")
+		;
+		return span;
+	}
+	
 	public void setScript(Script script) {
-		versionField.clear();
-		versionField.getDataProvider().refreshAll();
+		this.setEnabledScriptButtons(true);
+		
 		nameField.setValue(script.getName());
 		textArea.setValue(script.getCode());
 		parentField.setValue(script.getParent());
@@ -269,7 +298,7 @@ public class ScriptsEditRight extends VerticalLayout {
 	}
 
 	private void validate(Object event) {
-		saveButton.setEnabled(!nameField.getValue().isEmpty());
+		saveButton.setEnabled(!nameField.getValue().isEmpty() && getScript().hashCode()!=saveScriptHash);
 	}
 
 }

@@ -5,7 +5,11 @@ import lombok.NoArgsConstructor;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Column;
+
+import java.io.Serializable;
 import java.time.Instant;
+import java.util.Objects;
+import java.util.Comparator;
 
 /*
  * Copyright 2026 the original author or authors.
@@ -26,7 +30,7 @@ import java.time.Instant;
 @Entity
 @Data
 @NoArgsConstructor
-public class ScriptVersion {
+public class ScriptVersion implements Comparable<ScriptVersion>  {
 	@Id
 	private Instant id;
 	@Column()
@@ -44,6 +48,24 @@ public class ScriptVersion {
 		this.note = note;
 		this.name = name;
 		this.code = code;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(version);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ScriptVersion sc) {
+			return (this.id == sc.getId()) && this.name.equals(sc.getName());
+		} else return false;
+	}
+
+	@Override
+	public int compareTo(ScriptVersion o) {
+		Objects.requireNonNull(o);	 
+		return this.getId().compareTo(o.getId());
 	}
 
 }
